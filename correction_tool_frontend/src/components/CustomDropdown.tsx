@@ -42,14 +42,14 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
   return (
     <div 
       ref={dropdownRef}
-      style={{ position: 'relative', width: '100%' }}
+      style={{ position: 'relative', width: '100%',padding:'20px 0px' }}
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
           width: '20%',
           padding: '2%',
-          height:'50px',
+          height:'45px',
           backgroundColor: 'white',
           border: '1px solid #ccc',
           borderRadius: '4px',
@@ -78,11 +78,11 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
             display: 'flex',
             alignItems: 'center',
             backgroundColor: '#f0f0f0',
-            height: '50px',
+            height: '45px',
           }}>
             <input
               type="text"
-              placeholder="   Search..."
+              placeholder=" Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -106,9 +106,9 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                   setSearchTerm('');
                 }}
                 style={{
-                  padding: '4px 16px',
+                  padding: '4px 12px',
                   cursor: 'pointer',
-                  height: '50px',
+                  height: '45px',
                   display:'flex',
                   alignItems:'center',
                   textAlign: 'left',

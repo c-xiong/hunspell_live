@@ -4,10 +4,10 @@ Django>=3.2,<4.0
 djangorestframework
 djangorestframework-simplejwt
 drf-yasg
-transformers
-torch
 django-cors-headers
 django-allauth
 cryptography
 dj-rest-auth
 pyspellchecker==0.7.2
+spylls
+requests
