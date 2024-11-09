@@ -6,7 +6,10 @@ interface DraggableWindowProps {
   onClose: () => void;
   initialPosition: { x: number; y: number };
   parentRef: React.RefObject<HTMLDivElement>;
-  content: React.ReactNode;
+  suggestions: string[];
+  language: string;
+  onWordClick: (word: string) => void;
+  height?: number;
 }
 
 const DraggableWindow: React.FC<DraggableWindowProps> = ({
@@ -14,7 +17,10 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
   onClose,
   initialPosition,
   parentRef,
-  content,
+  suggestions,
+  language,
+  onWordClick,
+  height = 300,
 }) => {
   const nodeRef = useRef(null);
   const [position, setPosition] = useState(initialPosition);
@@ -22,30 +28,24 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
   useEffect(() => {
     if (parentRef.current) {
       const parentRect = parentRef.current.getBoundingClientRect();
-      const windowWidth = 300; // Width of the draggable window
-      const windowHeight = 300; // Height of the draggable window
-      const margin = 20; // Margin between the cursor and the window
-      const verticalOffset = 20; // Additional offset to adjust the window lower
+      const windowWidth = 300;
+      const windowHeight = height;
+      const margin = 20;
+      const verticalOffset = 20;
 
-      // Calculate x and y positions relative to the parent container
       let xPos = initialPosition.x - parentRect.left - windowWidth / 2;
-      let yPos = initialPosition.y - parentRect.top + margin + verticalOffset; // Added verticalOffset here
+      let yPos = initialPosition.y - parentRect.top + margin + verticalOffset;
 
-      // Ensure the window doesn't overflow to the left
       if (xPos < margin) {
         xPos = margin;
       }
 
-      // Ensure the window doesn't overflow to the right
       if (xPos + windowWidth > parentRect.width - margin) {
         xPos = parentRect.width - windowWidth - margin;
       }
 
-      // Ensure the window doesn't overflow to the bottom
       if (yPos + windowHeight > parentRect.height - margin) {
-        // Position above the cursor if there's not enough space below
-        yPos = initialPosition.y - parentRect.top - windowHeight - margin - verticalOffset; // Adjusted with verticalOffset
-        // Ensure it doesn't overflow the top
+        yPos = initialPosition.y - parentRect.top - windowHeight - margin - verticalOffset;
         if (yPos < margin) {
           yPos = margin;
         }
@@ -56,7 +56,7 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
         y: yPos,
       });
     }
-  }, [initialPosition, parentRef]);
+  }, [initialPosition, parentRef, height]);
 
   if (!isOpen) return null;
 
@@ -68,12 +68,11 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
           position: "absolute",
           left: position.x,
           top: position.y,
-          backgroundColor: "white",
-          // border: "1px solid #000000",
+          backgroundColor: "#1a1a1a",
           borderRadius: "16px",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
           width: "300px",
-          maxHeight: "500px",
+          height: height,
           overflow: "auto",
           cursor: "default",
           zIndex: 1000,
@@ -93,11 +92,10 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
             borderTopLeftRadius: "8px",
             borderTopRightRadius: "8px",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
           }}
         >
-          <span></span>
           <button 
             onClick={onClose}
             style={{
@@ -113,7 +111,42 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
           </button>
         </div>
         <div style={{ padding: "12px" }}>
-          {content}
+          <div className="flex flex-wrap gap-2">
+            {suggestions.length > 0 ? (
+              suggestions.map((word, index) => (
+                <button
+                  key={index}
+                  onClick={() => onWordClick(word)}
+                  style={{
+                    padding: "4px 8px",
+                    backgroundColor: "#000000",
+                    borderRadius: "4px",
+                    color: "white",
+                    cursor: "pointer",
+                    fontSize: "1.1rem",
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = "#c56363";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = "#2d2d2d";
+                  }}
+                >
+                  {word}
+                </button>
+              ))
+            ) : (
+              <div style={{ 
+                textAlign: "center", 
+                width: "100%",
+                color: "#888",
+                fontSize: "1.2rem"
+              }}>
+                No suggestions available
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Draggable>

@@ -11,7 +11,7 @@ import {
 import "draft-js/dist/Draft.css";
 import CustomDropdown from "./CustomDropdown";
 import DraggableWindow from "./DraggableWindow";
-import WordCards from "./WordCards";
+
 import { apiRequest } from "../utils/config";
 import VisualKeyboard from "./VisualKeyboard";
 import { toast } from 'react-toastify';
@@ -359,7 +359,8 @@ const HomePage: React.FC = () => {
               textDecorationColor: "red",
               cursor: "text",
               fontStyle: "italic",
-              color:"red"
+              color:"red",
+              fontWeight:"bold"
             }}
             onClick={(e) => handleWordClick(decoratedText, start, end, e)}
           >
@@ -521,25 +522,10 @@ const HomePage: React.FC = () => {
         onClose={() => setIsWindowOpen(false)}
         initialPosition={windowPosition}
         parentRef={containerRef}
-        content={
-          <div>
-            {currentSuggestions === null ? (
-              <p style={{ textAlign: "center", color: "white", fontSize: "14px" }}>
-                Loading suggestions...
-              </p>
-            ) : currentSuggestions.suggestions.length > 0 ? (
-              <WordCards
-                suggestions={currentSuggestions.suggestions}
-                language={currentSuggestions.language}
-                onWordClick={replaceWord}
-              />
-            ) : (
-              <p style={{ textAlign: "center", color: "white", fontSize: "14px" }}>
-                No suggestions available
-              </p>
-            )}
-          </div>
-        }
+        suggestions={currentSuggestions?.suggestions || []}
+        language={currentSuggestions?.language || selectedOption.value}
+        onWordClick={replaceWord}
+        height={200}
       />
       <ToastContainer
         position="top-center"
