@@ -7,7 +7,6 @@ import { ToastContainer } from 'react-toastify';
 import { FaTrashAlt, FaPaste } from 'react-icons/fa';
 import { useSpellChecker } from '../hooks/useSpellChecker';
 import { styles } from '../styles/HomePage.styles';
-import * as HoverCard from "@radix-ui/react-hover-card";
 import { LanguageOption, SpellingResult } from '../types/spelling';
 import { SPECIAL_CHARACTERS } from '../constants/language';
 
