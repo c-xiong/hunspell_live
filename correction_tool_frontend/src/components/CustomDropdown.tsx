@@ -42,21 +42,32 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
   return (
     <div 
       ref={dropdownRef}
-      style={{ position: 'relative', width: '100%',padding:'20px 0px' }}
+      className="custom-dropdown"
+      style={{ 
+        position: 'relative',
+        width: '100%',
+        padding: '0 0 16px 0'
+      }}
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          width: '20%',
-          padding: '2%',
-          height:'45px',
+          width: '140px',
+          padding: '8px 12px',
+          height: '40px',
           backgroundColor: 'white',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
+          border: '2px solid #e2e8f0',
+          borderRadius: '8px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          fontSize: '18px',
+          fontWeight: '500',
+          transition: 'border-color 0.2s',
+          ':hover': {
+            borderColor: '#cbd5e1',
+          }
         }}
       >
         {value ? value.label : "English"}
@@ -66,37 +77,45 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
         <div style={{
           position: 'absolute',
           zIndex: 10,
-          width: '20%',
+          width: '200px',
           marginTop: '4px',
           backgroundColor: 'white',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
+          border: '2px solid #e2e8f0',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
         }}>
           <div style={{
-            padding: '0 8px',
-            borderBottom: '1px solid #ccc',
+            padding: '8px',
+            borderBottom: '2px solid #e2e8f0',
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#f0f0f0',
-            height: '45px',
+            backgroundColor: '#f8fafc',
+            height: '40px',
           }}>
             <input
               type="text"
-              placeholder=" Search..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
                 backgroundColor: 'white',
-                color: 'black',
-                padding: '2%',
-                border: 'none',
-                borderRadius: '2px',
-                height: '70%',
+                color: '#1e293b',
+                padding: '6px 8px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '4px',
+                height: '28px',
+                fontSize: '16px'
               }}
             />
           </div>
-          <ul style={{ maxHeight: '300px', overflowY: 'auto', margin: 0, padding: 0, listStyle: 'none' }}>
+          <ul style={{ 
+            maxHeight: '300px',
+            overflowY: 'auto',
+            margin: 0,
+            padding: '4px 0',
+            listStyle: 'none'
+          }}>
             {filteredOptions.map((option) => (
               <li
                 key={option.value}
@@ -106,20 +125,25 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                   setSearchTerm('');
                 }}
                 style={{
-                  padding: '4px 12px',
+                  padding: '10px 14px',
                   cursor: 'pointer',
-                  height: '45px',
-                  display:'flex',
-                  alignItems:'center',
-                  textAlign: 'left',
+                  height: '46px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '18px',
+                  color: '#1e293b',
+                  transition: 'all 0.2s ease',
+                  position: 'relative'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f0f0f0';
-                  e.currentTarget.style.cursor = 'pointer';
+                  e.currentTarget.style.backgroundColor = '#f1f5f9';
+                  e.currentTarget.style.paddingLeft = '20px';
+                  e.currentTarget.style.color = '#0f172a';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = '';
-                  e.currentTarget.style.cursor = '';
+                  e.currentTarget.style.paddingLeft = '14px';
+                  e.currentTarget.style.color = '#1e293b';
                 }}
               >
                 {option.label}
