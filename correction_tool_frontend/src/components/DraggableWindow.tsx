@@ -2,14 +2,14 @@ import React, { useRef, useState, useEffect } from 'react';
 import Draggable from "react-draggable";
 
 interface DraggableWindowProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialPosition: { x: number; y: number };
-  parentRef: React.RefObject<HTMLDivElement>;
-  suggestions: string[];
-  language: string;
-  onWordClick: (word: string) => void;
-  height?: number;
+  isOpen: boolean;              // Controls window visibility
+  onClose: () => void;         // Function to close the window
+  initialPosition: { x, y };   // Mouse click coordinates
+  parentRef: RefObject;        // Reference to parent container for positioning
+  suggestions: string[];       // Array of spelling suggestions
+  language: string;           // Current language
+  onWordClick: (word) => void; // Callback when suggestion is selected
+  height?: number;            // Optional window height
 }
 
 const DraggableWindow: React.FC<DraggableWindowProps> = ({
