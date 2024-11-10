@@ -2,7 +2,7 @@ from spylls.hunspell import Dictionary
 import os
 from pathlib import Path
 
-class PySpellChecker:
+class SpellChecker:
     SUPPORTED_LANGUAGES = {'en_US', 'es_ES', 'fr_FR', 'de_DE', 'pt_PT', 'it_IT'}  # Updated to match full locale codes
 
     def __init__(self, language='en_US'):

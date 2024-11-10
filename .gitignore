@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 /correction_tool_frontend/node_modules
 /pgdata
+.DS_Store

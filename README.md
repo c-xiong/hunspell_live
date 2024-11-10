@@ -26,7 +26,7 @@ VITE_BASE_URL_PROD=https://your-production-api.com
 
 ### Build and Run the Docker Containers
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### Accessing the Application

@@ -463,6 +463,12 @@ const HomePage: React.FC = () => {
           <button
             onClick={handleCheckSpelling}
             style={styles.checkButton}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = "#2563eb";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = "#3b82f6";
+            }}
           >
             Check Spelling
           </button>

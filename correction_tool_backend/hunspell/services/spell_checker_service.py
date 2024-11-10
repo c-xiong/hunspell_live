@@ -1,4 +1,4 @@
-from ..spell_checker import PySpellChecker
+from ..spell_checker import SpellChecker
 
 class SpellCheckerService:
     def __init__(self):
@@ -8,12 +8,12 @@ class SpellCheckerService:
         try:
             # Create new spell checker instance if language not cached
             if language not in self.spell_checkers:
-                self.spell_checkers[language] = PySpellChecker(language=language)
+                self.spell_checkers[language] = SpellChecker(language=language)
             return self.spell_checkers[language]
         except Exception as e:
             print(f"Error getting spell checker: {str(e)}")
             # Fallback to English if there's an error
-            return PySpellChecker(language='en_US')
+            return SpellChecker(language='en_US')
 
     def check_spelling(self, word, language='en_US'):
         spell_checker = self.get_spell_checker(language)
