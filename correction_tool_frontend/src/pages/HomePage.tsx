@@ -4,7 +4,7 @@ import VisualKeyboard from "../components/VisualKeyboard";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck } from 'react-icons/fa';
+import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion } from 'react-icons/fa';
 import { useSpellChecker } from '../hooks/useSpellChecker';
 import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
@@ -45,6 +45,7 @@ const HomePage: React.FC = () => {
       editorRef.current.innerHTML = '';
       setText('');
       setSpellingResults([]);
+      toast.success('Text cleared successfully');
     }
   };
 
@@ -63,6 +64,9 @@ const HomePage: React.FC = () => {
         range.collapse(false); // false means collapse to end
         selection?.removeAllRanges();
         selection?.addRange(range);
+        
+        // Add success toast
+        toast.success('Text pasted successfully');
       }
     } catch (error) {
       toast.error('Unable to access clipboard');
@@ -99,12 +103,25 @@ const HomePage: React.FC = () => {
       toast.warning('Please enter some text to check spelling');
       return;
     }
-    const newResults = await checkSpelling(text);
-    if (newResults.length > 0) {
-      highlightMisspelledWords(newResults);
-      toast.error(`Found ${newResults.length} spelling error${newResults.length === 1 ? '' : 's'}`);
-    } else {
-      toast.success('No spelling errors found!');
+    
+    // Show loading toast
+    const loadingToast = toast.loading('Checking spelling...');
+    
+    try {
+      const newResults = await checkSpelling(text);
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+      
+      if (newResults.length > 0) {
+        highlightMisspelledWords(newResults);
+        toast.error(`Found ${newResults.length} spelling error${newResults.length === 1 ? '' : 's'}`);
+      } else {
+        toast.success('No spelling errors found!');
+      }
+    } catch (error) {
+      // Dismiss loading toast and show error if something goes wrong
+      toast.dismiss(loadingToast);
+      toast.error('Error checking spelling');
     }
   };
 
@@ -357,6 +374,21 @@ const HomePage: React.FC = () => {
                   <FaCut />
                 </button>
                 <span className={styles.tooltip}>Cut</span>
+              </div>
+              <div className={styles.buttonWrapper}>
+                <button className={styles.helpButton}>
+                  <FaQuestion />
+                </button>
+                <div className={styles.helpCard}>
+                  <h3>Instructions</h3>
+                  <ul>
+                    <li>Select your language from the dropdown menu</li>
+                    <li>Type or paste your text in the editor</li>
+                    <li>Click the check (✓) button to check spelling</li>
+                    <li>Click on underlined words to see suggestions</li>
+                    <li>Click suggested word to replace</li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div style={inlineStyles.dropdownContainer}>

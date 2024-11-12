@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
 @layer base {
   :root {
-    font-family: 'Inter var', system-ui, -apple-system, sans-serif;
+    font-family: 'Noto Sans', 'Inter var', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
     font-weight: 400;
 
