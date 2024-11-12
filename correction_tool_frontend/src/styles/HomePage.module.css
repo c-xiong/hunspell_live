@@ -225,3 +225,67 @@
   .buttonWrapper:hover .helpCard {
     visibility: visible;
   }
+  
+  .loginButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #4F46E5;
+    background-color: white;
+    border: #4F46E5 solid 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    z-index: 1000;
+    font-weight: bold;
+  }
+  
+  .loginButton:hover {
+    background-color: #4338CA;
+    color: white;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
+  
+  .userControls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .profileIcon {
+    color: #4a90e2;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .logoutButton {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    z-index: 1000;
+  }
+  
+  .userControls:hover .logoutButton {
+    display: block;
+  }
+  
+  .logoutButton:hover {
+    background-color: #c0392b;
+  }

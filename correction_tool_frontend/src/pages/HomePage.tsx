@@ -3,13 +3,13 @@ import CustomDropdown from "../components/Dropdown";
 import VisualKeyboard from "../components/VisualKeyboard";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
-import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion } from 'react-icons/fa';
+import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion, FaUser } from 'react-icons/fa';
 import { useSpellChecker } from '../hooks/useSpellChecker';
 import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
 import { SPECIAL_CHARACTERS } from '../constants/language';
 import styles from '../styles/HomePage.module.css';
+import { useAuth } from '../hooks/useAuth';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -20,6 +20,7 @@ const HomePage: React.FC = () => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+  const { logout, isLoading, isAuthenticated } = useAuth();
 
   const { checkSpelling, getSuggestions } = useSpellChecker(selectedOption.value);
 
@@ -303,7 +304,11 @@ const HomePage: React.FC = () => {
   }, []);
 
   const focusEditor = (event: React.MouseEvent) => {
-    if (event.target instanceof Node && event.target.closest('.custom-dropdown')) {
+    if (
+      event.target instanceof Node && 
+      (event.target.closest('.custom-dropdown') || 
+       event.target.closest('.loginCard'))
+    ) {
       return;
     }
     if (editorRef.current) {
@@ -338,10 +343,36 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleLoginClick = () => {
+    window.location.href = '/login';
+  };
+
   return (
     <div ref={containerRef} style={inlineStyles.container} onClick={focusEditor}>
+      <div className={styles.buttonWrapper}>
+        {isAuthenticated ? (
+          <div className={styles.userControls}>
+            <FaUser className={styles.profileIcon} />
+            <button className={styles.logoutButton} onClick={logout}>
+              Logout
+            </button>
+          </div>
+        ) : (
+          <button className={styles.loginButton} onClick={handleLoginClick}>
+            <FaUser /> Login
+          </button>
+        )}
+      </div>
       <div style={inlineStyles.content}>
-        <h1 style={inlineStyles.title}>Spell Checking Tool</h1>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '20px',
+          position: 'relative'
+        }}>
+          <h1 style={inlineStyles.title}>Spell Checking Tool</h1>
+        </div>
         <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "24px" }}>
           <div style={inlineStyles.controlsContainer}>
             <div style={inlineStyles.buttonGroup}>
@@ -399,7 +430,6 @@ const HomePage: React.FC = () => {
           <div ref={editorRef} contentEditable onInput={handleTextChange} style={inlineStyles.editor} data-placeholder="Enter or paste your text here to check spelling" />
         </div>
       </div>
-      <ToastContainer position="top-center" autoClose={1200} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 };

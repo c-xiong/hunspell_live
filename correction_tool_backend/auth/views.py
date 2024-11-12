@@ -19,22 +19,48 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer  # Add this line
+    serializer_class = RegisterSerializer
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     
     def post(self, request, *args, **kwargs):
-        username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
-        if not username or not password:
-            return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.create(username=username, password=make_password(password))
-        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        if not email or not password:
+            return Response(
+                {"error": "Email and password are required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User created successfully"}, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Add a new class for login using TokenObtainPairView
 class LoginView(TokenObtainPairView):
     permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if email:
+            try:
+                user = User.objects.get(email=email)
+                request.data['username'] = user.username  # Add username to request data
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "No user found with this email"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return super().post(request, *args, **kwargs)
 
 # TokenObtainPairView and TokenRefreshView are provided by Simple JWT
 

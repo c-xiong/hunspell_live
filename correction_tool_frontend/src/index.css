@@ -26,6 +26,8 @@
     place-items: center;
     min-width: 320px;
     min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
   }
 
   h1 {

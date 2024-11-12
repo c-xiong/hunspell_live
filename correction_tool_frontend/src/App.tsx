@@ -2,12 +2,24 @@ import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import { ChakraProvider } from '@chakra-ui/react'
-import HomePage from './pages/HomePage'
+import { Outlet } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 const App: React.FC = () => {
   return (
     <ChakraProvider>
-      <HomePage />
+      <Outlet />
+      <ToastContainer 
+        position="top-center" 
+        autoClose={1200} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+      />
     </ChakraProvider>
   );
 };

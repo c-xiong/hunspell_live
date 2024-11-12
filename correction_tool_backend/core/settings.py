@@ -170,4 +170,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only. Use specific origins in production.
+CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Add your frontend's origin here
+]
+
+# If you need to allow credentials, add this setting
+CORS_ALLOW_CREDENTIALS = True
