@@ -1,0 +1,157 @@
+.clearButton {
+    background-color: white;
+    color: #ef4444;
+    border: #ef4444 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .clearButton:hover {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .pasteButton {
+    background-color: white;
+    color: #3b82f6;
+    border: #3b82f6 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .pasteButton:hover {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .buttonWrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip {
+    visibility: hidden;
+    position: absolute;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 1000;
+  }
+  
+  .buttonWrapper:hover .tooltip {
+    visibility: visible;
+  }
+  
+  .copyButton {
+    background-color: white;
+    color: #10b981;
+    border: #10b981 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .copyButton:hover {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .cutButton {
+    background-color: white;
+    color: #8b5cf6;
+    border: #8b5cf6 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .cutButton:hover {
+    background-color: #8b5cf6;
+    color: white;
+  }
+  
+  .checkButton {
+    background-color: white;
+    color: #059669;
+    border: #059669 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .checkButton:hover {
+    background-color: #059669;
+    color: white;
+  }
+  
+  .undoButton {
+    background-color: white;
+    color: #6366f1;
+    border: #6366f1 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .undoButton:hover {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .redoButton {
+    background-color: white;
+    color: #ec4899;
+    border: #ec4899 1px solid;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .redoButton:hover {
+    background-color: #ec4899;
+    color: white;
+  }

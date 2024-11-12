@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiRequest } from '../utils/config';
+import { apiRequest } from '../config/api';
 import { SpellingResult, SpellingSuggestion } from '../types/spelling';
 import { LANGUAGE_CODE_MAP } from '../constants/language';
 import { toast } from 'react-toastify';
@@ -88,7 +88,7 @@ export const useSpellChecker = (selectedLanguage: string) => {
     }
   };
 
-  const getSuggestions = async (word: string) => {
+  const getSuggestions = async (word: string): Promise<SpellingSuggestion> => {
     if (suggestionCache[word]) {
       return {
         suggestions: suggestionCache[word],
@@ -123,7 +123,7 @@ export const useSpellChecker = (selectedLanguage: string) => {
     } catch (error) {
       console.error("Error getting suggestions:", error);
       toast.error('Failed to get suggestions. Please try again.');
-      const fallback = {
+      const fallback: SpellingSuggestion = {
         suggestions: [],
         language: selectedLanguage
       };

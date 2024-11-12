@@ -1,36 +1,27 @@
 import React, { useState, useRef, useEffect } from "react";
-import CustomDropdown from "./CustomDropdown";
-import VisualKeyboard from "./VisualKeyboard";
+import CustomDropdown from "../components/Dropdown";
+import VisualKeyboard from "../components/VisualKeyboard";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import { FaTrashAlt, FaPaste } from 'react-icons/fa';
+import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck } from 'react-icons/fa';
 import { useSpellChecker } from '../hooks/useSpellChecker';
-import { styles } from '../styles/HomePage.styles';
+import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
 import { SPECIAL_CHARACTERS } from '../constants/language';
+import styles from '../styles/HomePage.module.css';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
     const savedLanguage = localStorage.getItem('selectedLanguage');
-    if (savedLanguage) {
-      return JSON.parse(savedLanguage);
-    }
-    return {
-      label: "English",
-      value: "en",
-    };
+    return savedLanguage ? JSON.parse(savedLanguage) : { label: "English", value: "en" };
   });
-  
   const [text, setText] = useState('');
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
-  const { 
-    checkSpelling,
-    getSuggestions,
-  } = useSpellChecker(selectedOption.value);
+  const { checkSpelling, getSuggestions } = useSpellChecker(selectedOption.value);
 
   const options: LanguageOption[] = [
     { label: "English", value: "en" },
@@ -46,9 +37,7 @@ const HomePage: React.FC = () => {
     setSelectedOption(option);
     setText('');
     setSpellingResults([]);
-    if (editorRef.current) {
-      editorRef.current.innerHTML = '';
-    }
+    if (editorRef.current) editorRef.current.innerHTML = '';
   };
 
   const handleClearText = () => {
@@ -66,8 +55,16 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = text;
         setText(text);
         setSpellingResults([]);
+        
+        // Move cursor to end of text
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(editorRef.current);
+        range.collapse(false); // false means collapse to end
+        selection?.removeAllRanges();
+        selection?.addRange(range);
       }
-    } catch (err) {
+    } catch (error) {
       toast.error('Unable to access clipboard');
     }
   };
@@ -75,30 +72,19 @@ const HomePage: React.FC = () => {
   const handleTextChange = (event: React.FormEvent<HTMLDivElement>) => {
     const newText = event.currentTarget.innerText;
     setText(newText);
-    
-    // Clear spelling results when text changes
     setSpellingResults([]);
-    
-    // Get the current selection
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
-      
-      // If the cursor is inside or next to a decorated span, or if the text is empty, normalize the text
       const parentSpan = range.startContainer.parentElement;
       if (parentSpan?.classList.contains('misspelled') || 
           (range.startContainer.previousSibling?.nodeName === 'SPAN' || 
            range.startContainer.nextSibling?.nodeName === 'SPAN') ||
           newText.length === 0) {
-        // Create a new text node with the entire content
         const textNode = document.createTextNode(newText);
-        
-        // Clear the editor and insert the normalized text
         if (editorRef.current) {
           editorRef.current.innerHTML = '';
           editorRef.current.appendChild(textNode);
-          
-          // Reset cursor position to the end
           range.setStart(textNode, textNode.length);
           range.setEnd(textNode, textNode.length);
           selection.removeAllRanges();
@@ -113,7 +99,6 @@ const HomePage: React.FC = () => {
       toast.warning('Please enter some text to check spelling');
       return;
     }
-    
     const newResults = await checkSpelling(text);
     if (newResults.length > 0) {
       highlightMisspelledWords(newResults);
@@ -125,49 +110,27 @@ const HomePage: React.FC = () => {
 
   const highlightMisspelledWords = (results: SpellingResult[]) => {
     if (!editorRef.current) return;
-
     const textContent = editorRef.current.innerText;
     let html = '';
     let lastIndex = 0;
-
     results.forEach((result) => {
       const wordStart = result.index;
       const wordEnd = result.index + result.word.length;
-      
-      // Add text before the misspelled word
       html += textContent.slice(lastIndex, wordStart);
-      
-      // Add the misspelled word with highlighting
       const misspelledWord = textContent.slice(wordStart, wordEnd);
-      html += `<span 
-        class="misspelled" 
-        data-word="${misspelledWord}"
-        data-start="${wordStart}"
-        style="text-decoration: solid underline red 4px; cursor: help; font-style: italic;"
-      >${misspelledWord}</span>`;
-      
+      html += `<span class="misspelled" data-word="${misspelledWord}" data-start="${wordStart}" style="text-decoration: solid underline red 4px; cursor: help; font-style: italic;">${misspelledWord}</span>`;
       lastIndex = wordEnd;
     });
-
-    // Add any remaining text
     html += textContent.slice(lastIndex);
-    
-    // Save current cursor position
     const selection = window.getSelection();
     const range = selection?.getRangeAt(0);
     const cursorOffset = range?.endOffset || 0;
-    
-    // Update content
     editorRef.current.innerHTML = html;
     setSpellingResults(results);
-
-    // Add click handlers to misspelled words
     const misspelledElements = editorRef.current.getElementsByClassName('misspelled');
     Array.from(misspelledElements).forEach(element => {
       element.addEventListener('click', handleMisspelledWordClick);
     });
-
-    // Restore cursor position at the end of the content
     if (editorRef.current) {
       const newRange = document.createRange();
       const lastChild = editorRef.current.lastChild;
@@ -184,15 +147,9 @@ const HomePage: React.FC = () => {
     const element = event.target as HTMLSpanElement;
     const word = element.dataset.word;
     const startPosition = parseInt(element.dataset.start || '0', 10);
-    
     if (!word) return;
-
     const suggestions = await getSuggestions(word);
-    
-    // Create and show suggestions popup
     const popup = document.createElement('div');
-    
-    // Calculate position relative to the clicked word
     const rect = element.getBoundingClientRect();
     popup.style.position = 'fixed';
     popup.style.left = `${rect.left}px`;
@@ -208,7 +165,6 @@ const HomePage: React.FC = () => {
     popup.style.minWidth = `${Math.max(rect.width, 150)}px`;
 
     if (suggestions.suggestions.length === 0) {
-      // Add message for no suggestions
       const noSuggestionsElement = document.createElement('div');
       noSuggestionsElement.textContent = 'No suggestions available';
       noSuggestionsElement.style.padding = '8px 16px';
@@ -218,7 +174,6 @@ const HomePage: React.FC = () => {
       noSuggestionsElement.style.fontStyle = 'italic';
       popup.appendChild(noSuggestionsElement);
     } else {
-      // Add ignore option at the top
       const ignoreElement = document.createElement('div');
       ignoreElement.textContent = 'Ignore';
       ignoreElement.style.padding = '8px 16px';
@@ -228,7 +183,6 @@ const HomePage: React.FC = () => {
       ignoreElement.style.color = '#6b7280';
       ignoreElement.style.borderBottom = '1px solid #e5e7eb';
       ignoreElement.style.margin = '0';
-      
       ignoreElement.addEventListener('mouseover', () => {
         ignoreElement.style.backgroundColor = '#f3f4f6';
         ignoreElement.style.color = '#4b5563';
@@ -238,7 +192,6 @@ const HomePage: React.FC = () => {
         ignoreElement.style.color = '#6b7280';
       });
       ignoreElement.addEventListener('click', () => {
-        // Remove decoration and update spelling results
         if (element && editorRef.current) {
           element.outerHTML = word;
           setSpellingResults(prev => 
@@ -258,7 +211,6 @@ const HomePage: React.FC = () => {
         suggestionElement.style.fontWeight = 'bold';
         suggestionElement.style.color = '#374151';
         suggestionElement.style.margin = '0';
-        
         suggestionElement.addEventListener('mouseover', () => {
           suggestionElement.style.backgroundColor = '#f3f4f6';
           suggestionElement.style.color = '#000000';
@@ -277,7 +229,6 @@ const HomePage: React.FC = () => {
 
     document.body.appendChild(popup);
 
-    // Remove popup when clicking outside
     const handleClickOutside = (e: MouseEvent) => {
       if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
         document.body.removeChild(popup);
@@ -291,11 +242,7 @@ const HomePage: React.FC = () => {
 
   const handleSuggestionClick = (suggestion: string, originalWord: string, startPosition: number) => {
     if (!editorRef.current) return;
-
-    // Find all spans with the misspelled word
     const spans = editorRef.current.querySelectorAll(`span.misspelled[data-word="${originalWord}"]`);
-    
-    // Find the specific span at the correct position
     let targetSpan: Element | null = null;
     for (const span of spans) {
       const spanPosition = parseInt(span.getAttribute('data-start') || '0', 10);
@@ -304,20 +251,12 @@ const HomePage: React.FC = () => {
         break;
       }
     }
-
     if (targetSpan) {
-      // Replace only the target span with the suggestion
       targetSpan.outerHTML = suggestion;
-      
-      // Update text state
       setText(editorRef.current.innerText);
-      
-      // Remove the replaced word from spelling results
       setSpellingResults(prev => 
         prev.filter(result => !(result.word === originalWord && result.index === startPosition))
       );
-
-      // Reattach click handlers to remaining misspelled words
       const misspelledElements = editorRef.current.getElementsByClassName('misspelled');
       Array.from(misspelledElements).forEach(element => {
         element.addEventListener('click', handleMisspelledWordClick);
@@ -327,26 +266,18 @@ const HomePage: React.FC = () => {
 
   const handleCharacterInsert = (character: string) => {
     if (!editorRef.current) return;
-    
-    // Get the current selection
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount) return;
-    
     const range = selection.getRangeAt(0);
     const textNode = document.createTextNode(character);
     range.insertNode(textNode);
-    
-    // Move cursor after inserted character
     range.setStartAfter(textNode);
     range.setEndAfter(textNode);
     selection.removeAllRanges();
     selection.addRange(range);
-    
-    // Update text state
     setText(editorRef.current.innerText);
   };
 
-  // Disable scrolling on the entire page
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -355,12 +286,9 @@ const HomePage: React.FC = () => {
   }, []);
 
   const focusEditor = (event: React.MouseEvent) => {
-    // Don't focus editor if clicking within the CustomDropdown
-    if (event.target instanceof Node && 
-        event.target.closest('.custom-dropdown')) {
+    if (event.target instanceof Node && event.target.closest('.custom-dropdown')) {
       return;
     }
-    
     if (editorRef.current) {
       editorRef.current.focus();
     }
@@ -368,123 +296,78 @@ const HomePage: React.FC = () => {
 
   const currentSpecialCharacters = SPECIAL_CHARACTERS[selectedOption.value] || [];
 
-  return (
-    <div
-      ref={containerRef}
-      style={styles.container}
-      onClick={focusEditor}
-    >
-      <div style={styles.content}>
-        <h1 style={styles.title}>
-          Spell Checking Tool
-        </h1>
+  const handleCopy = async () => {
+    if (editorRef.current) {
+      try {
+        await navigator.clipboard.writeText(editorRef.current.innerText);
+        toast.success('Text copied to clipboard');
+      } catch (error) {
+        toast.error('Failed to copy text');
+      }
+    }
+  };
 
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "8px",
-          padding: "24px",
-        }}>
-          <CustomDropdown
-            options={options}
-            value={selectedOption}
-            onChange={handleSelectChange}
-          />
-          <VisualKeyboard
-            onCharacterClick={handleCharacterInsert}
-            characters={currentSpecialCharacters}
-          />
-          <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '8px', gap: '8px' }}>
-            <button
-              onClick={handleClearText}
-              style={{
-                backgroundColor: 'white',
-                color: '#ef4444',
-                border: '#ef4444 1px solid',
-                borderRadius: '6px',
-                padding: '10px 12px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '16px',
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = '#ef4444';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = 'white';
-                e.currentTarget.style.color = '#ef4444';
-              }}
-            >
-              <FaTrashAlt />
-            </button>
-            <button
-              onClick={handlePaste}
-              style={{
-                backgroundColor: 'white',
-                color: '#3b82f6',
-                border: '#3b82f6 1px solid',
-                borderRadius: '6px',
-                padding: '10px 12px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '16px',
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = 'white';
-                e.currentTarget.style.color = '#3b82f6';
-              }}
-            >
-              <FaPaste />
-            </button>
+  const handleCut = async () => {
+    if (editorRef.current) {
+      try {
+        await navigator.clipboard.writeText(editorRef.current.innerText);
+        editorRef.current.innerHTML = '';
+        setText('');
+        setSpellingResults([]);
+        toast.success('Text cut to clipboard');
+      } catch (error) {
+        toast.error('Failed to cut text');
+      }
+    }
+  };
+
+  return (
+    <div ref={containerRef} style={inlineStyles.container} onClick={focusEditor}>
+      <div style={inlineStyles.content}>
+        <h1 style={inlineStyles.title}>Spell Checking Tool</h1>
+        <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "24px" }}>
+          <div style={inlineStyles.controlsContainer}>
+            <div style={inlineStyles.buttonGroup}>
+              <div className={styles.buttonWrapper}>
+                <button onClick={handleCheckSpelling} className={styles.checkButton}>
+                  <FaCheck />
+                </button>
+                <span className={styles.tooltip}>Check Spelling</span>
+              </div>
+              <div className={styles.buttonWrapper}>
+                <button onClick={handleClearText} className={styles.clearButton}>
+                  <FaTrashAlt />
+                </button>
+                <span className={styles.tooltip}>Clear</span>
+              </div>
+              <div className={styles.buttonWrapper}>
+                <button onClick={handlePaste} className={styles.pasteButton}>
+                  <FaPaste />
+                </button>
+                <span className={styles.tooltip}>Paste</span>
+              </div>
+              <div className={styles.buttonWrapper}>
+                <button onClick={handleCopy} className={styles.copyButton}>
+                  <FaCopy />
+                </button>
+                <span className={styles.tooltip}>Copy</span>
+              </div>
+              <div className={styles.buttonWrapper}>
+                <button onClick={handleCut} className={styles.cutButton}>
+                  <FaCut />
+                </button>
+                <span className={styles.tooltip}>Cut</span>
+              </div>
+            </div>
+            <div style={inlineStyles.dropdownContainer}>
+              <CustomDropdown options={options} value={selectedOption} onChange={handleSelectChange} />
+            </div>
           </div>
-          <div
-            ref={editorRef}
-            contentEditable
-            onInput={handleTextChange}
-            style={{
-              ...styles.editor,
-              textAlign: 'left',
-              caretColor: 'auto',
-              color: '#000000',
-              fontStyle: 'normal',
-            }}
-            data-placeholder="Enter or paste your text here to check spelling"
-          />
-          <button
-            onClick={handleCheckSpelling}
-            style={styles.checkButton}
-            onMouseEnter={e => {
-              e.currentTarget.style.backgroundColor = "#2563eb";
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.backgroundColor = "#3b82f6";
-            }}
-          >
-            Check Spelling
-          </button>
+          <VisualKeyboard onCharacterClick={handleCharacterInsert} characters={currentSpecialCharacters} />
+          <div ref={editorRef} contentEditable onInput={handleTextChange} style={inlineStyles.editor} data-placeholder="Enter or paste your text here to check spelling" />
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={1200}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-center" autoClose={1200} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 };
