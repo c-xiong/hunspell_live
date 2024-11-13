@@ -100,8 +100,8 @@
   }
   
   .checkButton {
-    background-color: white;
-    color: #059669;
+    color: white;
+    background-color: #059669;
     border: #059669 1px solid;
     border-radius: 6px;
     padding: 10px 12px;
@@ -114,8 +114,9 @@
   }
   
   .checkButton:hover {
-    background-color: #059669;
+    /* color: #059669; */
     color: white;
+    background-color: #28ed12;
   }
   
   .undoButton {
@@ -288,4 +289,61 @@
     color: white;
     transform: translateY(-1px);
     text-decoration: none;
+  }
+  
+  .profileCard {
+    visibility: hidden;
+    position: absolute;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    top: calc(100% + 12px);
+    left: 10%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  
+  .profileCard::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-left: 2px solid #e5e7eb;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .profileCard h3 {
+    margin: 0 0 16px 0;
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 700;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 12px;
+  }
+  
+  .profileInfo {
+    color: #4b5563;
+    font-size: 20px;
+  }
+  
+  .profileInfo p {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .profileInfo span:first-child {
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .buttonWrapper:hover .profileCard {
+    visibility: visible;
   }
