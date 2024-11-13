@@ -1,0 +1,157 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.title {
+  color: #1a1a1a;
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 20px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 20px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+.loginButton {
+  background: #5952d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loginButton:hover {
+  background: #454096;
+}
+
+.loginButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.registerText {
+  margin-top: 24px;
+  text-align: center;
+  color: #4b5563;
+  font-size: 20px;
+}
+
+.registerLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+.homeButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5952d4;
+  text-decoration: none;
+  font-size: 20px;
+  margin-bottom: 16px;
+  transition: color 0.2s ease;
+}
+
+.homeButton:hover {
+  color: #454096;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .loginCard {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .inputIcon {
+    font-size: 16px;
+  }
+
+  .loginButton {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiRequest, API_BASE_URL } from '../config/api';
+import { apiRequest } from '../config/api';
 import { toast } from 'react-toastify';
 
 interface LoginResponse {
@@ -25,7 +25,8 @@ export const useAuth = () => {
         throw new Error('No access token found');
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/user/`, {
+      const response = await apiRequest("/auth/user/", {
+        method: "GET",
         credentials: 'include',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -39,7 +40,7 @@ export const useAuth = () => {
           user: userData
         });
       } else {
-        console.error('Failed to fetch user data:', response.statusText);
+        console.error('Failed to get user data:', response.statusText);
       }
     } catch (error) {
       console.error('User check failed:', error);
@@ -50,7 +51,7 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+      const response = await apiRequest("/auth/login/", {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -66,7 +67,8 @@ export const useAuth = () => {
         localStorage.setItem('accessToken', data.access);
 
         // Get user data with bearer token
-        const userResponse = await fetch(`${API_BASE_URL}/auth/user/`, {
+        const userResponse = await apiRequest("/auth/user/", {
+          method: "GET",
           credentials: 'include',
           headers: {
             'Authorization': `Bearer ${data.access}`,
@@ -82,7 +84,7 @@ export const useAuth = () => {
           toast.success('Successfully logged in!');
           return true;
         } else {
-          console.error('Failed to fetch user data:', userResponse.statusText);
+          console.error('Failed to get user data:', userResponse.statusText);
         }
       } else {
         console.error('Login failed:', response.statusText);
@@ -102,7 +104,7 @@ export const useAuth = () => {
       const accessToken = localStorage.getItem('accessToken');
       
       // Call logout endpoint with authorization header
-      const response = await fetch(`${API_BASE_URL}/auth/logout/`, {
+      const response = await apiRequest("/auth/logout/", {
         method: 'POST',
         credentials: 'include',
         headers: {

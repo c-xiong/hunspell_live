@@ -18,6 +18,8 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-y: hidden;
+    overflow-x: hidden;
   }
 
   body {
@@ -27,7 +29,6 @@
     min-width: 320px;
     min-height: 100vh;
     height: auto;
-    overflow-y: auto;
   }
 
   h1 {

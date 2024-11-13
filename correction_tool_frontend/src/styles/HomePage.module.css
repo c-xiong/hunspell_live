@@ -227,37 +227,40 @@
   }
   
   .loginButton {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 6px;
     color: #4F46E5;
     background-color: white;
-    border: #4F46E5 solid 1px;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 16px;
+    font-size: 20px;
     z-index: 1000;
-    font-weight: bold;
+    font-weight: 700;
+    transition: all 0.2s ease;
   }
   
   .loginButton:hover {
     background-color: #4338CA;
     color: white;
     transform: translateY(-1px);
-    transition: all 0.2s ease;
+    text-decoration: none;
   }
   
   .userControls {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
     display: flex;
     gap: 10px;
     align-items: center;
+    z-index: 1000;
   }
   
   .profileIcon {
@@ -268,24 +271,21 @@
   }
   
   .logoutButton {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    background-color: #e74c3c;
-    color: white;
+    color: #e74c3c;
+    background-color: white;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
     padding: 8px 16px;
     border-radius: 6px;
-    border: none;
     cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    z-index: 1000;
-  }
-  
-  .userControls:hover .logoutButton {
-    display: block;
+    font-weight: 700;
+    font-size: 20px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
   }
   
   .logoutButton:hover {
-    background-color: #c0392b;
+    background-color: #c53030;
+    color: white;
+    transform: translateY(-1px);
+    text-decoration: none;
   }

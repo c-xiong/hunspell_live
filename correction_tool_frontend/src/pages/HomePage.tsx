@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
       const wordEnd = result.index + result.word.length;
       html += textContent.slice(lastIndex, wordStart);
       const misspelledWord = textContent.slice(wordStart, wordEnd);
-      html += `<span class="misspelled" data-word="${misspelledWord}" data-start="${wordStart}" style="text-decoration: solid underline red 4px; cursor: help; font-style: italic;">${misspelledWord}</span>`;
+      html += `<span class="misspelled" data-word="${misspelledWord}" data-start="${wordStart}" style="text-decoration: solid underline red 4px; text-underline-offset: 0.25em; cursor: help; font-style: italic;">${misspelledWord}</span>`;
       lastIndex = wordEnd;
     });
     html += textContent.slice(lastIndex);
