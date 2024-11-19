@@ -7,10 +7,9 @@ import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion, FaUser } from 
 import { useSpellChecker } from '../hooks/useSpellChecker';
 import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
-import { SPECIAL_CHARACTERS } from '../constants/language';
 import styles from '../styles/HomePage.module.css';
 import { useAuth } from '../hooks/useAuth';
-import { LANGUAGE_OPTIONS } from '../constants/language';
+import { LANGUAGE_OPTIONS, SPECIAL_CHARACTERS, TEXT_DIRECTION_MAP } from '../constants/language';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -33,7 +32,12 @@ const HomePage: React.FC = () => {
     setSelectedOption(option);
     setText('');
     setSpellingResults([]);
-    if (editorRef.current) editorRef.current.innerHTML = '';
+    if (editorRef.current) {
+      editorRef.current.innerHTML = '';
+      // Update the text direction based on the selected language
+      editorRef.current.style.direction = TEXT_DIRECTION_MAP[option.value] || 'ltr';
+      editorRef.current.style.textAlign = TEXT_DIRECTION_MAP[option.value] === 'rtl' ? 'right' : 'left';
+    }
   };
 
   const handleClearText = () => {
@@ -453,7 +457,11 @@ const HomePage: React.FC = () => {
             ref={editorRef} 
             contentEditable 
             onInput={handleTextChange} 
-            style={inlineStyles.editor} 
+            style={{
+              ...inlineStyles.editor,
+              direction: TEXT_DIRECTION_MAP[selectedOption.value] || 'ltr',
+              textAlign: TEXT_DIRECTION_MAP[selectedOption.value] === 'rtl' ? 'right' : 'left'
+            }} 
             data-placeholder="Enter or paste your text here to check spelling" 
           />
         </div>

@@ -40,8 +40,6 @@ export const styles = {
     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
     transition: "all 0.2s ease",
     lineHeight: "1.8",
-    direction: "ltr",
-    textAlign: "left",
     "&:focus": {
       borderColor: "#3b82f6",
       outline: "none",

@@ -6,14 +6,17 @@ import json
 
 class SpellChecker:
     # Load supported languages from JSON configuration
-    config_path = Path(__file__).parent.parent / 'dicts_config.json'
+    config_path = Path(__file__).parent.parent / 'default_dicts_config.json'
     with open(config_path, 'r') as f:
         SUPPORTED_LANGUAGES = set(json.load(f).keys())
 
     def __init__(self, lang_code='en_US'):
+        print(f"Initializing SpellChecker for language: {lang_code}")
+        self.lang_code = lang_code  # Store the language code
         try:
             if lang_code not in self.SUPPORTED_LANGUAGES:
                 print(f"Warning: Language '{lang_code}' not supported. Falling back to English.")
+                self.lang_code = 'en_US'  # Update the stored language code
                 lang_code = 'en_US'
             
             # Get the base directory path
@@ -27,8 +30,9 @@ class SpellChecker:
             if not aff_files or not dic_files:
                 raise ValueError(f"Could not find required dictionary files for language: {lang_code}")
                 
-            # Use the first matching files found
-            dict_path = dic_files[0].with_suffix('')
+            # Use the first matching files found but keep the language code in filename
+            dict_path = dict_dir / lang_code
+            print(f"Loading dictionary from path: {dict_path}")
             
             # Initialize Spylls Dictionary with specified language
             self.spell = Dictionary.from_files(str(dict_path))
@@ -39,9 +43,9 @@ class SpellChecker:
         except Exception as e:
             print(f"Error initializing Dictionary: {str(e)}")
             # Fallback to English if there's an error
+            self.lang_code = 'en_US'  # Update the stored language code
             fallback_dir = base_dir / 'dicts' / 'en_US'
-            fallback_files = list(fallback_dir.glob("*.dic"))
-            fallback_path = fallback_files[0].with_suffix('')
+            fallback_path = fallback_dir / 'en_US'
             self.spell = Dictionary.from_files(str(fallback_path))
 
     def check_text(self, text):
