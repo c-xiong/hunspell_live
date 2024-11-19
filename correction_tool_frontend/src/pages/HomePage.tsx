@@ -166,7 +166,19 @@ const HomePage: React.FC = () => {
     const word = element.dataset.word;
     const startPosition = parseInt(element.dataset.start || '0', 10);
     if (!word) return;
+    
+    // Preserve the original word case when getting suggestions
     const suggestions = await getSuggestions(word);
+    
+    // If no suggestions are returned for the exact case, try lowercase
+    if (suggestions.suggestions.length === 0) {
+      const lowercaseSuggestions = await getSuggestions(word.toLowerCase());
+      // Filter suggestions to only include ones that differ from the original word
+      suggestions.suggestions = lowercaseSuggestions.suggestions.filter(
+        suggestion => suggestion.toLowerCase() !== word.toLowerCase()
+      );
+    }
+
     const popup = document.createElement('div');
     const rect = element.getBoundingClientRect();
     popup.style.position = 'fixed';
@@ -397,7 +409,7 @@ const HomePage: React.FC = () => {
           marginBottom: '20px',
           position: 'relative'
         }}>
-          <h1 style={inlineStyles.title}>Spell Checking Tool</h1>
+          <h1 style={inlineStyles.title}>Hunspell Live</h1>
         </div>
         <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "24px" }}>
           <div style={inlineStyles.controlsContainer}>

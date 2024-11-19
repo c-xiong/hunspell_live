@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select } from 'antd';
+import { border } from '@chakra-ui/react';
 
 interface Option {
   label: string;
@@ -38,7 +39,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
           label: option.label,
           value: option.value,
         }))}
-        style={{ width: '100%', height: '45px'}}
+        style={{ width: '100%', height: '45px', border: 'solid 1.2px #374151', borderRadius: '8px' }}
         dropdownStyle={{ zIndex: 1001 }}
         getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
       />

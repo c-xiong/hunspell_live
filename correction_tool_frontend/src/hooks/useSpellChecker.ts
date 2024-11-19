@@ -10,9 +10,8 @@ export const useSpellChecker = (selectedLanguage: string) => {
   
   // Batch fetch suggestions for multiple words
   const batchGetSuggestions = async (words: string[]): Promise<Record<string, string[]>> => {
-    // Normalize words to lowercase
-    const normalizedWords = words.map(word => word.toLowerCase());
-    const uncachedWords = normalizedWords.filter(word => !suggestionCache[word]);
+    // Remove normalization - use original words
+    const uncachedWords = words.filter(word => !suggestionCache[word]);
     
     if (uncachedWords.length === 0) return {};
 
@@ -21,7 +20,7 @@ export const useSpellChecker = (selectedLanguage: string) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          words: uncachedWords,
+          words: uncachedWords, // Send original words
           language: LANGUAGE_CODE_MAP[selectedLanguage] || 'en_US',
         }),
       });
@@ -30,21 +29,18 @@ export const useSpellChecker = (selectedLanguage: string) => {
 
       const result = await response.json();
       
-      // Ensure the result.suggestions is in the correct format
+      // Update suggestion handling to preserve case
       const newSuggestions: Record<string, string[]> = {};
       uncachedWords.forEach((word) => {
         let wordSuggestions: string[] = [];
         if (result.suggestions) {
           if (Array.isArray(result.suggestions[word])) {
             wordSuggestions = result.suggestions[word];
-          } else if (Array.isArray(result.suggestions[word.toLowerCase()])) {
-            wordSuggestions = result.suggestions[word.toLowerCase()];
           }
         }
         newSuggestions[word] = wordSuggestions;
       });
 
-      // Update the cache with new suggestions
       setSuggestionCache(prev => ({
         ...prev,
         ...newSuggestions
@@ -75,8 +71,8 @@ export const useSpellChecker = (selectedLanguage: string) => {
       });
     }
 
-    // Normalize words to lowercase for consistency
-    const uniqueWords = [...new Set(wordsWithIndices.map(item => item.word.toLowerCase()))];
+    // Use original words instead of lowercase
+    const uniqueWords = [...new Set(wordsWithIndices.map(item => item.word))];
 
     try {
       const response = await apiRequest("/api/check/", {
@@ -93,18 +89,15 @@ export const useSpellChecker = (selectedLanguage: string) => {
       const result = await response.json();
       const incorrectWords = result.results
         .filter((res: { word: string; is_correct: boolean }) => !res.is_correct)
-        .map((res: { word: string; is_correct: boolean }) => res.word.toLowerCase());
+        .map((res: { word: string; is_correct: boolean }) => res.word);
 
-      // Pre-fetch suggestions for all incorrect words
       let fetchedSuggestions: Record<string, string[]> = {};
       if (incorrectWords.length > 0) {
         fetchedSuggestions = await batchGetSuggestions(incorrectWords);
       }
 
-      // Map results back to their original indices
       const newResults = wordsWithIndices
-        .filter(({ word }) => 
-          incorrectWords.includes(word.toLowerCase()))
+        .filter(({ word }) => incorrectWords.includes(word))
         .map(({ word, index }) => ({
           index,
           word,
@@ -122,27 +115,25 @@ export const useSpellChecker = (selectedLanguage: string) => {
 
   // Fetch suggestions for a single word
   const getSuggestions = async (word: string): Promise<SpellingSuggestion> => {
-    const normalizedWord = word.toLowerCase();
-    // If we have cached suggestions, return them immediately
-    if (suggestionCache[normalizedWord]) {
-      console.log(`Cache hit for word "${normalizedWord}":`, suggestionCache[normalizedWord]);
+    // Use original word instead of lowercase
+    if (suggestionCache[word]) {
+      console.log(`Cache hit for word "${word}":`, suggestionCache[word]);
       return {
-        suggestions: suggestionCache[normalizedWord],
+        suggestions: suggestionCache[word],
         language: selectedLanguage
       };
     }
 
-    // If not in cache, fetch suggestions
-    const newSuggestions = await batchGetSuggestions([normalizedWord]);
+    const newSuggestions = await batchGetSuggestions([word]);
 
-    if (newSuggestions[normalizedWord]) {
-      console.log(`Fetched and cached suggestions for "${normalizedWord}":`, newSuggestions[normalizedWord]);
+    if (newSuggestions[word]) {
+      console.log(`Fetched and cached suggestions for "${word}":`, newSuggestions[word]);
       return {
-        suggestions: newSuggestions[normalizedWord],
+        suggestions: newSuggestions[word],
         language: selectedLanguage
       };
     } else {
-      console.warn(`No suggestions found for "${normalizedWord}"`);
+      console.warn(`No suggestions found for "${word}"`);
       return {
         suggestions: [],
         language: selectedLanguage
