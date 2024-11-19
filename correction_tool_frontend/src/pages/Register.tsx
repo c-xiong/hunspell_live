@@ -3,13 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaUser, FaLock, FaArrowRight, FaHome } from 'react-icons/fa';
 import styles from '../styles/Auth.module.css';
-import { apiRequest } from '../config/api';
+import { useAuth } from '../hooks/useAuth';
 
 const Register: React.FC = (): JSX.Element => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,26 +20,39 @@ const Register: React.FC = (): JSX.Element => {
       return;
     }
 
+    if (!email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      console.log('Password must be at least 8 characters long');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const response = await apiRequest("/auth/register/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        toast.success('Registration successful! You can now log in.');
+      const success = await register(email, password);
+      if (success) {
         navigate('/login');
-      } else {
-        const data = await response.json();
-        toast.error(data.message || 'Registration failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Registration failed', error);
-      toast.error('Registration failed. Please try again.');
+    } catch (error: any) {
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.email && Array.isArray(data.email)) {
+          toast.error(data.email[0]);
+        } else if (data.password && Array.isArray(data.password)) {
+          toast.error(data.password[0]);
+        } else if (data.detail) {
+          toast.error(data.detail);
+        } else {
+          toast.error('Registration failed. Please try again.');
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again later.');
+      }
+      console.error('Register error:', error);
     } finally {
       setIsSubmitting(false);
     }

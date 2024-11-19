@@ -9,17 +9,17 @@ const App: React.FC = () => {
   return (
     <ChakraProvider>
       <Outlet />
-      <ToastContainer 
-        position="top-center" 
-        autoClose={1200} 
-        hideProgressBar={false} 
-        newestOnTop={false} 
-        closeOnClick 
-        rtl={false} 
-        pauseOnFocusLoss 
-        draggable 
-        pauseOnHover 
-      />
+      <ToastContainer
+      position="top-center"
+      autoClose={1500}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
     </ChakraProvider>
   );
 };

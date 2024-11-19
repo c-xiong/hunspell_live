@@ -19,10 +19,15 @@ export const useAuth = () => {
   }, []);
 
   const checkUser = async () => {
+    setIsLoading(true);
     try {
-      const accessToken = localStorage.getItem('accessToken'); // Retrieve token from storage
+      const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('No access token found');
+        setAuthState({
+          isAuthenticated: false,
+          user: null
+        });
+        return;
       }
 
       const response = await apiRequest("/auth/user/", {
@@ -40,10 +45,19 @@ export const useAuth = () => {
           user: userData
         });
       } else {
-        console.error('Failed to get user data:', response.statusText);
+        localStorage.removeItem('accessToken');
+        setAuthState({
+          isAuthenticated: false,
+          user: null
+        });
       }
     } catch (error) {
       console.error('User check failed:', error);
+      localStorage.removeItem('accessToken');
+      setAuthState({
+        isAuthenticated: false,
+        user: null
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,11 +154,46 @@ export const useAuth = () => {
     }
   };
 
+  const register = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await apiRequest("/auth/register/", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Registration successful! You can now log in.');
+        return true;
+      } else {
+        if (data.email) {
+          toast.error(data.email[0]);
+        } else if (data.password) {
+          toast.error(data.password[0]);
+        } else if (data.detail) {
+          toast.error(data.detail);
+        } else {
+          toast.error(data.message || 'Registration failed. Please try again.');
+        }
+        return false;
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+      toast.error('An unexpected error occurred. Please try again later.');
+      return false;
+    }
+  };
+
   return {
     isAuthenticated: authState.isAuthenticated,
     user: authState.user,
     isLoading,
     login,
     logout,
+    register,
   };
 }; 

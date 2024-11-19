@@ -11,10 +11,6 @@ import { SPECIAL_CHARACTERS } from '../constants/language';
 import styles from '../styles/HomePage.module.css';
 import { useAuth } from '../hooks/useAuth';
 
-interface UserProfile {
-  username: string;
-  email: string;
-}
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -25,8 +21,7 @@ const HomePage: React.FC = () => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const { logout, isLoading, isAuthenticated } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { logout, isLoading, isAuthenticated, user } = useAuth();
 
   const { checkSpelling, getSuggestions } = useSpellChecker(selectedOption.value);
 
@@ -353,48 +348,27 @@ const HomePage: React.FC = () => {
     window.location.href = '/login';
   };
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (isAuthenticated) {
-        try {
-          const accessToken = localStorage.getItem('accessToken');
-          const response = await fetch('http://localhost:8000/auth/user/', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            },
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            setUserProfile(data);
-          }
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
-      }
-    };
-
-    fetchUserProfile();
-  }, [isAuthenticated]);
-
   const userControls = (
     <div className={styles.userControls}>
       <div className={styles.buttonWrapper}>
         <FaUser className={styles.profileIcon} />
-        {userProfile && (
-          <div className={styles.profileCard}>
-            <div className={styles.profileInfo}>
-              <p>
-                <span>Username:</span>
-                <span>{userProfile.username}</span>
-              </p>
-              <p>
-                <span>Email:</span>
-                <span>{userProfile.email}</span>
-              </p>
+        {isLoading ? (
+          <div className={styles.profileCard}>Loading...</div>
+        ) : (
+          user && (
+            <div className={styles.profileCard}>
+              <div className={styles.profileInfo}>
+                <p>
+                  <span>Username:</span>
+                  <span>{user.username}</span>
+                </p>
+                <p>
+                  <span>Email:</span>
+                  <span>{user.email}</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
       <button className={styles.logoutButton} onClick={logout}>

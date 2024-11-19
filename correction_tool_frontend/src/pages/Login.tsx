@@ -25,11 +25,25 @@ const Login: React.FC = (): JSX.Element => {
       const success = await login(email, password);
       if (success) {
         navigate('/');
-      } else {
-        toast.error('Invalid email or password');
       }
-    } catch (error) {
-      toast.error('An error occurred during login. Please try again.');
+    } catch (error: any) {
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.email && Array.isArray(data.email)) {
+          toast.error(data.email[0]);
+        } else if (data.error) {
+          toast.error(data.error);
+        } else if (data.detail) {
+          toast.error(data.detail);
+        } else if (data.non_field_errors) {
+          toast.error(data.non_field_errors[0]);
+        } else {
+          toast.error('Invalid email or password.');
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again later.');
+      }
+      console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
