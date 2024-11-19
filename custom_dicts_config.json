@@ -1,0 +1,8 @@
+{
+    "sample_code": {
+        "hunspell_path": "hunspell/dicts/sample",
+        "language": "sample language",
+        "language_code": "sample_code",
+        "text_direction": "ltr"
+    }
+}

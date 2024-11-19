@@ -111,17 +111,6 @@ a {
   border-color: #3b82f6;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
-/* .misspelled {
-  text-decoration: underline wavy #ef4444 !important;
-  text-decoration-thickness: 2px !important;
-  color: #ef4444;
-  cursor: pointer;
-  font-style: normal;
-  font-size: 24px;
-  transition: all 0.2s ease;
-} */
-
 .misspelled:hover {
   background-color: rgba(239, 68, 68, 0.1);
 }

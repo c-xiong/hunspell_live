@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { Select } from 'antd';
 
 interface Option {
   label: string;
@@ -8,151 +9,39 @@ interface Option {
 interface CustomDropdownProps {
   options: Option[];
   value: Option;
-  onChange: (option: Option) => void;
+  onChange: (option: Option, event?: React.MouseEvent) => void;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredOptions, setFilteredOptions] = useState(options);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setFilteredOptions(
-      options.filter(option =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [searchTerm, options]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const handleChange = (selectedValue: string, option: any) => {
+    const selectedOption = options.find(opt => opt.value === selectedValue);
+    if (selectedOption) {
+      onChange(selectedOption);
+    }
+  };
 
   return (
     <div 
-      ref={dropdownRef}
-      className="custom-dropdown"
-      style={{ 
-        position: 'relative',
-        width: '100%',
-        padding: '0 0 16px 0'
-      }}
+      style={{ padding: '0 0 16px 0', width: '280px' }}
+      onClick={(e) => e.stopPropagation()}
     >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: '140px',
-          padding: '8px 12px',
-          height: '40px',
-          backgroundColor: 'white',
-          border: '2px solid #e2e8f0',
-          borderRadius: '8px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'pointer',
-          fontSize: '18px',
-          fontWeight: '500',
-          transition: 'border-color 0.2s',
-          ':hover': {
-            borderColor: '#cbd5e1',
-          }
-        }}
-      >
-        {value ? value.label : "English"}
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          zIndex: 10,
-          width: '200px',
-          marginTop: '4px',
-          backgroundColor: 'white',
-          border: '2px solid #e2e8f0',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-        }}>
-          <div style={{
-            padding: '8px',
-            borderBottom: '2px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#f8fafc',
-            height: '40px',
-          }}>
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                backgroundColor: 'white',
-                color: '#1e293b',
-                padding: '6px 8px',
-                border: '1px solid #e2e8f0',
-                borderRadius: '4px',
-                height: '28px',
-                fontSize: '16px'
-              }}
-            />
-          </div>
-          <ul style={{ 
-            maxHeight: '300px',
-            overflowY: 'auto',
-            margin: 0,
-            padding: '4px 0',
-            listStyle: 'none'
-          }}>
-            {filteredOptions.map((option) => (
-              <li
-                key={option.value}
-                onClick={() => {
-                  onChange(option);
-                  setIsOpen(false);
-                  setSearchTerm('');
-                }}
-                style={{
-                  padding: '10px 14px',
-                  cursor: 'pointer',
-                  height: '46px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '18px',
-                  color: '#1e293b',
-                  transition: 'all 0.2s ease',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f1f5f9';
-                  e.currentTarget.style.paddingLeft = '20px';
-                  e.currentTarget.style.color = '#0f172a';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '';
-                  e.currentTarget.style.paddingLeft = '14px';
-                  e.currentTarget.style.color = '#1e293b';
-                }}
-              >
-                {option.label}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <Select
+        showSearch
+        value={value.value}
+        onChange={handleChange}
+        placeholder="Select Language"
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          (option?.label as string).toLowerCase().includes(input.toLowerCase())
+        }
+        options={options.map(option => ({
+          label: option.label,
+          value: option.value,
+        }))}
+        style={{ width: '100%', height: '45px'}}
+        dropdownStyle={{ zIndex: 1001 }}
+        getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+      />
     </div>
   );
 };

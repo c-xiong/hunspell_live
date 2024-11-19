@@ -6,6 +6,7 @@ services:
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./correction_tool_backend:/code
+      - ./default_dicts_config.json:/code/default_dicts_config.json
     ports:
       - "8000:8000"
     depends_on:

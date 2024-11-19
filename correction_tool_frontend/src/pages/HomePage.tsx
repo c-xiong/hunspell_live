@@ -10,6 +10,7 @@ import { LanguageOption, SpellingResult } from '../types/spelling';
 import { SPECIAL_CHARACTERS } from '../constants/language';
 import styles from '../styles/HomePage.module.css';
 import { useAuth } from '../hooks/useAuth';
+import { LANGUAGE_OPTIONS } from '../constants/language';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -24,16 +25,10 @@ const HomePage: React.FC = () => {
 
   const { checkSpelling, getSuggestions } = useSpellChecker(selectedOption.value);
 
-  const options: LanguageOption[] = [
-    { label: "English", value: "en" },
-    { label: "Español", value: "es" },
-    { label: "Français", value: "fr" },
-    { label: "Deutsch", value: "de" },
-    { label: "Italiano", value: "it" },
-    { label: "Português", value: "pt" },
-  ];
+  const options: LanguageOption[] = LANGUAGE_OPTIONS;
 
-  const handleSelectChange = (option: LanguageOption) => {
+  const handleSelectChange = (option: LanguageOption, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     localStorage.setItem('selectedLanguage', JSON.stringify(option));
     setSelectedOption(option);
     setText('');
@@ -311,7 +306,8 @@ const HomePage: React.FC = () => {
     if (
       event.target instanceof Node && 
       (event.target.closest('.custom-dropdown') || 
-       event.target.closest('.loginCard'))
+       event.target.closest('.loginCard') ||
+       event.target.closest('.ant-select-dropdown'))
     ) {
       return;
     }
