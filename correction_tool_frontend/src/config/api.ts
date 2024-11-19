@@ -4,8 +4,8 @@ const API_URLS = {
 };
 
 export const API_BASE_URL = import.meta.env.PROD 
-  ? (import.meta.env.VITE_BASE_URL_PROD || API_URLS.prod)
-  : (import.meta.env.VITE_BASE_URL_DEV || API_URLS.dev);
+  ? (import.meta.env.BASE_URL_PROD || API_URLS.prod)
+  : (import.meta.env.BASE_URL_DEV || API_URLS.dev);
 
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   try {

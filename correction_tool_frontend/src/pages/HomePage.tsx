@@ -11,7 +11,6 @@ import { SPECIAL_CHARACTERS } from '../constants/language';
 import styles from '../styles/HomePage.module.css';
 import { useAuth } from '../hooks/useAuth';
 
-
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
     const savedLanguage = localStorage.getItem('selectedLanguage');
@@ -53,10 +52,10 @@ const HomePage: React.FC = () => {
 
   const handlePaste = async () => {
     try {
-      const text = await navigator.clipboard.readText();
+      const pastedText = await navigator.clipboard.readText();
       if (editorRef.current) {
-        editorRef.current.innerHTML = text;
-        setText(text);
+        editorRef.current.innerHTML = pastedText;
+        setText(pastedText);
         setSpellingResults([]);
         
         // Move cursor to end of text
@@ -83,10 +82,12 @@ const HomePage: React.FC = () => {
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const parentSpan = range.startContainer.parentElement;
-      if (parentSpan?.classList.contains('misspelled') || 
-          (range.startContainer.previousSibling?.nodeName === 'SPAN' || 
-           range.startContainer.nextSibling?.nodeName === 'SPAN') ||
-          newText.length === 0) {
+      if (
+        parentSpan?.classList.contains('misspelled') || 
+        (range.startContainer.previousSibling?.nodeName === 'SPAN' || 
+         range.startContainer.nextSibling?.nodeName === 'SPAN') ||
+        newText.length === 0
+      ) {
         const textNode = document.createTextNode(newText);
         if (editorRef.current) {
           editorRef.current.innerHTML = '';
@@ -143,7 +144,6 @@ const HomePage: React.FC = () => {
     html += textContent.slice(lastIndex);
     const selection = window.getSelection();
     const range = selection?.getRangeAt(0);
-    const cursorOffset = range?.endOffset || 0;
     editorRef.current.innerHTML = html;
     setSpellingResults(results);
     const misspelledElements = editorRef.current.getElementsByClassName('misspelled');
@@ -212,9 +212,11 @@ const HomePage: React.FC = () => {
       });
       ignoreElement.addEventListener('click', () => {
         if (element && editorRef.current) {
+          // Replace the span with the original word without any formatting
           element.outerHTML = word;
+          // Remove the word from spellingResults
           setSpellingResults(prev => 
-            prev.filter(result => !(result.word === word && result.index === startPosition))
+            prev.filter(result => !(result.word.toLowerCase() === word.toLowerCase() && result.index === startPosition))
           );
         }
         document.body.removeChild(popup);
@@ -271,10 +273,11 @@ const HomePage: React.FC = () => {
       }
     }
     if (targetSpan) {
+      // Preserve the original casing by replacing with the suggestion as-is
       targetSpan.outerHTML = suggestion;
       setText(editorRef.current.innerText);
       setSpellingResults(prev => 
-        prev.filter(result => !(result.word === originalWord && result.index === startPosition))
+        prev.filter(result => !(result.word.toLowerCase() === originalWord.toLowerCase() && result.index === startPosition))
       );
       const misspelledElements = editorRef.current.getElementsByClassName('misspelled');
       Array.from(misspelledElements).forEach(element => {
@@ -450,7 +453,13 @@ const HomePage: React.FC = () => {
             </div>
           </div>
           <VisualKeyboard onCharacterClick={handleCharacterInsert} characters={currentSpecialCharacters} />
-          <div ref={editorRef} contentEditable onInput={handleTextChange} style={inlineStyles.editor} data-placeholder="Enter or paste your text here to check spelling" />
+          <div 
+            ref={editorRef} 
+            contentEditable 
+            onInput={handleTextChange} 
+            style={inlineStyles.editor} 
+            data-placeholder="Enter or paste your text here to check spelling" 
+          />
         </div>
       </div>
     </div>
