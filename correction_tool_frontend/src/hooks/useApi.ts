@@ -4,7 +4,7 @@ import { SpellingResult, SpellingSuggestion } from '../types/spelling';
 import { LANGUAGE_CODE_MAP } from '../constants/language';
 import { toast } from 'react-toastify';
 
-export const useSpellChecker = (selectedLanguage: string) => {
+export const useApi = (selectedLanguage: string) => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const [suggestionCache, setSuggestionCache] = useState<Record<string, string[]>>({});
   
@@ -141,10 +141,42 @@ export const useSpellChecker = (selectedLanguage: string) => {
     }
   };
 
+  const addWordToDictionary = async (word: string): Promise<boolean> => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await apiRequest("/api/dictionary/add/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          word,
+          language: LANGUAGE_CODE_MAP[selectedLanguage] || 'en_US',
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add word");
+      
+      // Clear the suggestion cache for this word
+      setSuggestionCache(prev => {
+        const newCache = { ...prev };
+        delete newCache[word];
+        return newCache;
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error adding word to dictionary:", error);
+      return false;
+    }
+  };
+
   return {
     spellingResults,
     suggestionCache,
     checkSpelling,
     getSuggestions,
+    addWordToDictionary,
   };
 };

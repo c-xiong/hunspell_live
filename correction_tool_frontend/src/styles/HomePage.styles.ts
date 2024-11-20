@@ -20,7 +20,7 @@ export const styles = {
     fontSize: "48px",
     fontWeight: "700",
     textAlign: "center",
-    marginTop: "40px",
+    marginTop: "10px",
     marginBottom: "20px",
     color: "#1a1a1a",
     letterSpacing: "-0.02em",

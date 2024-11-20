@@ -1,19 +1,18 @@
 import React from 'react';
 import { Select } from 'antd';
-import { border } from '@chakra-ui/react';
 
 interface Option {
   label: string;
   value: string;
 }
 
-interface CustomDropdownProps {
+interface DropdownProps {
   options: Option[];
   value: Option;
   onChange: (option: Option, event?: React.MouseEvent) => void;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange }) => {
+const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
   const handleChange = (selectedValue: string, option: any) => {
     const selectedOption = options.find(opt => opt.value === selectedValue);
     if (selectedOption) {
@@ -39,7 +38,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
           label: option.label,
           value: option.value,
         }))}
-        style={{ width: '100%', height: '45px', border: 'solid 1.2px #374151', borderRadius: '8px' }}
+        style={{ width: '100%', height: '40px', border: 'solid 2px #374151', borderRadius: '8px' }}
         dropdownStyle={{ zIndex: 1001 }}
         getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
       />
@@ -47,5 +46,5 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
   );
 };
 
-export default CustomDropdown;
+export default Dropdown;
 

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import CustomDropdown from "../components/Dropdown";
+import Dropdown from "../components/Dropdown";
 import VisualKeyboard from "../components/VisualKeyboard";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion, FaUser } from 'react-icons/fa';
-import { useSpellChecker } from '../hooks/useSpellChecker';
+import { useApi } from '../hooks/useApi';
 import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
 import styles from '../styles/HomePage.module.css';
@@ -22,7 +22,7 @@ const HomePage: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const { logout, isLoading, isAuthenticated, user } = useAuth();
 
-  const { checkSpelling, getSuggestions } = useSpellChecker(selectedOption.value);
+  const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(selectedOption.value);
 
   const options: LanguageOption[] = LANGUAGE_OPTIONS;
 
@@ -179,20 +179,27 @@ const HomePage: React.FC = () => {
       );
     }
 
-    const popup = document.createElement('div');
     const rect = element.getBoundingClientRect();
+
+    // Main popup container - allows tooltips to overflow
+    const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.left = `${rect.left}px`;
     popup.style.top = `${rect.bottom + 8}px`;
     popup.style.backgroundColor = '#ffffff';
     popup.style.border = '2px solid #e2e8f0';
     popup.style.borderRadius = '12px';
-    popup.style.padding = '12px 0';
     popup.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
     popup.style.zIndex = '1000';
-    popup.style.maxHeight = '300px';
-    popup.style.overflowY = 'auto';
-    popup.style.minWidth = `${Math.max(rect.width, 150)}px`;
+    popup.style.minWidth = `${Math.max(rect.width + 200, 300)}px`;
+    popup.style.overflow = 'visible';
+
+    // Inner scrollable container for suggestions
+    const scrollContainer = document.createElement('div');
+    scrollContainer.style.maxHeight = '400px';
+    scrollContainer.style.overflowY = 'auto';
+    scrollContainer.style.padding = '12px 0';
+    popup.appendChild(scrollContainer);
 
     if (suggestions.suggestions.length === 0) {
       const noSuggestionsElement = document.createElement('div');
@@ -202,7 +209,7 @@ const HomePage: React.FC = () => {
       noSuggestionsElement.style.fontWeight = 'bold';
       noSuggestionsElement.style.color = '#6b7280';
       noSuggestionsElement.style.fontStyle = 'italic';
-      popup.appendChild(noSuggestionsElement);
+      scrollContainer.appendChild(noSuggestionsElement);  // Append to scrollContainer instead of popup
     } else {
       const ignoreElement = document.createElement('div');
       ignoreElement.textContent = 'Ignore';
@@ -213,6 +220,8 @@ const HomePage: React.FC = () => {
       ignoreElement.style.color = '#6b7280';
       ignoreElement.style.borderBottom = '1px solid #e5e7eb';
       ignoreElement.style.margin = '0';
+      ignoreElement.style.textAlign = 'center';
+      ignoreElement.style.width = '100%';
       ignoreElement.addEventListener('mouseover', () => {
         ignoreElement.style.backgroundColor = '#f3f4f6';
         ignoreElement.style.color = '#4b5563';
@@ -232,30 +241,114 @@ const HomePage: React.FC = () => {
         }
         document.body.removeChild(popup);
       });
-      popup.appendChild(ignoreElement);
+      scrollContainer.appendChild(ignoreElement);  // Append to scrollContainer instead of popup
 
       suggestions.suggestions.forEach(suggestion => {
+        const suggestionContainer = document.createElement('div');
+        suggestionContainer.style.display = 'flex';
+        suggestionContainer.style.justifyContent = 'space-between';
+        suggestionContainer.style.alignItems = 'center';
+        suggestionContainer.style.padding = '8px 50px 8px 50px';
+        suggestionContainer.style.margin = '0';
+        suggestionContainer.style.cursor = 'pointer';
+        suggestionContainer.style.minWidth = '250px';
+
         const suggestionElement = document.createElement('div');
         suggestionElement.textContent = suggestion;
-        suggestionElement.style.padding = '8px 16px';
-        suggestionElement.style.cursor = 'pointer';
         suggestionElement.style.fontSize = '20px';
         suggestionElement.style.fontWeight = 'bold';
         suggestionElement.style.color = '#374151';
-        suggestionElement.style.margin = '0';
-        suggestionElement.addEventListener('mouseover', () => {
-          suggestionElement.style.backgroundColor = '#f3f4f6';
+        suggestionElement.style.flex = '1';
+
+        const addButton = document.createElement('button');
+        addButton.textContent = '+';
+        addButton.style.marginLeft = '8px';
+        addButton.style.padding = '2px 8px';
+        addButton.style.borderRadius = '4px';
+        addButton.style.backgroundColor = '#e5e7eb';
+        addButton.style.border = 'none';
+        addButton.style.cursor = 'pointer';
+        addButton.style.fontSize = '16px';
+        addButton.style.fontWeight = 'bold';
+        addButton.style.position = 'relative';
+
+        const tooltip = document.createElement('span');
+        tooltip.textContent = 'Add to dictionary';
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.backgroundColor = '#333';
+        tooltip.style.color = '#fff';
+        tooltip.style.textAlign = 'center';
+        tooltip.style.padding = '5px 10px';
+        tooltip.style.borderRadius = '6px';
+        tooltip.style.position = 'absolute';
+        tooltip.style.zIndex = '1002';
+        tooltip.style.left = '50%';
+        tooltip.style.top = 'calc(100% + 8px)';
+        tooltip.style.transform = 'translateX(-50%)';
+        tooltip.style.fontSize = '14px';
+        tooltip.style.whiteSpace = 'nowrap';
+        tooltip.style.fontWeight = 'normal';
+        tooltip.style.pointerEvents = 'none';
+
+        addButton.addEventListener('mouseover', () => {
+          tooltip.style.visibility = 'visible';
+          addButton.style.backgroundColor = '#d1d5db';
+        });
+
+        addButton.addEventListener('mouseout', () => {
+          tooltip.style.visibility = 'hidden';
+          addButton.style.backgroundColor = '#e5e7eb';
+        });
+
+        addButton.appendChild(tooltip);
+
+        suggestionContainer.appendChild(suggestionElement);
+        suggestionContainer.appendChild(addButton);
+
+        suggestionContainer.addEventListener('mouseover', () => {
+          suggestionContainer.style.backgroundColor = '#f3f4f6';
           suggestionElement.style.color = '#000000';
         });
-        suggestionElement.addEventListener('mouseout', () => {
-          suggestionElement.style.backgroundColor = 'transparent';
+        suggestionContainer.addEventListener('mouseout', () => {
+          suggestionContainer.style.backgroundColor = 'transparent';
           suggestionElement.style.color = '#374151';
         });
+
+        // Click handlers
         suggestionElement.addEventListener('click', () => {
           handleSuggestionClick(suggestion, word, startPosition);
           document.body.removeChild(popup);
         });
-        popup.appendChild(suggestionElement);
+
+        addButton.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          
+          try {
+            // Show loading toast
+            const loadingToast = toast.loading('Adding word to dictionary...');
+            
+            const success = await addWordToDictionary(suggestion);
+            
+            // Dismiss loading toast
+            toast.dismiss(loadingToast);
+
+            if (!success) {
+              throw new Error('Failed to add word');
+            }
+
+            // Show success message
+            toast.success('Word added to dictionary successfully');
+            
+            // Close the suggestions popup
+            document.body.removeChild(popup);
+            
+          } catch (error) {
+            toast.error('Failed to add word to dictionary');
+            console.error('Error adding word:', error);
+          }
+        });
+
+        scrollContainer.appendChild(suggestionContainer);  // Append to scrollContainer instead of popup
       });
     }
 
@@ -406,7 +499,7 @@ const HomePage: React.FC = () => {
           display: 'flex', 
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: '20px',
+          marginBottom: '10px',
           position: 'relative'
         }}>
           <h1 style={inlineStyles.title}>Hunspell Live</h1>
@@ -461,7 +554,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             <div style={inlineStyles.dropdownContainer}>
-              <CustomDropdown options={options} value={selectedOption} onChange={handleSelectChange} />
+              <Dropdown options={options} value={selectedOption} onChange={handleSelectChange} />
             </div>
           </div>
           <VisualKeyboard onCharacterClick={handleCharacterInsert} characters={currentSpecialCharacters} />
