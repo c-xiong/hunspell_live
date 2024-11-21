@@ -11,6 +11,8 @@ import {
   FaQuestion,
   FaUser,
   FaGithub,
+  FaMoon,
+  FaSun
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
 import { styles as inlineStyles } from "../styles/HomePage.styles";
@@ -31,12 +33,40 @@ const HomePage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const { logout, isLoading, isAuthenticated, user } = useAuth();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark";
+  });
 
   const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(
     selectedOption.value
   );
 
   const options: LanguageOption[] = LANGUAGE_OPTIONS;
+
+  // Add theme toggle handler
+  const toggleTheme = () => {
+    setIsDarkMode(prev => {
+      const newTheme = !prev;
+      localStorage.setItem("theme", newTheme ? "dark" : "light");
+      return newTheme;
+    });
+  };
+
+  // Add this near the top of your return statement, after the login button
+  const themeToggle = (
+    <div className={styles.buttonWrapper}>
+      <button 
+        onClick={toggleTheme} 
+        className={`${styles.themeButton} ${isDarkMode ? styles.darkMode : ''}`}
+      >
+        {isDarkMode ? <FaSun /> : <FaMoon />}
+      </button>
+      <span className={styles.tooltip}>
+        {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      </span>
+    </div>
+  );
 
   const handleSelectChange = (
     option: LanguageOption,
@@ -523,19 +553,34 @@ const HomePage: React.FC = () => {
     </div>
   );
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [isDarkMode]);
+
   return (
     <div
       ref={containerRef}
       style={inlineStyles.container}
       onClick={focusEditor}
+      className={isDarkMode ? styles.darkMode : ''}
     >
-      <div className={styles.buttonWrapper}>
+      <div className={styles.topControls}>
         {isAuthenticated ? (
-          userControls
+          <>
+            {userControls}
+            {themeToggle}
+          </>
         ) : (
-          <button className={styles.loginButton} onClick={handleLoginClick}>
-            <FaUser /> Login
-          </button>
+          <>
+            {themeToggle}
+            <button className={styles.loginButton} onClick={handleLoginClick}>
+              <FaUser /> Login
+            </button>
+          </>
         )}
       </div>
       <div style={inlineStyles.content}>
@@ -546,7 +591,7 @@ const HomePage: React.FC = () => {
         </div>
         <div
           style={{
-            backgroundColor: "white",
+            backgroundColor: isDarkMode ? '#25365b' : 'white',
             borderRadius: "8px",
             padding: "24px",
           }}

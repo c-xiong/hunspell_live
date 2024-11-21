@@ -227,9 +227,6 @@
   }
   
   .loginButton {
-    position: fixed;
-    top: 20px;
-    right: 20px;
     padding: 8px 16px;
     border-radius: 6px;
     color: #4F46E5;
@@ -241,7 +238,6 @@
     align-items: center;
     gap: 8px;
     font-size: 20px;
-    z-index: 1000;
     font-weight: 700;
     transition: all 0.2s ease;
   }
@@ -254,13 +250,9 @@
   }
   
   .userControls {
-    position: fixed;
-    top: 20px;
-    right: 20px;
     display: flex;
     gap: 10px;
     align-items: center;
-    z-index: 1000;
   }
   
   .profileIcon {
@@ -482,4 +474,167 @@
     color: #6b7280;
     font-size: 14px;
     margin-left: 24px;
+  }
+  
+  .darkMode {
+    color: #e5e7eb;
+  }
+  
+  .darkMode [contenteditable] {
+    background-color: #333333;
+    border-color: #4a4a4a;
+    color: #000000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .darkMode [contenteditable]:empty:before {
+    color: #a0a0a0;
+  }
+  
+  .darkMode .title {
+    color: #e5e7eb;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .themeButton {
+    background-color: transparent;
+    color: #6b7280;
+    border: #6b7280 1px solid;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .themeButton:hover {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .themeButton.darkMode {
+    color: #e5e7eb;
+    border-color: #e5e7eb;
+  }
+  
+  .themeButton.darkMode:hover {
+    background-color: #e5e7eb;
+    color: #1a1a1a;
+  }
+  
+  .darkMode .helpCard {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .darkMode .helpCard h3 {
+    color: #e5e7eb;
+    border-bottom-color: #404040;
+  }
+  
+  .darkMode .helpCard ul {
+    color: #9ca3af;
+  }
+  
+  .darkMode .profileCard {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .darkMode .profileCard::before {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .darkMode .profileInfo {
+    color: #9ca3af;
+  }
+  
+  .darkMode .profileInfo span:first-child {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .footer {
+    background: linear-gradient(to top, rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.8) 50%, transparent);
+  }
+  
+  .darkMode .githubLink {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .copyright {
+    color: #9ca3af;
+  }
+  
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    width: 100%;
+    transition: background-color 0.2s ease;
+  }
+  
+  :global(body.dark-mode) {
+    background-color: #0f172a;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    transition: background-color 0.2s ease;
+  }
+  
+  .darkMode .container {
+    background-color: #8a95ac;
+  }
+  
+  .topControls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+  }
+  
+  .darkMode .topControls {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .loginButton {
+    background-color: transparent;
+    color: #e5e7eb;
+    border-color: #e5e7eb;
+  }
+  
+  .darkMode .loginButton:hover {
+    background-color: #e5e7eb;
+    color: #1a1a1a;
+  }
+  
+  .darkMode div[style*="backgroundColor: white"] {
+    background-color: #1a1a1a !important;
+  }
+  
+  .darkMode [contenteditable] {
+    background-color: #435e8a;
+    border-color: #334155;
+    color: #000000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .darkMode [contenteditable]:empty:before {
+    color: #64748b;
+  }
+  
+  .darkMode .misspelled {
+    color: #000000;
+    text-decoration-color: #ef4444;
   }
