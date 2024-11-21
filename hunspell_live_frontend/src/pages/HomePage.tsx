@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import Dropdown from "../components/Dropdown";
-import VisualKeyboard from "../components/VisualKeyboard";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaTrashAlt, FaPaste, FaCopy, FaCut, FaCheck, FaQuestion, FaUser } from 'react-icons/fa';
@@ -9,7 +8,7 @@ import { styles as inlineStyles } from '../styles/HomePage.styles';
 import { LanguageOption, SpellingResult } from '../types/spelling';
 import styles from '../styles/HomePage.module.css';
 import { useAuth } from '../hooks/useAuth';
-import { LANGUAGE_OPTIONS, SPECIAL_CHARACTERS, TEXT_DIRECTION_MAP } from '../constants/language';
+import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from '../constants/language';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -196,7 +195,7 @@ const HomePage: React.FC = () => {
 
     // Inner scrollable container for suggestions
     const scrollContainer = document.createElement('div');
-    scrollContainer.style.maxHeight = '400px';
+    scrollContainer.style.maxHeight = '300px';
     scrollContainer.style.overflowY = 'auto';
     scrollContainer.style.padding = '12px 0';
     popup.appendChild(scrollContainer);
@@ -425,7 +424,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const currentSpecialCharacters = SPECIAL_CHARACTERS[selectedOption.value] || [];
 
   const handleCopy = async () => {
     if (editorRef.current) {
@@ -557,7 +555,7 @@ const HomePage: React.FC = () => {
               <Dropdown options={options} value={selectedOption} onChange={handleSelectChange} />
             </div>
           </div>
-          <VisualKeyboard onCharacterClick={handleCharacterInsert} characters={currentSpecialCharacters} />
+          
           <div 
             ref={editorRef} 
             contentEditable 

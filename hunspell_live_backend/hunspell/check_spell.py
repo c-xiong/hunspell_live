@@ -6,7 +6,7 @@ import json
 
 class SpellChecker:
     # Load supported languages from JSON configuration
-    config_path = Path(__file__).parent.parent / 'default_dicts_config.json'
+    config_path = Path(__file__).parent.parent / 'dicts_config/default_dicts_config.json'
     with open(config_path, 'r') as f:
         SUPPORTED_LANGUAGES = set(json.load(f).keys())
 
@@ -30,12 +30,13 @@ class SpellChecker:
             if not aff_files or not dic_files:
                 raise ValueError(f"Could not find required dictionary files for language: {lang_code}")
                 
-            # Use the first matching files found but keep the language code in filename
-            dict_path = dict_dir / lang_code
-            print(f"Loading dictionary from path: {dict_path}")
+            # Use the first matching files found (without assuming filename)
+            aff_path = aff_files[0]
+            dic_path = dic_files[0]
+            print(f"Loading dictionary files: {aff_path}, {dic_path}")
             
-            # Initialize Spylls Dictionary with specified language
-            self.spell = Dictionary.from_files(str(dict_path))
+            # Initialize Spylls Dictionary with the actual file paths
+            self.spell = Dictionary.from_files(str(dic_path.with_suffix('')))
             
             if not self.spell:
                 raise ValueError(f"Failed to initialize Dictionary for language: {lang_code}")

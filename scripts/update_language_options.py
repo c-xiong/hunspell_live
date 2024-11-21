@@ -17,14 +17,14 @@ def load_and_merge_configs(default_path, custom_path=None):
 
 # Read and merge the configs
 config = load_and_merge_configs(
-    'default_dicts_config.json',
-    'custom_dicts_config.json'
+    'dicts_config/default_dicts_config.json',
+    'dicts_config/custom_dicts_config.json'
 )
 
 # Create a set of unique language codes, their full names, and text directions
 language_map = {}
-for key, value in config.items():
-    lang_code = value['language_code']
+for lang_code, value in config.items():
+    # Use the dictionary key as the language code
     language = value['language']
     text_direction = value['text_direction']
     language_map[lang_code] = {'name': language, 'direction': text_direction}
@@ -42,10 +42,6 @@ export const LANGUAGE_CODE_MAP: Record<string, string> = {{
 }};
 
 export const TEXT_DIRECTION_MAP: Record<string, 'ltr' | 'rtl'> = {{
-{}
-}};
-
-export const SPECIAL_CHARACTERS: Record<string, string[]> = {{
 {}
 }};
 """
@@ -69,43 +65,15 @@ for lang_code, info in language_map.items():
     key = f"'{lang_code}'" if '-' in lang_code else lang_code
     direction_map.append(f"  {key}: '{info['direction']}'")
 
-# Special characters map with verified characters
-special_chars = {
-    'fr': ['à', 'â', 'ç', 'é', 'è', 'ê', 'ë', 'î', 'ï', 'ô', 'ù', 'û', 'ü', 'ÿ', 'À', 'Â', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Î', 'Ï', 'Ô', 'Ù', 'Û', 'Ü', 'Ÿ', 'œ', 'Œ'],
-    'es': ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', 'Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ', 'Ü', '¿', '¡'],
-    'de': ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'],
-    'it': ['à', 'è', 'é', 'ì', 'î', 'ò', 'ù', 'À', 'È', 'É', 'Ì', 'Î', 'Ò', 'Ù'],
-    'pt': ['á', 'â', 'ã', 'à', 'ç', 'é', 'ê', 'í', 'ó', 'ô', 'õ', 'ú', 'Á', 'Â', 'Ã', 'À', 'Ç', 'É', 'Ê', 'Í', 'Ó', 'Ô', 'Õ', 'Ú'],
-    'pl': ['ą', 'ć', 'ę', 'ł', 'ń', 'ó', 'ś', 'ź', 'ż', 'Ą', 'Ć', 'Ę', 'Ł', 'Ń', 'Ó', 'Ś', 'Ź', 'Ż'],
-    'nl': ['é', 'ë', 'ï', 'ó', 'ö', 'ü', 'É', 'Ë', 'Ï', 'Ó', 'Ö', 'Ü', 'ĳ', 'Ĳ'],
-    'sv': ['å', 'ä', 'ö', 'é', 'Å', 'Ä', 'Ö', 'É'],
-    'da': ['æ', 'ø', 'å', 'é', 'Æ', 'Ø', 'Å', 'É'],
-    'no': ['æ', 'ø', 'å', 'é', 'Æ', 'Ø', 'Å', 'É'],
-    'fi': ['ä', 'ö', 'å', 'Ä', 'Ö', 'Å'],
-    'cs': ['á', 'č', 'ď', 'é', 'ě', 'í', 'ň', 'ó', 'ř', 'š', 'ť', 'ú', 'ů', 'ý', 'ž', 'Á', 'Č', 'Ď', 'É', 'Ě', 'Í', 'Ň', 'Ó', 'Ř', 'Š', 'Ť', 'Ú', 'Ů', 'Ý', 'Ž'],
-    'hu': ['á', 'é', 'í', 'ó', 'ö', 'ő', 'ú', 'ü', 'ű', 'Á', 'É', 'Í', 'Ó', 'Ö', 'Ő', 'Ú', 'Ü', 'Ű'],
-    'ro': ['ă', 'â', 'î', 'ș', 'ț', 'Ă', 'Â', 'Î', 'Ș', 'Ț']
-}
-
-special_chars_entries = []
-for lang_code in language_map.keys():
-    # Quote the key if it contains a hyphen
-    key = f"'{lang_code}'" if '-' in lang_code else lang_code
-    # Get base language code (before hyphen or underscore) for special chars
-    base_lang = lang_code.split('-')[0].split('_')[0]
-    chars = special_chars.get(base_lang, [])
-    special_chars_entries.append(f"  {key}: {json.dumps(chars, ensure_ascii=False)}")
-
 # Format the final content
 formatted_content = ts_content.format(
     ',\n'.join(language_options),
     ',\n'.join(code_map),
-    ',\n'.join(direction_map),
-    ',\n'.join(special_chars_entries)
+    ',\n'.join(direction_map)
 )
 
 # Write to the language.ts file
-output_path = Path('correction_tool_frontend/src/constants/language.ts')
+output_path = Path('hunspell_live_frontend/src/constants/language.ts')
 with open(output_path, 'w', encoding='utf-8') as f:
     f.write(formatted_content)
 

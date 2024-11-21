@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Create directory for dictionary config
+RUN mkdir -p /code/dicts_config
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 

@@ -1,12 +1,12 @@
 services:
   web:
-    build: ./correction_tool_backend
+    build: ./hunspell_live_backend
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./correction_tool_backend:/code
-      - ./default_dicts_config.json:/code/default_dicts_config.json
+      - ./dicts_config/default_dicts_config.json:/code/dicts_config/default_dicts_config.json
+      - ./hunspell_live_backend:/code
     ports:
       - "8000:8000"
     depends_on:
@@ -19,11 +19,11 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 
   frontend:
-    build: ./correction_tool_frontend
+    build: ./hunspell_live_frontend
     ports:
       - "5173:5173"
     volumes:
-      - ./correction_tool_frontend:/app
+      - ./hunspell_live_frontend:/app
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true

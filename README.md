@@ -1,17 +1,19 @@
-# Correction Tool
+# Hunspell Live
+
+Live demo: [URL]
+
 ## Introduction
-A customized spell-checking tool powered by [Spylls](https://spylls.readthedocs.io/en/latest/).
+Hunspell Live is a customized spell-checking tool powered by [Spylls](https://spylls.readthedocs.io/en/latest/). It enables developers and linguistic researchers to perform real-time spell checking using custom Hunspell dictionaries.
 
 ## Prerequisites
 - [Docker Desktop](https://www.docker.com/get-started)
 
 ## Getting Started
-These instructions will help you set up a local development environment.
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/imred42/correction_tool.git
-cd correction-tool
+git clone https://github.com/imred42/hunspell_live.git
+cd hunspell_live
 ```
 
 ### Environment Setup
@@ -23,28 +25,30 @@ BASE_URL_DEV=http://localhost:8000
 BASE_URL_PROD=https://your-production-api.com
 ```
 
-### Build and Run with Docker
+### Build and Run
 ```bash
 docker compose up --build
 ```
 
-### Access Points
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
+### Adding Custom Dictionaries
+To add your own Hunspell dictionaries:
 
-### Development Features
-- Hot-reloading enabled for both frontend and backend
-- Frontend changes reflect immediately in the browser
-- Backend changes trigger automatic server restart
+1. Place your `.aff` and `.dic` files in a new directory under `/hunspell_live_backend/hunspell/dicts/[language_code]/`
+2. Update `dicts_config/custom_dicts_config.json` with your language configuration:
+   ```json
+   {
+     "language_code": {
+       "name": "Full Language Name",
+       "direction": "ltr",  // or "rtl" fo right-to-left languages
+       "path": "path/to/dictionary"
+     }
+   }
+   ```
+   > **Note:** Ensure your language directory name matches the `language_code` in your configuration.
 
-### Custom Dictionary Support
-Add your own Hunspell dictionaries (.aff and .dic files) by following these steps:
+3. Generate the frontend language options:
+   ```bash
+   python scripts/update_language_options.py
+   ```
 
-1. Create a language folder in `/correction_tool_backend/hunspell/dicts/` using the language code as the folder name
-2. Update `custom_dicts_config.json` with:
-   - Language code
-   - Full language name
-   - Text direction
-   - Path to language folder
-3. Run `scripts/update_language_options.py` to generate frontend language options
-4. The new language will appear in the dropdown menu in the client interface
+Your new language will now appear in the client interface dropdown menu.

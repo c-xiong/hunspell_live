@@ -1,4 +1,4 @@
-from ..spell_checker import SpellChecker
+from ..check_spell import SpellChecker
 
 class SpellCheckerService:
     def __init__(self):

@@ -1,0 +1,672 @@
+{
+  "af_ZA": {
+    "hunspell_path": "hunspell/dicts/af_ZA",
+    "language": "Afrikaans",
+    "text_direction": "ltr"
+  },
+  "ak_GH": {
+    "hunspell_path": "hunspell/dicts/ak_GH",
+    "language": "Akan",
+    "text_direction": "ltr"
+  },
+  "am_ET": {
+    "hunspell_path": "hunspell/dicts/am_ET",
+    "language": "Amharic",
+    "text_direction": "ltr"
+  },
+  "an_ES": {
+    "hunspell_path": "hunspell/dicts/an_ES",
+    "language": "Aragonese",
+    "text_direction": "ltr"
+  },
+  "ar-moz": {
+    "hunspell_path": "hunspell/dicts/ar-moz",
+    "language": "Arabic (Moz)",
+    "text_direction": "rtl"
+  },
+  "ar-ooe": {
+    "hunspell_path": "hunspell/dicts/ar-ooe",
+    "language": "Arabic (Ooe)",
+    "text_direction": "rtl"
+  },
+  "ar-ooe-2": {
+    "hunspell_path": "hunspell/dicts/ar-ooe-2",
+    "language": "Arabic (Ooe-2)",
+    "text_direction": "rtl"
+  },
+  "az_AZ-latin": {
+    "hunspell_path": "hunspell/dicts/az_AZ-latin",
+    "language": "Azerbaijani (Latin)",
+    "text_direction": "ltr"
+  },
+  "be": {
+    "hunspell_path": "hunspell/dicts/be",
+    "language": "Belarusian",
+    "text_direction": "ltr"
+  },
+  "be_BY": {
+    "hunspell_path": "hunspell/dicts/be_BY",
+    "language": "Belarusian (BY)",
+    "text_direction": "ltr"
+  },
+  "be_classic": {
+    "hunspell_path": "hunspell/dicts/be_classic",
+    "language": "Belarusian (Classic)",
+    "text_direction": "ltr"
+  },
+  "bg_BG": {
+    "hunspell_path": "hunspell/dicts/bg_BG",
+    "language": "Bulgarian",
+    "text_direction": "ltr"
+  },
+  "bn_BD": {
+    "hunspell_path": "hunspell/dicts/bn_BD",
+    "language": "Bengali",
+    "text_direction": "ltr"
+  },
+  "br_FR": {
+    "hunspell_path": "hunspell/dicts/br_FR",
+    "language": "Breton",
+    "text_direction": "ltr"
+  },
+  "ca_ES": {
+    "hunspell_path": "hunspell/dicts/ca_ES",
+    "language": "Catalan",
+    "text_direction": "ltr"
+  },
+  "ca_ES_valencia": {
+    "hunspell_path": "hunspell/dicts/ca_ES_valencia",
+    "language": "Catalan (Valencia)",
+    "text_direction": "ltr"
+  },
+  "cop_EG": {
+    "hunspell_path": "hunspell/dicts/cop_EG",
+    "language": "Coptic",
+    "text_direction": "ltr"
+  },
+  "cs": {
+    "hunspell_path": "hunspell/dicts/cs",
+    "language": "Czech",
+    "text_direction": "ltr"
+  },
+  "csb_PL": {
+    "hunspell_path": "hunspell/dicts/csb_PL",
+    "language": "Kashubian",
+    "text_direction": "ltr"
+  },
+  "cy_GB": {
+    "hunspell_path": "hunspell/dicts/cy_GB",
+    "language": "Welsh",
+    "text_direction": "ltr"
+  },
+  "da_DK": {
+    "hunspell_path": "hunspell/dicts/da_DK",
+    "language": "Danish",
+    "text_direction": "ltr"
+  },
+  "de_AT": {
+    "hunspell_path": "hunspell/dicts/de_AT",
+    "language": "German (Austria)",
+    "text_direction": "ltr"
+  },
+  "de_AT_frami": {
+    "hunspell_path": "hunspell/dicts/de_AT_frami",
+    "language": "German (Austria, Frami)",
+    "text_direction": "ltr"
+  },
+  "de_AT_frami-ooe": {
+    "hunspell_path": "hunspell/dicts/de_AT_frami-ooe",
+    "language": "German (Austria, Frami Ooe)",
+    "text_direction": "ltr"
+  },
+  "de_CH": {
+    "hunspell_path": "hunspell/dicts/de_CH",
+    "language": "German (Switzerland)",
+    "text_direction": "ltr"
+  },
+  "de_CH_frami": {
+    "hunspell_path": "hunspell/dicts/de_CH_frami",
+    "language": "German (Switzerland, Frami)",
+    "text_direction": "ltr"
+  },
+  "de_CH_frami-ooe": {
+    "hunspell_path": "hunspell/dicts/de_CH_frami-ooe",
+    "language": "German (Switzerland, Frami Ooe)",
+    "text_direction": "ltr"
+  },
+  "de_CH-moz": {
+    "hunspell_path": "hunspell/dicts/de_CH-moz",
+    "language": "German (Switzerland, Moz)",
+    "text_direction": "ltr"
+  },
+  "de_DE": {
+    "hunspell_path": "hunspell/dicts/de_DE",
+    "language": "German (Germany)",
+    "text_direction": "ltr"
+  },
+  "de_DE_frami-ooe": {
+    "hunspell_path": "hunspell/dicts/de_DE_frami-ooe",
+    "language": "German (Germany, Frami Ooe)",
+    "text_direction": "ltr"
+  },
+  "de_DE-1901": {
+    "hunspell_path": "hunspell/dicts/de_DE-1901",
+    "language": "German (Germany, 1901)",
+    "text_direction": "ltr"
+  },
+  "de_DE-1901-ooe": {
+    "hunspell_path": "hunspell/dicts/de_DE-1901-ooe",
+    "language": "German (Germany, 1901 Ooe)",
+    "text_direction": "ltr"
+  },
+  "de_DE-moz": {
+    "hunspell_path": "hunspell/dicts/de_DE-moz",
+    "language": "German (Germany, Moz)",
+    "text_direction": "ltr"
+  },
+  "dsb": {
+    "hunspell_path": "hunspell/dicts/dsb",
+    "language": "Lower Sorbian",
+    "text_direction": "ltr"
+  },
+  "el_GR": {
+    "hunspell_path": "hunspell/dicts/el_GR",
+    "language": "Greek",
+    "text_direction": "ltr"
+  },
+  "el_GR-ooe": {
+    "hunspell_path": "hunspell/dicts/el_GR-ooe",
+    "language": "Greek (Ooe)",
+    "text_direction": "ltr"
+  },
+  "en_AU": {
+    "hunspell_path": "hunspell/dicts/en_AU",
+    "language": "English (Australia)",
+    "text_direction": "ltr"
+  },
+  "en_AU-moz": {
+    "hunspell_path": "hunspell/dicts/en_AU-moz",
+    "language": "English (Australia, Moz)",
+    "text_direction": "ltr"
+  },
+  "en_CA": {
+    "hunspell_path": "hunspell/dicts/en_CA",
+    "language": "English (Canada)",
+    "text_direction": "ltr"
+  },
+  "en_GB": {
+    "hunspell_path": "hunspell/dicts/en_GB",
+    "language": "English (UK)",
+    "text_direction": "ltr"
+  },
+  "en_NZ": {
+    "hunspell_path": "hunspell/dicts/en_NZ",
+    "language": "English (New Zealand)",
+    "text_direction": "ltr"
+  },
+  "en_US": {
+    "hunspell_path": "hunspell/dicts/en_US",
+    "language": "English (US)",
+    "text_direction": "ltr"
+  },
+  "en_ZA": {
+    "hunspell_path": "hunspell/dicts/en_ZA",
+    "language": "English (South Africa)",
+    "text_direction": "ltr"
+  },
+  "eo_EO": {
+    "hunspell_path": "hunspell/dicts/eo_EO",
+    "language": "Esperanto",
+    "text_direction": "ltr"
+  },
+  "es_AR": {
+    "hunspell_path": "hunspell/dicts/es_AR",
+    "language": "Spanish (Argentina)",
+    "text_direction": "ltr"
+  },
+  "es_AR-moz": {
+    "hunspell_path": "hunspell/dicts/es_AR-moz",
+    "language": "Spanish (Argentina, Moz)",
+    "text_direction": "ltr"
+  },
+  "es_BO": {
+    "hunspell_path": "hunspell/dicts/es_BO",
+    "language": "Spanish (Bolivia)",
+    "text_direction": "ltr"
+  },
+  "es_CL": {
+    "hunspell_path": "hunspell/dicts/es_CL",
+    "language": "Spanish (Chile)",
+    "text_direction": "ltr"
+  },
+  "es_CO": {
+    "hunspell_path": "hunspell/dicts/es_CO",
+    "language": "Spanish (Colombia)",
+    "text_direction": "ltr"
+  },
+  "es_CR": {
+    "hunspell_path": "hunspell/dicts/es_CR",
+    "language": "Spanish (Costa Rica)",
+    "text_direction": "ltr"
+  },
+  "es_CU": {
+    "hunspell_path": "hunspell/dicts/es_CU",
+    "language": "Spanish (Cuba)",
+    "text_direction": "ltr"
+  },
+  "es_DO": {
+    "hunspell_path": "hunspell/dicts/es_DO",
+    "language": "Spanish (Dominican Republic)",
+    "text_direction": "ltr"
+  },
+  "es_EC": {
+    "hunspell_path": "hunspell/dicts/es_EC",
+    "language": "Spanish (Ecuador)",
+    "text_direction": "ltr"
+  },
+  "es_ES": {
+    "hunspell_path": "hunspell/dicts/es_ES",
+    "language": "Spanish (Spain)",
+    "text_direction": "ltr"
+  },
+  "es_ES-moz": {
+    "hunspell_path": "hunspell/dicts/es_ES-moz",
+    "language": "Spanish (Spain, Moz)",
+    "text_direction": "ltr"
+  },
+  "es_GT": {
+    "hunspell_path": "hunspell/dicts/es_GT",
+    "language": "Spanish (Guatemala)",
+    "text_direction": "ltr"
+  },
+  "es_HN": {
+    "hunspell_path": "hunspell/dicts/es_HN",
+    "language": "Spanish (Honduras)",
+    "text_direction": "ltr"
+  },
+  "es_MX": {
+    "hunspell_path": "hunspell/dicts/es_MX",
+    "language": "Spanish (Mexico)",
+    "text_direction": "ltr"
+  },
+  "es_MX-moz": {
+    "hunspell_path": "hunspell/dicts/es_MX-moz",
+    "language": "Spanish (Mexico, Moz)",
+    "text_direction": "ltr"
+  },
+  "es_NI": {
+    "hunspell_path": "hunspell/dicts/es_NI",
+    "language": "Spanish (Nicaragua)",
+    "text_direction": "ltr"
+  },
+  "es_PA": {
+    "hunspell_path": "hunspell/dicts/es_PA",
+    "language": "Spanish (Panama)",
+    "text_direction": "ltr"
+  },
+  "es_PE": {
+    "hunspell_path": "hunspell/dicts/es_PE",
+    "language": "Spanish (Peru)",
+    "text_direction": "ltr"
+  },
+  "es_PR": {
+    "hunspell_path": "hunspell/dicts/es_PR",
+    "language": "Spanish (Puerto Rico)",
+    "text_direction": "ltr"
+  },
+  "es_PY": {
+    "hunspell_path": "hunspell/dicts/es_PY",
+    "language": "Spanish (Paraguay)",
+    "text_direction": "ltr"
+  },
+  "es_SV": {
+    "hunspell_path": "hunspell/dicts/es_SV",
+    "language": "Spanish (El Salvador)",
+    "text_direction": "ltr"
+  },
+  "es_UY": {
+    "hunspell_path": "hunspell/dicts/es_UY",
+    "language": "Spanish (Uruguay)",
+    "text_direction": "ltr"
+  },
+  "es_VE": {
+    "hunspell_path": "hunspell/dicts/es_VE",
+    "language": "Spanish (Venezuela)",
+    "text_direction": "ltr"
+  },
+  "es_VE-moz": {
+    "hunspell_path": "hunspell/dicts/es_VE-moz",
+    "language": "Spanish (Venezuela, Moz)",
+    "text_direction": "ltr"
+  },
+  "et_EE": {
+    "hunspell_path": "hunspell/dicts/et_EE",
+    "language": "Estonian",
+    "text_direction": "ltr"
+  },
+  "eu": {
+    "hunspell_path": "hunspell/dicts/eu",
+    "language": "Basque",
+    "text_direction": "ltr"
+  },
+  "fo_FO": {
+    "hunspell_path": "hunspell/dicts/fo_FO",
+    "language": "Faroese",
+    "text_direction": "ltr"
+  },
+  "fr": {
+    "hunspell_path": "hunspell/dicts/fr",
+    "language": "French",
+    "text_direction": "ltr"
+  },
+  "fur_IT": {
+    "hunspell_path": "hunspell/dicts/fur_IT",
+    "language": "Friulian",
+    "text_direction": "ltr"
+  },
+  "fy_NL": {
+    "hunspell_path": "hunspell/dicts/fy_NL",
+    "language": "Frisian",
+    "text_direction": "ltr"
+  },
+  "ga_IE": {
+    "hunspell_path": "hunspell/dicts/ga_IE",
+    "language": "Irish",
+    "text_direction": "ltr"
+  },
+  "gd_GB": {
+    "hunspell_path": "hunspell/dicts/gd_GB",
+    "language": "Scottish Gaelic",
+    "text_direction": "ltr"
+  },
+  "gl": {
+    "hunspell_path": "hunspell/dicts/gl",
+    "language": "Galician",
+    "text_direction": "ltr"
+  },
+  "gsc_FR": {
+    "hunspell_path": "hunspell/dicts/gsc_FR",
+    "language": "Gascon",
+    "text_direction": "ltr"
+  },
+  "gu_IN": {
+    "hunspell_path": "hunspell/dicts/gu_IN",
+    "language": "Gujarati",
+    "text_direction": "ltr"
+  },
+  "ha_GH": {
+    "hunspell_path": "hunspell/dicts/ha_GH",
+    "language": "Hausa",
+    "text_direction": "ltr"
+  },
+  "he_IL": {
+    "hunspell_path": "hunspell/dicts/he_IL",
+    "language": "Hebrew",
+    "text_direction": "rtl"
+  },
+  "he_IL-moz": {
+    "hunspell_path": "hunspell/dicts/he_IL-moz",
+    "language": "Hebrew (Moz)",
+    "text_direction": "rtl"
+  },
+  "he_IL-ooe": {
+    "hunspell_path": "hunspell/dicts/he_IL-ooe",
+    "language": "Hebrew (Ooe)",
+    "text_direction": "rtl"
+  },
+  "hi_IN": {
+    "hunspell_path": "hunspell/dicts/hi_IN",
+    "language": "Hindi",
+    "text_direction": "ltr"
+  },
+  "hr_HR": {
+    "hunspell_path": "hunspell/dicts/hr_HR",
+    "language": "Croatian",
+    "text_direction": "ltr"
+  },
+  "hsb": {
+    "hunspell_path": "hunspell/dicts/hsb",
+    "language": "Upper Sorbian",
+    "text_direction": "ltr"
+  },
+  "hu": {
+    "hunspell_path": "hunspell/dicts/hu",
+    "language": "Hungarian",
+    "text_direction": "ltr"
+  },
+  "hy_AM": {
+    "hunspell_path": "hunspell/dicts/hy_AM",
+    "language": "Armenian",
+    "text_direction": "ltr"
+  },
+  "ia_ANY": {
+    "hunspell_path": "hunspell/dicts/ia_ANY",
+    "language": "Interlingua",
+    "text_direction": "ltr"
+  },
+  "id_ID": {
+    "hunspell_path": "hunspell/dicts/id_ID",
+    "language": "Indonesian",
+    "text_direction": "ltr"
+  },
+  "is": {
+    "hunspell_path": "hunspell/dicts/is",
+    "language": "Icelandic",
+    "text_direction": "ltr"
+  },
+  "it_IT": {
+    "hunspell_path": "hunspell/dicts/it_IT",
+    "language": "Italian",
+    "text_direction": "ltr"
+  },
+  "it_IT-moz": {
+    "hunspell_path": "hunspell/dicts/it_IT-moz",
+    "language": "Italian (Moz)",
+    "text_direction": "ltr"
+  },
+  "it_IT-ooe": {
+    "hunspell_path": "hunspell/dicts/it_IT-ooe",
+    "language": "Italian (Ooe)",
+    "text_direction": "ltr"
+  },
+  "kk": {
+    "hunspell_path": "hunspell/dicts/kk",
+    "language": "Kazakh",
+    "text_direction": "ltr"
+  },
+  "kn_ID": {
+    "hunspell_path": "hunspell/dicts/kn_ID",
+    "language": "Kannada",
+    "text_direction": "ltr"
+  },
+  "ko": {
+    "hunspell_path": "hunspell/dicts/ko",
+    "language": "Korean",
+    "text_direction": "ltr"
+  },
+  "ku_TR": {
+    "hunspell_path": "hunspell/dicts/ku_TR",
+    "language": "Kurdish",
+    "text_direction": "ltr"
+  },
+  "la-ooe": {
+    "hunspell_path": "hunspell/dicts/la-ooe",
+    "language": "Latin (Ooe)",
+    "text_direction": "ltr"
+  },
+  "ln_CD": {
+    "hunspell_path": "hunspell/dicts/ln_CD",
+    "language": "Lingala",
+    "text_direction": "ltr"
+  },
+  "lt": {
+    "hunspell_path": "hunspell/dicts/lt",
+    "language": "Lithuanian",
+    "text_direction": "ltr"
+  },
+  "lv": {
+    "hunspell_path": "hunspell/dicts/lv",
+    "language": "Latvian",
+    "text_direction": "ltr"
+  },
+  "mg_MG": {
+    "hunspell_path": "hunspell/dicts/mg_MG",
+    "language": "Malagasy",
+    "text_direction": "ltr"
+  },
+  "mi_NZ": {
+    "hunspell_path": "hunspell/dicts/mi_NZ",
+    "language": "Maori",
+    "text_direction": "ltr"
+  },
+  "mr_IN": {
+    "hunspell_path": "hunspell/dicts/mr_IN",
+    "language": "Marathi",
+    "text_direction": "ltr"
+  },
+  "mr_IN-moz": {
+    "hunspell_path": "hunspell/dicts/mr_IN-moz",
+    "language": "Marathi (Moz)",
+    "text_direction": "ltr"
+  },
+  "ms_MY": {
+    "hunspell_path": "hunspell/dicts/ms_MY",
+    "language": "Malay",
+    "text_direction": "ltr"
+  },
+  "my_MW": {
+    "hunspell_path": "hunspell/dicts/my_MW",
+    "language": "Burmese",
+    "text_direction": "ltr"
+  },
+  "nb_NO": {
+    "hunspell_path": "hunspell/dicts/nb_NO",
+    "language": "Norwegian Bokmål",
+    "text_direction": "ltr"
+  },
+  "ne_NP": {
+    "hunspell_path": "hunspell/dicts/ne_NP",
+    "language": "Nepali",
+    "text_direction": "ltr"
+  },
+  "nl_NL": {
+    "hunspell_path": "hunspell/dicts/nl_NL",
+    "language": "Dutch",
+    "text_direction": "ltr"
+  },
+  "nn_NO": {
+    "hunspell_path": "hunspell/dicts/nn_NO",
+    "language": "Norwegian Nynorsk",
+    "text_direction": "ltr"
+  },
+  "oc_FR": {
+    "hunspell_path": "hunspell/dicts/oc_FR",
+    "language": "Occitan",
+    "text_direction": "ltr"
+  },
+  "or_IN": {
+    "hunspell_path": "hunspell/dicts/or_IN",
+    "language": "Odia",
+    "text_direction": "ltr"
+  },
+  "pa_IN": {
+    "hunspell_path": "hunspell/dicts/pa_IN",
+    "language": "Punjabi",
+    "text_direction": "ltr"
+  },
+  "pap_AW": {
+    "hunspell_path": "hunspell/dicts/pap_AW",
+    "language": "Papiamento",
+    "text_direction": "ltr"
+  },
+  "pap_CW": {
+    "hunspell_path": "hunspell/dicts/pap_CW",
+    "language": "Papiamento",
+    "text_direction": "ltr"
+  },
+  "pl": {
+    "hunspell_path": "hunspell/dicts/pl",
+    "language": "Polish",
+    "text_direction": "ltr"
+  },
+  "pt_BR": {
+    "hunspell_path": "hunspell/dicts/pt_BR",
+    "language": "Portuguese (Brazil)",
+    "text_direction": "ltr"
+  },
+  "pt_PT": {
+    "hunspell_path": "hunspell/dicts/pt_PT",
+    "language": "Portuguese (Portugal)",
+    "text_direction": "ltr"
+  },
+  "ro_RO": {
+    "hunspell_path": "hunspell/dicts/ro_RO",
+    "language": "Romanian",
+    "text_direction": "ltr"
+  },
+  "ro_RO-classic": {
+    "hunspell_path": "hunspell/dicts/ro_RO-classic",
+    "language": "Romanian (Classic)",
+    "text_direction": "ltr"
+  },
+  "ru": {
+    "hunspell_path": "hunspell/dicts/ru",
+    "language": "Russian",
+    "text_direction": "ltr"
+  },
+  "sa_IN": {
+    "hunspell_path": "hunspell/dicts/sa_IN",
+    "language": "Sanskrit",
+    "text_direction": "ltr"
+  },
+  "sk": {
+    "hunspell_path": "hunspell/dicts/sk",
+    "language": "Slovak",
+    "text_direction": "ltr"
+  },
+  "sl_SI-ooe": {
+    "hunspell_path": "hunspell/dicts/sl_SI-ooe",
+    "language": "Slovenian (Ooe)",
+    "text_direction": "ltr"
+  },
+  "sq_AL": {
+    "hunspell_path": "hunspell/dicts/sq_AL",
+    "language": "Albanian",
+    "text_direction": "ltr"
+  },
+  "sv_SE": {
+    "hunspell_path": "hunspell/dicts/sv_SE",
+    "language": "Swedish",
+    "text_direction": "ltr"
+  },
+  "sw": {
+    "hunspell_path": "hunspell/dicts/sw",
+    "language": "Swahili",
+    "text_direction": "ltr"
+  },
+  "ta_TA": {
+    "hunspell_path": "hunspell/dicts/ta_TA",
+    "language": "Tamil",
+    "text_direction": "ltr"
+  },
+  "te_IN": {
+    "hunspell_path": "hunspell/dicts/te_IN",
+    "language": "Telugu",
+    "text_direction": "ltr"
+  },
+  "tg": {
+    "hunspell_path": "hunspell/dicts/tg",
+    "language": "Tajik",
+    "text_direction": "ltr"
+  },
+  "uk": {
+    "hunspell_path": "hunspell/dicts/uk",
+    "language": "Ukrainian",
+    "text_direction": "ltr"
+  },
+  "zu_ZA": {
+    "hunspell_path": "hunspell/dicts/zu_ZA",
+    "language": "Zulu",
+    "text_direction": "ltr"
+  }
+}
