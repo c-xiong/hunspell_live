@@ -229,7 +229,8 @@
   .loginButton {
     padding: 8px 16px;
     border-radius: 6px;
-    color: #4F46E5;
+    /* color: #4F46E5; */
+    color: #464646;
     background-color: white;
     text-decoration: underline;
     text-underline-offset: 0.3em;
@@ -243,7 +244,7 @@
   }
   
   .loginButton:hover {
-    background-color: #4F46E5;
+    background-color: #464646;
     color: white;
     transform: translateY(-1px);
     text-decoration: none;

@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { FaUser, FaLock, FaArrowRight, FaHome } from 'react-icons/fa';
 import styles from '../styles/Auth.module.css';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 
 const Register: React.FC = (): JSX.Element => {
   const [email, setEmail] = useState<string>('');
@@ -11,6 +12,7 @@ const Register: React.FC = (): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { isDarkMode } = useTheme();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,15 +61,14 @@ const Register: React.FC = (): JSX.Element => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isDarkMode ? 'dark-mode' : ''}`}>
       <div className={styles.loginCard}>
         <Link to="/" className={styles.homeButton}>
           <FaHome className={styles.buttonIcon} />
           Return to Home
         </Link>
         
-        <h1 className={styles.title}>Welcome to Spell Checker</h1>
-        <p className={styles.subtitle}>Join us to access advanced features</p>
+        <h1 className={styles.title}>Welcome to Hunspell Live</h1>
         
         <form onSubmit={handleRegister} className={styles.form}>
           <div className={styles.inputGroup}>

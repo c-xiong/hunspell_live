@@ -19,24 +19,27 @@ class SpellChecker:
                 self.lang_code = 'en_US'  # Update the stored language code
                 lang_code = 'en_US'
             
-            # Get the base directory path
             base_dir = Path(__file__).parent
             dict_dir = base_dir / 'dicts' / lang_code
             
-            # Find any .aff and .dic files in the directory
+            # Look for any .aff files in the directory
             aff_files = list(dict_dir.glob("*.aff"))
-            dic_files = list(dict_dir.glob("*.dic"))
+            if not aff_files:
+                raise ValueError(f"No .aff files found for language: {lang_code}")
             
-            if not aff_files or not dic_files:
-                raise ValueError(f"Could not find required dictionary files for language: {lang_code}")
-                
-            # Use the first matching files found (without assuming filename)
-            aff_path = aff_files[0]
-            dic_path = dic_files[0]
-            print(f"Loading dictionary files: {aff_path}, {dic_path}")
+            # Try to find a matching .dic file for each .aff file
+            dict_path = None
+            for aff_file in aff_files:
+                base_name = aff_file.with_suffix('')
+                if base_name.with_suffix('.dic').exists():
+                    dict_path = base_name
+                    break
             
-            # Initialize Spylls Dictionary with the actual file paths
-            self.spell = Dictionary.from_files(str(dic_path.with_suffix('')))
+            if dict_path is None:
+                raise ValueError(f"No matching .aff and .dic pair found for language: {lang_code}")
+            
+            print(f"Loading dictionary files: {dict_path}.aff, {dict_path}.dic")
+            self.spell = Dictionary.from_files(str(dict_path))
             
             if not self.spell:
                 raise ValueError(f"Failed to initialize Dictionary for language: {lang_code}")

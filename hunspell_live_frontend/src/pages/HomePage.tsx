@@ -12,7 +12,10 @@ import {
   FaUser,
   FaGithub,
   FaMoon,
-  FaSun
+  FaSun,
+  FaBan,
+  FaBook,
+  FaAt
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
 import { styles as inlineStyles } from "../styles/HomePage.styles";
@@ -243,14 +246,17 @@ const HomePage: React.FC = () => {
     popup.style.borderRadius = "12px";
     popup.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
     popup.style.zIndex = "1000";
-    popup.style.minWidth = `${Math.max(rect.width + 200, 300)}px`;
+    // Calculate minimum width based on word length
+    const wordWidth = rect.width;
+    const minWidth = Math.max(wordWidth + 160, 200); // Reduced from 300 to 200
+    popup.style.minWidth = `${minWidth}px`;
     popup.style.overflow = "visible";
 
     // Inner scrollable container for suggestions
     const scrollContainer = document.createElement("div");
     scrollContainer.style.maxHeight = "300px";
     scrollContainer.style.overflowY = "auto";
-    scrollContainer.style.padding = "12px 0";
+    scrollContainer.style.padding = "12px 0 12px 0"; // Adjusted padding
     popup.appendChild(scrollContainer);
 
     if (suggestions.suggestions.length === 0) {
@@ -261,32 +267,106 @@ const HomePage: React.FC = () => {
       noSuggestionsElement.style.fontWeight = "bold";
       noSuggestionsElement.style.color = "#6b7280";
       noSuggestionsElement.style.fontStyle = "italic";
-      scrollContainer.appendChild(noSuggestionsElement); // Append to scrollContainer instead of popup
+      scrollContainer.appendChild(noSuggestionsElement);
     } else {
-      const ignoreElement = document.createElement("div");
-      ignoreElement.textContent = "Ignore";
-      ignoreElement.style.padding = "8px 16px";
-      ignoreElement.style.cursor = "pointer";
-      ignoreElement.style.fontSize = "20px";
-      ignoreElement.style.fontWeight = "bold";
-      ignoreElement.style.color = "#6b7280";
-      ignoreElement.style.borderBottom = "1px solid #e5e7eb";
-      ignoreElement.style.margin = "0";
-      ignoreElement.style.textAlign = "center";
-      ignoreElement.style.width = "100%";
-      ignoreElement.addEventListener("mouseover", () => {
-        ignoreElement.style.backgroundColor = "#f3f4f6";
-        ignoreElement.style.color = "#4b5563";
-      });
-      ignoreElement.addEventListener("mouseout", () => {
-        ignoreElement.style.backgroundColor = "transparent";
-        ignoreElement.style.color = "#6b7280";
-      });
-      ignoreElement.addEventListener("click", () => {
+      // Create ignore button container
+      const ignoreContainer = document.createElement("div");
+      ignoreContainer.style.padding = "12px 16px";
+      ignoreContainer.style.borderBottom = "1px solid #e5e7eb";
+      ignoreContainer.style.display = "flex";
+      ignoreContainer.style.alignItems = "center";
+      ignoreContainer.style.justifyContent = "center";
+      ignoreContainer.style.gap = "12px"; // Add gap between buttons
+
+      // Create ignore button with icon
+      const ignoreButton = document.createElement("button");
+      ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
+      const buttonStyles = {
+        border: "none",
+        background: "none",
+        cursor: "pointer",
+        fontSize: "20px",
+        color: "#6b7280",
+        padding: "8px 16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "50%",
+        transition: "color 0.2s, background-color 0.2s",
+        borderRadius: "4px",
+      };
+
+      Object.assign(ignoreButton.style, buttonStyles);
+
+      // Create dictionary button with icon
+      const dictionaryButton = document.createElement("button");
+      dictionaryButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"/></svg>`;
+      Object.assign(dictionaryButton.style, buttonStyles);
+
+      // Add hover effects
+      const addButtonHoverEffect = (button: HTMLButtonElement) => {
+        button.addEventListener("mouseover", () => {
+          button.style.backgroundColor = "#f3f4f6";
+          button.style.color = "#4b5563";
+        });
+
+        button.addEventListener("mouseout", () => {
+          button.style.backgroundColor = "transparent";
+          button.style.color = "#6b7280";
+        });
+      };
+
+      addButtonHoverEffect(ignoreButton);
+      addButtonHoverEffect(dictionaryButton);
+
+      // Add tooltips
+      const createTooltip = (text: string) => {
+        const tooltip = document.createElement("span");
+        tooltip.textContent = text;
+        tooltip.style.visibility = "hidden";
+        tooltip.style.backgroundColor = "#333";
+        tooltip.style.color = "#fff";
+        tooltip.style.textAlign = "center";
+        tooltip.style.padding = "5px 10px";
+        tooltip.style.borderRadius = "6px";
+        tooltip.style.position = "absolute";
+        tooltip.style.zIndex = "1002";
+        tooltip.style.top = "calc(100% + 18px)";
+        tooltip.style.left = "50%";
+        tooltip.style.transform = "translateX(-50%)";
+        tooltip.style.fontSize = "14px";
+        tooltip.style.whiteSpace = "nowrap";
+        tooltip.style.pointerEvents = "none";
+        return tooltip;
+      };
+
+      const ignoreTooltip = createTooltip("Ignore this word");
+      const dictionaryTooltip = createTooltip("Add to dictionary");
+
+      ignoreButton.style.position = "relative";
+      dictionaryButton.style.position = "relative";
+
+      ignoreButton.appendChild(ignoreTooltip);
+      dictionaryButton.appendChild(dictionaryTooltip);
+
+      // Add tooltip visibility handlers
+      const addTooltipHandlers = (button: HTMLButtonElement, tooltip: HTMLSpanElement) => {
+        button.addEventListener("mouseover", () => {
+          tooltip.style.visibility = "visible";
+        });
+
+        button.addEventListener("mouseout", () => {
+          tooltip.style.visibility = "hidden";
+        });
+      };
+
+      addTooltipHandlers(ignoreButton, ignoreTooltip);
+      addTooltipHandlers(dictionaryButton, dictionaryTooltip);
+
+      // Add click handlers
+      ignoreButton.addEventListener("click", () => {
         if (element && editorRef.current) {
-          // Replace the span with the original word without any formatting
           element.outerHTML = word;
-          // Remove the word from spellingResults
           setSpellingResults((prev) =>
             prev.filter(
               (result) =>
@@ -299,39 +379,82 @@ const HomePage: React.FC = () => {
         }
         document.body.removeChild(popup);
       });
-      scrollContainer.appendChild(ignoreElement); // Append to scrollContainer instead of popup
+
+      dictionaryButton.addEventListener("click", async () => {
+        try {
+          const loadingToast = toast.loading("Adding word to dictionary...");
+          const success = await addWordToDictionary(word);
+          toast.dismiss(loadingToast);
+          
+          if (success) {
+            if (element && editorRef.current) {
+              element.outerHTML = word;
+              setSpellingResults((prev) =>
+                prev.filter(
+                  (result) =>
+                    !(
+                      result.word.toLowerCase() === word.toLowerCase() &&
+                      result.index === startPosition
+                    )
+                )
+              );
+            }
+            toast.success("Word added to dictionary successfully");
+            document.body.removeChild(popup);
+          } else {
+            throw new Error("Failed to add word");
+          }
+        } catch (error) {
+          toast.error("Failed to add word to dictionary");
+          console.error("Error adding word:", error);
+        }
+      });
+
+      ignoreContainer.appendChild(ignoreButton);
+      ignoreContainer.appendChild(dictionaryButton);
+      scrollContainer.appendChild(ignoreContainer);
+
+      // Style the popup more like a card
+      popup.style.backgroundColor = "#ffffff";
+      popup.style.border = "1px solid #e5e7eb";
+      popup.style.borderRadius = "8px";
+      popup.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
+      
+      // Add some spacing between sections
+      scrollContainer.style.paddingTop = "0";
+      scrollContainer.style.paddingBottom = "8px";
 
       suggestions.suggestions.forEach((suggestion) => {
         const suggestionContainer = document.createElement("div");
         suggestionContainer.style.display = "flex";
-        suggestionContainer.style.justifyContent = "space-between";
+        suggestionContainer.style.justifyContent = "flex-start";
         suggestionContainer.style.alignItems = "center";
-        suggestionContainer.style.padding = "8px 50px 8px 50px";
+        suggestionContainer.style.padding = "8px 16px";
         suggestionContainer.style.margin = "0";
         suggestionContainer.style.cursor = "pointer";
-        suggestionContainer.style.minWidth = "250px";
-
-        const suggestionElement = document.createElement("div");
-        suggestionElement.textContent = suggestion;
-        suggestionElement.style.fontSize = "20px";
-        suggestionElement.style.fontWeight = "bold";
-        suggestionElement.style.color = "#374151";
-        suggestionElement.style.flex = "1";
+        suggestionContainer.style.minWidth = "100px";
+        suggestionContainer.style.gap = "12px";
 
         const addButton = document.createElement("button");
-        addButton.textContent = "+";
-        addButton.style.marginLeft = "8px";
+        addButton.textContent = "☆";
+        addButton.style.marginRight = "0";
         addButton.style.padding = "2px 8px";
         addButton.style.borderRadius = "4px";
         addButton.style.backgroundColor = "#e5e7eb";
         addButton.style.border = "none";
         addButton.style.cursor = "pointer";
-        addButton.style.fontSize = "16px";
-        addButton.style.fontWeight = "bold";
+        addButton.style.fontSize = "18px";
+        addButton.style.fontWeight = "normal";
         addButton.style.position = "relative";
+        addButton.style.width = "28px";
+        addButton.style.minWidth = "28px";
+        addButton.style.color = "#666";
+        addButton.style.display = "flex";
+        addButton.style.alignItems = "center";
+        addButton.style.justifyContent = "center";
 
         const tooltip = document.createElement("span");
-        tooltip.textContent = "Add to dictionary";
+        tooltip.textContent = "Add to your star list";
         tooltip.style.visibility = "hidden";
         tooltip.style.backgroundColor = "#333";
         tooltip.style.color = "#fff";
@@ -340,9 +463,9 @@ const HomePage: React.FC = () => {
         tooltip.style.borderRadius = "6px";
         tooltip.style.position = "absolute";
         tooltip.style.zIndex = "1002";
-        tooltip.style.left = "50%";
+        tooltip.style.left = "0";
         tooltip.style.top = "calc(100% + 8px)";
-        tooltip.style.transform = "translateX(-50%)";
+        tooltip.style.transform = "none";
         tooltip.style.fontSize = "14px";
         tooltip.style.whiteSpace = "nowrap";
         tooltip.style.fontWeight = "normal";
@@ -351,17 +474,25 @@ const HomePage: React.FC = () => {
         addButton.addEventListener("mouseover", () => {
           tooltip.style.visibility = "visible";
           addButton.style.backgroundColor = "#d1d5db";
+          addButton.style.color = "#333";
         });
 
         addButton.addEventListener("mouseout", () => {
           tooltip.style.visibility = "hidden";
           addButton.style.backgroundColor = "#e5e7eb";
+          addButton.style.color = "#666";
         });
 
         addButton.appendChild(tooltip);
 
-        suggestionContainer.appendChild(suggestionElement);
+        const suggestionElement = document.createElement("div");
+        suggestionElement.textContent = suggestion;
+        suggestionElement.style.fontSize = "20px";
+        suggestionElement.style.fontWeight = "bold";
+        suggestionElement.style.color = "#374151";
+
         suggestionContainer.appendChild(addButton);
+        suggestionContainer.appendChild(suggestionElement);
 
         suggestionContainer.addEventListener("mouseover", () => {
           suggestionContainer.style.backgroundColor = "#f3f4f6";
@@ -373,7 +504,7 @@ const HomePage: React.FC = () => {
         });
 
         // Click handlers
-        suggestionElement.addEventListener("click", () => {
+        suggestionContainer.addEventListener("click", () => {
           handleSuggestionClick(suggestion, word, startPosition);
           document.body.removeChild(popup);
         });
@@ -440,9 +571,15 @@ const HomePage: React.FC = () => {
       }
     }
     if (targetSpan) {
-      // Preserve the original casing by replacing with the suggestion as-is
-      targetSpan.outerHTML = suggestion;
+      // Create a text node with the suggestion
+      const textNode = document.createTextNode(suggestion);
+      // Replace the span with the text node
+      targetSpan.parentNode?.replaceChild(textNode, targetSpan);
+
+      // Update the text state with the current content
       setText(editorRef.current.innerText);
+
+      // Update spelling results to remove the replaced word
       setSpellingResults((prev) =>
         prev.filter(
           (result) =>
@@ -452,6 +589,8 @@ const HomePage: React.FC = () => {
             )
         )
       );
+
+      // Reattach click handlers to remaining misspelled words
       const misspelledElements =
         editorRef.current.getElementsByClassName("misspelled");
       Array.from(misspelledElements).forEach((element) => {
@@ -591,7 +730,7 @@ const HomePage: React.FC = () => {
         </div>
         <div
           style={{
-            backgroundColor: isDarkMode ? '#25365b' : 'white',
+            backgroundColor: isDarkMode ? '#25272b' : 'white',
             borderRadius: "8px",
             padding: "24px",
           }}
@@ -686,9 +825,17 @@ const HomePage: React.FC = () => {
             <FaGithub />
           </a>
           {/* <span className={styles.versionTag}>v1.0.0</span> */}
-          <span className={styles.footerLink}>
+          {/* <span className={styles.footerLink}>
             Built by <a href="https://chenfeixiong.com">Chenfei Xiong</a>
-          </span>
+          </span> */}
+          <a
+            href="https://chenfeixiong.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.githubLink}
+          >
+            <FaAt />
+          </a>
         </div>
 
         <div className={styles.footerRight}>
