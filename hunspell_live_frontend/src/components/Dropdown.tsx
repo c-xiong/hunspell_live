@@ -1,5 +1,5 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useRef, useEffect, useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
 
 interface Option {
   label: string;
@@ -13,38 +13,111 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
-  const handleChange = (selectedValue: string, option: any) => {
-    const selectedOption = options.find(opt => opt.value === selectedValue);
-    if (selectedOption) {
-      onChange(selectedOption);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
     }
-  };
+  }, [isOpen]);
 
   return (
-    <div 
-      style={{ padding: '0 0 16px 0', width: '280px' }}
+    <div
+      ref={dropdownRef}
+      className="dropdown"
+      style={{ padding: "0 0 16px 0", width: "280px", position: "relative" }}
       onClick={(e) => e.stopPropagation()}
     >
-      <Select
-        showSearch
-        value={value.value}
-        onChange={handleChange}
-        placeholder="Select Language"
-        optionFilterProp="children"
-        filterOption={(input, option) =>
-          (option?.label as string).toLowerCase().includes(input.toLowerCase())
-        }
-        options={options.map(option => ({
-          label: option.label,
-          value: option.value,
-        }))}
-        style={{ width: '100%', height: '40px', border: 'solid 2px #374151', borderRadius: '8px' }}
-        dropdownStyle={{ zIndex: 1001 }}
-        getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
-      />
+      <button
+        className="btn btn-light w-100 d-flex justify-content-between align-items-center"
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          height: "40px",
+          border: "2px solid #374151",
+          borderRadius: "8px",
+          backgroundColor: "white",
+          fontSize: "18px",
+          fontWeight: "500",
+        }}
+      >
+        <span>{value.label}</span>
+        <FaChevronDown
+          style={{
+            transition: "transform 0.2s",
+            transform: isOpen ? "rotate(180deg)" : "none",
+            fontSize: "18px",
+            height: "30px",
+          }}
+        />
+      </button>
+
+      {isOpen && (
+        <div
+          className="dropdown-menu show w-100"
+          style={{ maxHeight: "300px", overflow: "auto" }}
+        >
+          <div className="px-3 py-2">
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="form-control"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ 
+                fontSize: "18px",
+                padding: "8px 12px",
+                height: "40px"
+              }}
+            />
+          </div>
+          {filteredOptions.map((option) => (
+            <button
+              key={option.value}
+              className="dropdown-item"
+              onClick={(e) => {
+                onChange(option, e);
+                setIsOpen(false);
+                setSearchTerm("");
+              }}
+              style={{ 
+                fontSize: "18px",
+                padding: "12px 16px",
+                height: "48px",
+                lineHeight: "24px",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 export default Dropdown;
-

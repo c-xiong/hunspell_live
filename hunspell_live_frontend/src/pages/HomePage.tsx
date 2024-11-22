@@ -710,8 +710,8 @@ const HomePage: React.FC = () => {
       <div className={styles.topControls}>
         {isAuthenticated ? (
           <>
-            {userControls}
             {themeToggle}
+            {userControls}
           </>
         ) : (
           <>
