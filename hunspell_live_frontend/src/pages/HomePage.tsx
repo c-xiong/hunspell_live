@@ -40,6 +40,10 @@ const HomePage: React.FC = () => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
   });
+  const [ignoredWords, setIgnoredWords] = useState<Set<string>>(() => {
+    const savedIgnoredWords = localStorage.getItem("ignoredWords");
+    return savedIgnoredWords ? new Set(JSON.parse(savedIgnoredWords)) : new Set();
+  });
 
   const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(
     selectedOption.value
@@ -156,12 +160,13 @@ const HomePage: React.FC = () => {
       return;
     }
 
-    // Show loading toast
     const loadingToast = toast.loading("Checking spelling...");
 
     try {
-      const newResults = await checkSpelling(text);
-      // Dismiss loading toast
+      const results = await checkSpelling(text);
+      // Filter out ignored words
+      const newResults = results.filter(result => !ignoredWords.has(result.word.toLowerCase()));
+      
       toast.dismiss(loadingToast);
 
       if (newResults.length > 0) {
@@ -175,7 +180,6 @@ const HomePage: React.FC = () => {
         toast.success("No spelling errors found!");
       }
     } catch (error) {
-      // Dismiss loading toast and show error if something goes wrong
       toast.dismiss(loadingToast);
       toast.error("Error checking spelling");
     }
@@ -241,22 +245,27 @@ const HomePage: React.FC = () => {
     popup.style.position = "fixed";
     popup.style.left = `${rect.left}px`;
     popup.style.top = `${rect.bottom + 8}px`;
-    popup.style.backgroundColor = "#ffffff";
-    popup.style.border = "2px solid #e2e8f0";
+    popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+    popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
     popup.style.borderRadius = "12px";
-    popup.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+    popup.style.boxShadow = isDarkMode 
+      ? "0 4px 12px rgba(0, 0, 0, 0.5)" 
+      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
     popup.style.zIndex = "1000";
     // Calculate minimum width based on word length
     const wordWidth = rect.width;
-    const minWidth = Math.max(wordWidth + 160, 200); // Reduced from 300 to 200
+    const minWidth = Math.max(wordWidth + 200, 250); // Reduced from 300 to 200
     popup.style.minWidth = `${minWidth}px`;
     popup.style.overflow = "visible";
 
     // Inner scrollable container for suggestions
     const scrollContainer = document.createElement("div");
+    scrollContainer.style.minHeight = "60px";
     scrollContainer.style.maxHeight = "300px";
     scrollContainer.style.overflowY = "auto";
-    scrollContainer.style.padding = "12px 0 12px 0"; // Adjusted padding
+    scrollContainer.style.overflowX = "auto";
+    scrollContainer.style.padding = "12px 0 12px 0";
+    scrollContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.appendChild(scrollContainer);
 
     if (suggestions.suggestions.length === 0) {
@@ -265,14 +274,17 @@ const HomePage: React.FC = () => {
       noSuggestionsElement.style.padding = "8px 16px";
       noSuggestionsElement.style.fontSize = "18px";
       noSuggestionsElement.style.fontWeight = "bold";
-      noSuggestionsElement.style.color = "#6b7280";
+      noSuggestionsElement.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
       noSuggestionsElement.style.fontStyle = "italic";
       scrollContainer.appendChild(noSuggestionsElement);
     } else {
       // Create ignore button container
       const ignoreContainer = document.createElement("div");
       ignoreContainer.style.padding = "12px 16px";
-      ignoreContainer.style.borderBottom = "1px solid #e5e7eb";
+      ignoreContainer.style.borderBottom = isDarkMode 
+        ? "1px solid #374151" 
+        : "1px solid #e5e7eb";
+      ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
       ignoreContainer.style.display = "flex";
       ignoreContainer.style.alignItems = "center";
       ignoreContainer.style.justifyContent = "center";
@@ -286,7 +298,7 @@ const HomePage: React.FC = () => {
         background: "none",
         cursor: "pointer",
         fontSize: "20px",
-        color: "#6b7280",
+        color: isDarkMode ? "#9ca3af" : "#6b7280",
         padding: "8px 16px",
         display: "flex",
         alignItems: "center",
@@ -306,13 +318,13 @@ const HomePage: React.FC = () => {
       // Add hover effects
       const addButtonHoverEffect = (button: HTMLButtonElement) => {
         button.addEventListener("mouseover", () => {
-          button.style.backgroundColor = "#f3f4f6";
-          button.style.color = "#4b5563";
+          button.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
+          button.style.color = isDarkMode ? "#e5e7eb" : "#4b5563";
         });
 
         button.addEventListener("mouseout", () => {
           button.style.backgroundColor = "transparent";
-          button.style.color = "#6b7280";
+          button.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
         });
       };
 
@@ -324,19 +336,21 @@ const HomePage: React.FC = () => {
         const tooltip = document.createElement("span");
         tooltip.textContent = text;
         tooltip.style.visibility = "hidden";
-        tooltip.style.backgroundColor = "#333";
+        tooltip.style.backgroundColor = isDarkMode ? "#4b5563" : "#333";
         tooltip.style.color = "#fff";
         tooltip.style.textAlign = "center";
         tooltip.style.padding = "5px 10px";
         tooltip.style.borderRadius = "6px";
         tooltip.style.position = "absolute";
         tooltip.style.zIndex = "1002";
-        tooltip.style.top = "calc(100% + 18px)";
         tooltip.style.left = "50%";
         tooltip.style.transform = "translateX(-50%)";
+        tooltip.style.bottom = "-30px"; // Position below the button
         tooltip.style.fontSize = "14px";
         tooltip.style.whiteSpace = "nowrap";
         tooltip.style.pointerEvents = "none";
+        tooltip.style.opacity = "0";
+        tooltip.style.transition = "opacity 0.2s ease-in-out";
         return tooltip;
       };
 
@@ -367,6 +381,13 @@ const HomePage: React.FC = () => {
       ignoreButton.addEventListener("click", () => {
         if (element && editorRef.current) {
           element.outerHTML = word;
+          // Add word to ignored words
+          const newIgnoredWords = new Set(ignoredWords);
+          newIgnoredWords.add(word.toLowerCase());
+          setIgnoredWords(newIgnoredWords);
+          // Save to localStorage
+          localStorage.setItem("ignoredWords", JSON.stringify([...newIgnoredWords]));
+          
           setSpellingResults((prev) =>
             prev.filter(
               (result) =>
@@ -424,6 +445,17 @@ const HomePage: React.FC = () => {
       scrollContainer.style.paddingTop = "0";
       scrollContainer.style.paddingBottom = "8px";
 
+      // Calculate dynamic height based on number of items
+      const itemHeight = 44; // Height of each suggestion item in pixels
+      const headerHeight = 52; // Height of ignore/dictionary buttons section
+      const padding = 30; // Extra padding
+      const numItems = suggestions.suggestions.length;
+      const calculatedHeight = numItems === 0 ? 60 : (numItems * itemHeight) + headerHeight + padding;
+      const maxHeight = 300; // Maximum height before scrolling
+
+      scrollContainer.style.minHeight = `${Math.min(calculatedHeight, maxHeight)}px`;
+      scrollContainer.style.maxHeight = `${maxHeight}px`;
+
       suggestions.suggestions.forEach((suggestion) => {
         const suggestionContainer = document.createElement("div");
         suggestionContainer.style.display = "flex";
@@ -434,73 +466,82 @@ const HomePage: React.FC = () => {
         suggestionContainer.style.cursor = "pointer";
         suggestionContainer.style.minWidth = "100px";
         suggestionContainer.style.gap = "12px";
+        suggestionContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
 
         const addButton = document.createElement("button");
-        addButton.textContent = "☆";
-        addButton.style.marginRight = "0";
-        addButton.style.padding = "2px 8px";
-        addButton.style.borderRadius = "4px";
-        addButton.style.backgroundColor = "#e5e7eb";
-        addButton.style.border = "none";
-        addButton.style.cursor = "pointer";
-        addButton.style.fontSize = "18px";
-        addButton.style.fontWeight = "normal";
+        addButton.textContent = "+";
         addButton.style.position = "relative";
-        addButton.style.width = "28px";
-        addButton.style.minWidth = "28px";
-        addButton.style.color = "#666";
-        addButton.style.display = "flex";
-        addButton.style.alignItems = "center";
-        addButton.style.justifyContent = "center";
+        Object.assign(addButton.style, {
+          marginLeft: "10px",
+          marginRight: "10px",
+          padding: "2px 8px",
+          borderRadius: "4px",
+          backgroundColor: isDarkMode ? "#374151" : "#e5e7eb",
+          border: "none",
+          cursor: "pointer",
+          fontSize: "18px",
+          fontWeight: "normal",
+          width: "28px",
+          minWidth: "28px",
+          color: isDarkMode ? "#9ca3af" : "#666",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        });
 
-        const tooltip = document.createElement("span");
-        tooltip.textContent = "Add to your star list";
-        tooltip.style.visibility = "hidden";
-        tooltip.style.backgroundColor = "#333";
-        tooltip.style.color = "#fff";
-        tooltip.style.textAlign = "center";
-        tooltip.style.padding = "5px 10px";
-        tooltip.style.borderRadius = "6px";
-        tooltip.style.position = "absolute";
-        tooltip.style.zIndex = "1002";
-        tooltip.style.left = "0";
-        tooltip.style.top = "calc(100% + 8px)";
-        tooltip.style.transform = "none";
-        tooltip.style.fontSize = "14px";
-        tooltip.style.whiteSpace = "nowrap";
-        tooltip.style.fontWeight = "normal";
-        tooltip.style.pointerEvents = "none";
+        const starTooltip = document.createElement("span");
+        starTooltip.textContent = "Add to your star list";
+        Object.assign(starTooltip.style, {
+          visibility: "hidden",
+          backgroundColor: isDarkMode ? "#4b5563" : "#333",
+          color: "#fff",
+          textAlign: "center",
+          padding: "5px 10px",
+          borderRadius: "6px",
+          position: "absolute",
+          zIndex: "1002",
+          right: "-100px",
+          top: "-40px",
+          fontSize: "14px",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          opacity: "0",
+          transition: "opacity 0.2s ease-in-out",
+          transform: "translateX(0)",
+        });
+
+        addButton.appendChild(starTooltip);
 
         addButton.addEventListener("mouseover", () => {
-          tooltip.style.visibility = "visible";
-          addButton.style.backgroundColor = "#d1d5db";
-          addButton.style.color = "#333";
+          addButton.style.backgroundColor = isDarkMode ? "#4b5563" : "#d1d5db";
+          addButton.style.color = isDarkMode ? "#e5e7eb" : "#333";
+          starTooltip.style.visibility = "visible";
+          starTooltip.style.opacity = "1";
         });
 
         addButton.addEventListener("mouseout", () => {
-          tooltip.style.visibility = "hidden";
-          addButton.style.backgroundColor = "#e5e7eb";
-          addButton.style.color = "#666";
+          addButton.style.backgroundColor = isDarkMode ? "#374151" : "#e5e7eb";
+          addButton.style.color = isDarkMode ? "#9ca3af" : "#666";
+          starTooltip.style.visibility = "hidden";
+          starTooltip.style.opacity = "0";
         });
-
-        addButton.appendChild(tooltip);
 
         const suggestionElement = document.createElement("div");
         suggestionElement.textContent = suggestion;
         suggestionElement.style.fontSize = "20px";
         suggestionElement.style.fontWeight = "bold";
-        suggestionElement.style.color = "#374151";
+        suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
 
         suggestionContainer.appendChild(addButton);
         suggestionContainer.appendChild(suggestionElement);
 
         suggestionContainer.addEventListener("mouseover", () => {
-          suggestionContainer.style.backgroundColor = "#f3f4f6";
-          suggestionElement.style.color = "#000000";
+          suggestionContainer.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
+          suggestionElement.style.color = isDarkMode ? "#ffffff" : "#000000";
         });
         suggestionContainer.addEventListener("mouseout", () => {
-          suggestionContainer.style.backgroundColor = "transparent";
-          suggestionElement.style.color = "#374151";
+          suggestionContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+          suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
         });
 
         // Click handlers
@@ -538,19 +579,58 @@ const HomePage: React.FC = () => {
 
         scrollContainer.appendChild(suggestionContainer); // Append to scrollContainer instead of popup
       });
-    }
 
-    document.body.appendChild(popup);
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
-        document.body.removeChild(popup);
-        document.removeEventListener("click", handleClickOutside);
+      // Update scrollbar styles for dark mode
+      if (isDarkMode) {
+        scrollContainer.style.scrollbarColor = "#4b5563 #1f2937"; // For Firefox
+        scrollContainer.style.scrollbarWidth = "thin";
+        
+        // For Webkit browsers (Chrome, Safari, Edge)
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `
+          .suggestion-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+          .suggestion-scroll::-webkit-scrollbar-track {
+            background: #1f2937;
+          }
+          .suggestion-scroll::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 4px;
+            border: 2px solid #1f2937;
+          }
+        `;
+        document.head.appendChild(styleSheet);
+        scrollContainer.classList.add("suggestion-scroll");
       }
-    };
-    setTimeout(() => {
-      document.addEventListener("click", handleClickOutside);
-    }, 0);
+
+      // Update popup container styles
+      popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+      popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
+      popup.style.borderRadius = "12px";
+      popup.style.boxShadow = isDarkMode 
+        ? "0 4px 12px rgba(0, 0, 0, 0.5)" 
+        : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
+
+      // Update ignore/dictionary section styles
+      ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+      ignoreContainer.style.borderBottom = isDarkMode 
+        ? "1px solid #374151" 
+        : "1px solid #e5e7eb";
+
+      document.body.appendChild(popup);
+
+      const handleClickOutside = (e: MouseEvent) => {
+        if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
+          document.body.removeChild(popup);
+          document.removeEventListener("click", handleClickOutside);
+        }
+      };
+      setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 0);
+    }
   };
 
   const handleSuggestionClick = (

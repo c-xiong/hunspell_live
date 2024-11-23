@@ -5,7 +5,6 @@ export const styles = {
     width: "1200px",
     position: "relative" as const,
     overflow: "hidden",
-    marginTop: "40px",
     padding: "0 20px"
   },
   editorContainer: {

@@ -455,6 +455,9 @@
     justify-content: center;
     gap: 0px;
     margin-bottom: 36px;
+    margin-top: 90px;
+    position: relative;
+    height: 80px;
   }
   
   .copyright {
@@ -590,6 +593,7 @@
     align-items: center;
     gap: 12px;
     z-index: 1000;
+    height: 48px;
   }
   
   .darkMode .topControls {
@@ -624,14 +628,14 @@
     flex-direction: column;
     overflow: visible;
     margin-bottom: 20px;
+    padding-top: 80px;
   }
   
   .title {
     font-size: 54px;
     font-weight: 700;
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 20px;
+    margin: 0;
     color: #1a1a1a;
     letter-spacing: -0.02em;
     font-family: 'Poppins', sans-serif;
