@@ -724,15 +724,14 @@ const HomePage: React.FC = () => {
       </div>
       <div style={inlineStyles.content}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.title} style={inlineStyles.title}>
+          <h1 className={styles.title}>
             Hunspell Live
           </h1>
         </div>
         <div
           style={{
-            backgroundColor: isDarkMode ? '#25272b' : 'white',
-            borderRadius: "8px",
-            padding: "24px",
+            ...inlineStyles.editorContainer,
+            backgroundColor: isDarkMode ? '#1f2937' : inlineStyles.editorContainer.backgroundColor,
           }}
         >
           <div style={inlineStyles.controlsContainer}>
@@ -794,6 +793,7 @@ const HomePage: React.FC = () => {
                 options={options}
                 value={selectedOption}
                 onChange={handleSelectChange}
+                isDarkMode={isDarkMode}
               />
             </div>
           </div>
@@ -804,11 +804,10 @@ const HomePage: React.FC = () => {
             onInput={handleTextChange}
             style={{
               ...inlineStyles.editor,
+              backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+              color: isDarkMode ? '#ffffff' : 'inherit',
               direction: TEXT_DIRECTION_MAP[selectedOption.value] || "ltr",
-              textAlign:
-                TEXT_DIRECTION_MAP[selectedOption.value] === "rtl"
-                  ? "right"
-                  : "left",
+              textAlign: TEXT_DIRECTION_MAP[selectedOption.value] === "rtl" ? "right" : "left",
             }}
             data-placeholder="Enter or paste your text here to check spelling"
           />
@@ -824,10 +823,6 @@ const HomePage: React.FC = () => {
           >
             <FaGithub />
           </a>
-          {/* <span className={styles.versionTag}>v1.0.0</span> */}
-          {/* <span className={styles.footerLink}>
-            Built by <a href="https://chenfeixiong.com">Chenfei Xiong</a>
-          </span> */}
           <a
             href="https://chenfeixiong.com"
             target="_blank"

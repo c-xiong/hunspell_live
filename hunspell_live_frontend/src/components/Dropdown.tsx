@@ -12,7 +12,7 @@ interface DropdownProps {
   onChange: (option: Option, event?: React.MouseEvent) => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
+const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMode = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -42,6 +42,30 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
     }
   }, [isOpen]);
 
+  const darkModeStyles = {
+    button: {
+      backgroundColor: isDarkMode ? '#1f2937' : 'white',
+      border: `2px solid ${isDarkMode ? '#4b5563' : '#374151'}`,
+      color: isDarkMode ? '#e5e7eb' : 'inherit',
+    },
+    dropdownMenu: {
+      backgroundColor: isDarkMode ? '#1f2937' : 'white',
+      border: `1px solid ${isDarkMode ? '#4b5563' : '#dee2e6'}`,
+    },
+    searchInput: {
+      backgroundColor: isDarkMode ? '#374151' : 'white',
+      color: isDarkMode ? '#e5e7eb' : 'inherit',
+      border: `1px solid ${isDarkMode ? '#4b5563' : '#ced4da'}`,
+    },
+    dropdownItem: {
+      color: isDarkMode ? '#e5e7eb' : 'inherit',
+      backgroundColor: isDarkMode ? '#1f2937' : 'white',
+      '&:hover': {
+        backgroundColor: isDarkMode ? '#374151' : '#f8f9fa',
+      },
+    },
+  };
+
   return (
     <div
       ref={dropdownRef}
@@ -55,11 +79,10 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
         onClick={() => setIsOpen(!isOpen)}
         style={{
           height: "40px",
-          border: "2px solid #374151",
           borderRadius: "8px",
-          backgroundColor: "white",
           fontSize: "18px",
           fontWeight: "500",
+          ...darkModeStyles.button,
         }}
       >
         <span>{value.label}</span>
@@ -76,7 +99,11 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
       {isOpen && (
         <div
           className="dropdown-menu show w-100"
-          style={{ maxHeight: "300px", overflow: "auto" }}
+          style={{ 
+            maxHeight: "300px", 
+            overflow: "auto",
+            ...darkModeStyles.dropdownMenu,
+          }}
         >
           <div className="px-3 py-2">
             <input
@@ -89,7 +116,8 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
               style={{ 
                 fontSize: "18px",
                 padding: "8px 12px",
-                height: "40px"
+                height: "40px",
+                ...darkModeStyles.searchInput,
               }}
             />
           </div>
@@ -108,7 +136,21 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange }) => {
                 height: "48px",
                 lineHeight: "24px",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
+                backgroundColor: isDarkMode ? '#1f2937' : 'white',
+                color: isDarkMode ? '#e5e7eb' : 'inherit',
+                ':hover': {
+                  backgroundColor: isDarkMode ? '#374151' : '#f8f9fa',
+                  color: isDarkMode ? '#ffffff' : 'inherit',
+                },
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkMode ? '#374151' : '#f8f9fa';
+                e.currentTarget.style.color = isDarkMode ? '#ffffff' : 'inherit';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkMode ? '#1f2937' : 'white';
+                e.currentTarget.style.color = isDarkMode ? '#e5e7eb' : 'inherit';
               }}
             >
               {option.label}
