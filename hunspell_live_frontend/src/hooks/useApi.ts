@@ -91,11 +91,7 @@ export const useApi = (selectedLanguage: string) => {
         .filter((res: { word: string; is_correct: boolean }) => !res.is_correct)
         .map((res: { word: string; is_correct: boolean }) => res.word);
 
-      let fetchedSuggestions: Record<string, string[]> = {};
-      if (incorrectWords.length > 0) {
-        fetchedSuggestions = await batchGetSuggestions(incorrectWords);
-      }
-
+      // Create new results for all instances of incorrect words
       const newResults = wordsWithIndices
         .filter(({ word }) => incorrectWords.includes(word))
         .map(({ word, index }) => ({
@@ -105,7 +101,7 @@ export const useApi = (selectedLanguage: string) => {
         }));
 
       setSpellingResults(newResults);
-      return newResults;
+      return newResults; // Return the results array
     } catch (error) {
       console.error("Error checking spelling:", error);
       toast.error('Failed to check spelling. Please try again.');

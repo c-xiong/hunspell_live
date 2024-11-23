@@ -40,10 +40,7 @@ const HomePage: React.FC = () => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
   });
-  const [ignoredWords, setIgnoredWords] = useState<Set<string>>(() => {
-    const savedIgnoredWords = localStorage.getItem("ignoredWords");
-    return savedIgnoredWords ? new Set(JSON.parse(savedIgnoredWords)) : new Set();
-  });
+  const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
 
   const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(
     selectedOption.value
@@ -385,8 +382,6 @@ const HomePage: React.FC = () => {
           const newIgnoredWords = new Set(ignoredWords);
           newIgnoredWords.add(word.toLowerCase());
           setIgnoredWords(newIgnoredWords);
-          // Save to localStorage
-          localStorage.setItem("ignoredWords", JSON.stringify([...newIgnoredWords]));
           
           setSpellingResults((prev) =>
             prev.filter(
