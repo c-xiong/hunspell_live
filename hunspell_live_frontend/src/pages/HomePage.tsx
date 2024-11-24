@@ -45,6 +45,8 @@ const HomePage: React.FC = () => {
   });
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
+  const [charCount, setCharCount] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
 
   const { checkSpelling, getSuggestions, addWordToDictionary, addWordToStarList } = useApi(
     selectedOption.value
@@ -106,6 +108,9 @@ const HomePage: React.FC = () => {
       editorRef.current.innerHTML = "";
       setText("");
       setSpellingResults([]);
+      // Reset counts
+      setCharCount(0);
+      setWordCount(0);
       toast.success("Text cleared successfully");
     }
   };
@@ -117,6 +122,10 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = pastedText;
         setText(pastedText);
         setSpellingResults([]);
+        
+        // Update counts for pasted text
+        setCharCount(pastedText.length);
+        setWordCount(pastedText.trim().split(/\s+/).filter(Boolean).length);
 
         // Move cursor to end of text
         const selection = window.getSelection();
@@ -138,6 +147,11 @@ const HomePage: React.FC = () => {
     const newText = event.currentTarget.innerText;
     setText(newText);
     setSpellingResults([]);
+
+    // Update character and word count
+    setCharCount(newText.length);
+    setWordCount(newText.trim().split(/\s+/).filter(Boolean).length);
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -737,6 +751,9 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = "";
         setText("");
         setSpellingResults([]);
+        // Reset counts
+        setCharCount(0);
+        setWordCount(0);
         toast.success("Text cut to clipboard");
       } catch (error) {
         toast.error("Failed to cut text");
@@ -904,6 +921,10 @@ const HomePage: React.FC = () => {
             }}
             data-placeholder="Enter or paste your text here to check spelling"
           />
+          <div className={styles.countDisplay}>
+            <span>Characters: {charCount}</span>
+            <span>Words: {wordCount}</span>
+          </div>
         </div>
       </div>
       <footer className={styles.footer}>

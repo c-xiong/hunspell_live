@@ -8,8 +8,9 @@ interface Option {
 
 interface DropdownProps {
   options: Option[];
-  value: Option;
+  value?: Option;
   onChange: (option: Option, event?: React.MouseEvent) => void;
+  isDarkMode?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMode = false }) => {
@@ -69,6 +70,8 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
     },
   };
 
+  const displayValue = value || options[0] || { label: "Select...", value: "" };
+
   return (
     <div
       ref={dropdownRef}
@@ -88,7 +91,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
           ...darkModeStyles.button,
         }}
       >
-        <span>{value.label}</span>
+        <span>{displayValue.label}</span>
         <FaChevronDown
           style={{
             transition: "transform 0.2s",

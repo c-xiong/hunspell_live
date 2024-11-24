@@ -731,3 +731,11 @@
     background-color: #9333ea;
     color: #e5e7eb;
   }
+  
+  .countDisplay {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 16px;
+    color: #4b5563;
+  }

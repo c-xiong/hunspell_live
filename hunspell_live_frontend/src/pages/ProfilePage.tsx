@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useUserData } from '../hooks/useUserData';
-import { FaBook, FaTrash, FaStar, FaUser, FaLanguage, FaHome } from 'react-icons/fa';
+import { FaBook, FaTrash, FaStar, FaUser, FaHome } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
