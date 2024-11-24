@@ -24,13 +24,18 @@ class TokenManager {
 
   setToken(token: string | null) {
     this.accessToken = token;
+    if (token) {
+      sessionStorage.setItem('accessToken', token);
+    } else {
+      sessionStorage.removeItem('accessToken');
+    }
     if (this.tokenUpdateCallback) {
       this.tokenUpdateCallback(token);
     }
   }
 
   getToken(): string | null {
-    return this.accessToken;
+    return this.accessToken || sessionStorage.getItem('accessToken');
   }
 
   setUpdateCallback(callback: (token: string | null) => void) {
@@ -54,6 +59,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
     if (response.ok) {
       const data = await response.json();
+      tokenManager.setToken(data.access);
       return data.access;
     }
     return null;

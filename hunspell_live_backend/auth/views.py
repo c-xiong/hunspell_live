@@ -17,6 +17,9 @@ from django.contrib.auth import logout
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from .mixins import CookieMixin
+from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -43,7 +46,7 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Add a new class for login using TokenObtainPairView
-class LoginView(TokenObtainPairView):
+class LoginView(CookieMixin, TokenObtainPairView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
@@ -60,9 +63,16 @@ class LoginView(TokenObtainPairView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        return super().post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
+        return response
 
-# TokenObtainPairView and TokenRefreshView are provided by Simple JWT
+# 添加自定义的 TokenRefreshView
+class CustomTokenRefreshView(CookieMixin, TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
+        if refresh_token:
+            request.data['refresh'] = refresh_token
+        return super().post(request, *args, **kwargs)
 
 def home(request):
     return HttpResponse("Welcome to the Home Page")
@@ -93,8 +103,17 @@ def user_info(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    logout(request)
-    return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+    try:
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        
+        response = Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+        response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+        return response
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 def google_login(request):
     return redirect('accounts/google/login/')

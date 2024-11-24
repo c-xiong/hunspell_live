@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../config/api';
+import { tokenManager } from '../config/api';
 import { toast } from 'react-toastify';
 import { useAuthContext } from '../contexts/AuthContext'
 interface LoginResponse {
@@ -22,14 +23,17 @@ export const useAuth = () => {
   const checkUser = async () => {
     setIsLoading(true);
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      const accessToken = tokenManager.getToken();
       if (!accessToken) {
         setAuthState({
           isAuthenticated: false,
           user: null
         });
+        setAccessToken(null);
         return;
       }
+
+      setAccessToken(accessToken);
 
       const response = await apiRequest("/auth/user/", {
         method: "GET",
@@ -46,7 +50,7 @@ export const useAuth = () => {
           user: userData
         });
       } else {
-        localStorage.removeItem('accessToken');
+        tokenManager.setToken(null);
         setAuthState({
           isAuthenticated: false,
           user: null
@@ -54,7 +58,7 @@ export const useAuth = () => {
       }
     } catch (error) {
       console.error('User check failed:', error);
-      localStorage.removeItem('accessToken');
+      tokenManager.setToken(null);
       setAuthState({
         isAuthenticated: false,
         user: null
@@ -68,20 +72,19 @@ export const useAuth = () => {
     try {
       const response = await apiRequest("/auth/login/", {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
+        tokenManager.setToken(data.access);
         setAccessToken(data.access);
         
-        // Get user data with bearer token
         const userResponse = await apiRequest("/auth/user/", {
           method: "GET",
-          credentials: 'include',
-          headers: {
-            'Authorization': `Bearer ${data.access}`,
-          },
         });
         
         if (userResponse.ok) {
@@ -92,11 +95,7 @@ export const useAuth = () => {
           });
           toast.success('Successfully logged in!');
           return true;
-        } else {
-          console.error('Failed to get user data:', userResponse.statusText);
         }
-      } else {
-        console.error('Login failed:', response.statusText);
       }
       
       toast.error('Invalid credentials');

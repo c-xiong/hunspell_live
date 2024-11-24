@@ -27,6 +27,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
 
 const HomePage: React.FC = () => {
+  const { isAuthenticated, user, isLoading, logout } = useAuth();
+  const { accessToken } = useAuthContext();
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     return savedLanguage
@@ -37,8 +39,6 @@ const HomePage: React.FC = () => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const { accessToken } = useAuthContext();
-  const { logout, isLoading, user } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -51,6 +51,12 @@ const HomePage: React.FC = () => {
   );
 
   const options: LanguageOption[] = LANGUAGE_OPTIONS;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Perform actions when the user is authenticated
+    }
+  }, [isAuthenticated]);
 
   // Add theme toggle handler
   const toggleTheme = () => {
