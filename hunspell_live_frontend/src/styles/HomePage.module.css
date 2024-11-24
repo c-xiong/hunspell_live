@@ -610,7 +610,13 @@
     background-color: #e5e7eb;
     color: #1a1a1a;
   }
-  
+  .darkMode .logoutButton {
+    background-color: transparent;
+  }
+  .darkMode .logoutButton:hover {
+    background-color: #e74c3c;
+    color: white;
+  }
   .darkMode div[style*="backgroundColor: white"] {
     background-color: #1a1a1a !important;
   }

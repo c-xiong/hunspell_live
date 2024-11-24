@@ -5,6 +5,8 @@ import { useUserData } from '../hooks/useUserData';
 import { FaBook, FaTrash, FaStar, FaUser, FaLanguage, FaHome } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
+import Dropdown from '../components/Dropdown';
+import { LANGUAGE_OPTIONS } from '../constants/language';
 
 const ProfilePage: React.FC = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -25,6 +27,14 @@ const ProfilePage: React.FC = () => {
     removeFromStarList
   } = useUserData();
 
+  const filteredDictionaryOptions = LANGUAGE_OPTIONS.filter(option =>
+    dictionaryLanguages.includes(option.value)
+  );
+
+  const filteredStarListOptions = LANGUAGE_OPTIONS.filter(option =>
+    starListLanguages.includes(option.value)
+  );
+
   useEffect(() => {
     if (dictionaryLanguages.length > 0 && !selectedDictLanguage) {
       setSelectedDictLanguage(dictionaryLanguages[0]);
@@ -39,14 +49,14 @@ const ProfilePage: React.FC = () => {
     }
   }, [starListLanguages]);
 
-  const handleDictionaryLanguageChange = (language: string) => {
-    setSelectedDictLanguage(language);
-    fetchDictionaryWords(language);
+  const handleDictionaryLanguageChange = (option: { label: string, value: string }) => {
+    setSelectedDictLanguage(option.value);
+    fetchDictionaryWords(option.value);
   };
 
-  const handleStarListLanguageChange = (language: string) => {
-    setSelectedStarLanguage(language);
-    fetchStarListWords(language);
+  const handleStarListLanguageChange = (option: { label: string, value: string }) => {
+    setSelectedStarLanguage(option.value);
+    fetchStarListWords(option.value);
   };
 
   if (authLoading || dataLoading) {
@@ -120,18 +130,12 @@ const ProfilePage: React.FC = () => {
           {activeTab === 'dictionary' && (
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Personal Dictionary</h2>
-                <div className={styles.languageTabs}>
-                  {dictionaryLanguages.map(language => (
-                    <button 
-                      key={language}
-                      className={`${styles.languageTab} ${selectedDictLanguage === language ? styles.active : ''}`}
-                      onClick={() => handleDictionaryLanguageChange(language)}
-                    >
-                      <FaLanguage /> {language}
-                    </button>
-                  ))}
-                </div>
+                <Dropdown
+                  options={filteredDictionaryOptions}
+                  value={filteredDictionaryOptions.find(option => option.value === selectedDictLanguage)}
+                  onChange={handleDictionaryLanguageChange}
+                  isDarkMode={isDarkMode}
+                />
               </div>
               <div className={styles.wordGrid}>
                 {dictionaryWords[selectedDictLanguage]?.map(word => (
@@ -153,18 +157,12 @@ const ProfilePage: React.FC = () => {
           {activeTab === 'starlist' && (
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Starred Words</h2>
-                <div className={styles.languageTabs}>
-                  {starListLanguages.map(language => (
-                    <button 
-                      key={language}
-                      className={`${styles.languageTab} ${selectedStarLanguage === language ? styles.active : ''}`}
-                      onClick={() => handleStarListLanguageChange(language)}
-                    >
-                      <FaLanguage /> {language}
-                    </button>
-                  ))}
-                </div>
+                <Dropdown
+                  options={filteredStarListOptions}
+                  value={filteredStarListOptions.find(option => option.value === selectedStarLanguage)}
+                  onChange={handleStarListLanguageChange}
+                  isDarkMode={isDarkMode}
+                />
               </div>
               <div className={styles.wordGrid}>
                 {starListWords[selectedStarLanguage]?.map(word => (

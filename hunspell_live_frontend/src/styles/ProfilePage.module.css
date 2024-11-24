@@ -1,17 +1,22 @@
 .pageWrapper {
   min-height: 100vh;
-  background-color: #f3f4f6;
   transition: background-color 0.2s ease;
   padding-bottom: 2rem;
 }
 
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 4rem;
-  min-height: calc(100vh - 4rem);
+  max-width: 1200px;
+  min-width: 900px;
+  margin: 50px;
+  padding: 1.5rem;
+  min-height: calc(100vh - 10rem);
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
+  background-color: #f3f4f6;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: #4c5363 0.5px solid;
 }
 
 .header {
@@ -22,36 +27,42 @@
 .headerTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .homeButton {
+  position: absolute;
+  left: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   border-radius: 8px;
-  background-color: white;
-  color: #4F46E5;
+  background-color: transparent;
+  color: #5952d4;
   font-weight: 500;
+  font-size: 1.2rem;
   transition: all 0.2s ease;
-  border: 1px solid #e5e7eb;
 }
 
 .homeButton:hover {
-  background-color: #4F46E5;
-  color: white;
+  color: #454096;
+  background-color: rgba(89, 82, 212, 0.1);
   transform: translateY(-1px);
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
   color: #111827;
   background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  margin: 30px;
 }
 
 .headerNav {
@@ -65,14 +76,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   font-weight: 500;
   color: #6b7280;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 1rem;
+  font-size: 0.95rem;
   border-radius: 8px 8px 0 0;
 }
 
@@ -90,8 +101,8 @@
 .mainContent {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
   flex: 1;
   overflow-y: auto;
   margin-bottom: 2rem;
@@ -105,7 +116,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -118,14 +129,14 @@
 
 .userInfo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
 
 .infoCard {
   background-color: #f9fafb;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   display: flex;
@@ -139,40 +150,9 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.languageTabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.languageTab {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #6b7280;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.languageTab:hover {
-  background-color: #e5e7eb;
-}
-
-.languageTab.active {
-  background-color: #4F46E5;
-  color: white;
-  border-color: #4F46E5;
-}
-
 .wordGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
   margin-top: 1.5rem;
   padding-bottom: 2rem;
@@ -197,7 +177,7 @@
 }
 
 .word {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
   color: #111827;
   white-space: nowrap;
@@ -207,19 +187,21 @@
 }
 
 .deleteButton, .unstarButton {
-  padding: 0.35rem;
+  padding: 0.2rem;
   border-radius: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #6b7280;
+  color: #c3aa1b;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 32px;
 }
-
+.deleteButton {
+  color: #100a0a8c;
+}
 .deleteButton:hover {
   color: #dc2626;
 }
@@ -235,12 +217,22 @@
 
 :global(body.dark-mode) .mainContent {
   background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:global(body.dark-mode) .sectionTitle {
+  color: #e5e7eb;
 }
 
 :global(body.dark-mode) .tabButton {
   color: #9ca3af;
 }
-
+:global(body.dark-mode) .deleteButton {
+  color: #ffffff8c;
+}
+:global(body.dark-mode) .deleteButton:hover {
+  color: #dc2626;
+}
 :global(body.dark-mode) .tabButton:hover {
   color: #818cf8;
 }
@@ -254,10 +246,31 @@
 :global(body.dark-mode) .wordCard {
   background-color: #374151;
   border-color: #4b5563;
+  color: #e5e7eb;
 }
 
 :global(body.dark-mode) .word {
   color: #f9fafb;
+}
+
+:global(body.dark-mode) .homeButton {
+  background-color: transparent;
+  color: #818cf8;
+}
+
+:global(body.dark-mode) .homeButton:hover {
+  background-color: rgba(129, 140, 248, 0.1);
+  color: #a5b4fc;
+}
+
+:global(body.dark-mode) .languageDropdown {
+  background-color: #1f2937;
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+}
+
+:global(body.dark-mode) .languageDropdown:hover {
+  background-color: #374151;
 }
 
 /* Loading state */
@@ -298,4 +311,33 @@
   .mainContent {
     padding: 1.5rem;
   }
-} 
+}
+
+.languageDropdown {
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.languageDropdown:hover {
+  background-color: #e5e7eb;
+}
+
+:global(body.dark-mode) .container {
+  background-color: #1f2937;
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+}
+
+@media screen and (min-width: 1400px) {
+  .container {
+    max-width: 1400px;
+  }
+}
+  

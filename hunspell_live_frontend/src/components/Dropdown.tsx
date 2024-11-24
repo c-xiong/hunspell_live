@@ -56,6 +56,9 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
       backgroundColor: isDarkMode ? '#374151' : 'white',
       color: isDarkMode ? '#e5e7eb' : 'inherit',
       border: `1px solid ${isDarkMode ? '#4b5563' : '#ced4da'}`,
+      '::placeholder': {
+        color: isDarkMode ? '#f4f5f8' : '#6c757d',
+      },
     },
     dropdownItem: {
       color: isDarkMode ? '#e5e7eb' : 'inherit',
