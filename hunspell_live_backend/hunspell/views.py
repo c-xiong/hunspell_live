@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .services.spell_check_service import spell_checker_service
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.permissions import IsAuthenticated
-from .services.personal_dict_service import PersonalDictionaryService
-from django.core.exceptions import ValidationError
+from .services.personal_starlist_service import PersonalStarlistService
+from .services.personal_dictionary_service import PersonalDictionaryService
 
 class SpellCheckerView(APIView):
     def post(self, request):
@@ -60,6 +61,102 @@ class SpellCorrectionView(APIView):
             status=status.HTTP_200_OK
         )
 
+class PersonalStarlistView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        language = request.query_params.get('language')
+        
+        if 'languages' in request.path:
+            languages = PersonalStarlistService.get_user_languages(request.user)
+            return Response({"languages": list(languages)})
+            
+        if not language:
+            return Response(
+                {"error": "Language parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            words = PersonalStarlistService.get_user_starlist(request.user, language)
+            return Response({"words": list(words)})
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def post(self, request):
+        if 'remove' in request.path:
+            return self.delete(request)
+            
+        word = request.data.get('word')
+        language = request.data.get('language', 'en_US')
+        
+        if not word or not isinstance(word, str):
+            return Response(
+                {"error": "A word string is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            PersonalStarlistService.add_word(request.user, word, language)
+            return Response(
+                {
+                    "message": f"Word '{word}' added to personal starlist",
+                    "language": language
+                },
+                status=status.HTTP_200_OK
+            )
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def delete(self, request):
+        word = request.data.get('word')
+        language = request.data.get('language', 'en_US')
+        
+        if not word or not isinstance(word, str):
+            return Response(
+                {"error": "A word string is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            PersonalStarlistService.remove_word(request.user, word, language)
+            return Response(
+                {
+                    "message": f"Word '{word}' removed from personal starlist",
+                    "language": language
+                },
+                status=status.HTTP_200_OK
+            )
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e) if isinstance(e, DjangoValidationError) else str(e.detail[0])
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class PersonalDictionaryView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -76,10 +173,25 @@ class PersonalDictionaryView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-        words = PersonalDictionaryService.get_user_dictionary(request.user, language)
-        return Response({"words": list(words)})
+        try:
+            words = PersonalDictionaryService.get_user_dictionary(request.user, language)
+            return Response({"words": list(words)})
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     def post(self, request):
+        if 'remove' in request.path:
+            return self.delete(request)
+            
         word = request.data.get('word')
         language = request.data.get('language', 'en_US')
         
@@ -98,14 +210,15 @@ class PersonalDictionaryView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
-        except ValidationError as e:
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
             return Response(
-                {"error": str(e)},
+                {"error": error_message},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
             return Response(
-                {"error": "Failed to add word to personal dictionary"},
+                {"error": f"An unexpected error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
@@ -128,13 +241,14 @@ class PersonalDictionaryView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
-        except ValidationError as e:
+        except (DjangoValidationError, DRFValidationError) as e:
+            error_message = str(e) if isinstance(e, DjangoValidationError) else str(e.detail[0])
             return Response(
-                {"error": str(e)},
+                {"error": error_message},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
             return Response(
-                {"error": "Failed to remove word from personal dictionary"},
+                {"error": f"An unexpected error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -54,7 +54,14 @@ class PersonalDictionaryService:
             
         Returns:
             list: List of words in user's dictionary for the specified language
+            
+        Raises:
+            ValidationError: If dictionary doesn't exist for the specified language
         """
+        # First check if the language exists for this user
+        if not PersonalDictionary.objects.filter(user=user, lang_code=lang_code).exists():
+            raise ValidationError(f"No dictionary exists for language '{lang_code}'")
+        
         return PersonalDictionary.objects.filter(
             user=user,
             lang_code=lang_code
