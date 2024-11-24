@@ -24,6 +24,7 @@ import styles from "../styles/HomePage.module.css";
 import { useAuth } from "../hooks/useAuth";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -36,7 +37,8 @@ const HomePage: React.FC = () => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const { logout, isLoading, isAuthenticated, user } = useAuth();
+  const { accessToken } = useAuthContext();
+  const { logout, isLoading, user } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -44,7 +46,7 @@ const HomePage: React.FC = () => {
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
-  const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(
+  const { checkSpelling, getSuggestions, addWordToDictionary, addWordToStarList } = useApi(
     selectedOption.value
   );
 
@@ -466,7 +468,7 @@ const HomePage: React.FC = () => {
         suggestionContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
 
         const addButton = document.createElement("button");
-        addButton.textContent = "+";
+        addButton.textContent = "★";
         addButton.style.position = "relative";
         Object.assign(addButton.style, {
           marginLeft: "10px",
@@ -552,9 +554,9 @@ const HomePage: React.FC = () => {
 
           try {
             // Show loading toast
-            const loadingToast = toast.loading("Adding word to dictionary...");
+            const loadingToast = toast.loading("Adding word to star list...");
 
-            const success = await addWordToDictionary(suggestion);
+            const success = await addWordToStarList(suggestion);
 
             // Dismiss loading toast
             toast.dismiss(loadingToast);
@@ -564,12 +566,12 @@ const HomePage: React.FC = () => {
             }
 
             // Show success message
-            toast.success("Word added to dictionary successfully");
+            toast.success("Word added to star list successfully");
 
             // Close the suggestions popup
             document.body.removeChild(popup);
           } catch (error) {
-            toast.error("Failed to add word to dictionary");
+            toast.error("Failed to add word to star list");
             console.error("Error adding word:", error);
           }
         });
@@ -793,7 +795,7 @@ const HomePage: React.FC = () => {
       className={isDarkMode ? styles.darkMode : ''}
     >
       <div className={styles.topControls}>
-        {isAuthenticated ? (
+        {accessToken ? (
           <>
             {themeToggle}
             {userControls}

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../config/api';
 import { toast } from 'react-toastify';
-
+import { useAuthContext } from '../contexts/AuthContext'
 interface LoginResponse {
   refresh: string;
   access: string;
 }
 
 export const useAuth = () => {
+  const { setAccessToken } = useAuthContext();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     user: null
@@ -67,19 +68,13 @@ export const useAuth = () => {
     try {
       const response = await apiRequest("/auth/login/", {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
-        const data: LoginResponse = await response.json();
+        const data = await response.json();
+        setAccessToken(data.access);
         
-        // Store the access token in local storage
-        localStorage.setItem('accessToken', data.access);
-
         // Get user data with bearer token
         const userResponse = await apiRequest("/auth/user/", {
           method: "GET",
@@ -115,42 +110,17 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      
-      // Call logout endpoint with authorization header
-      const response = await apiRequest("/auth/logout/", {
+      await apiRequest("/auth/logout/", {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        }
       });
-
-      // Clear local storage and auth state regardless of response
-      localStorage.removeItem('accessToken');
+    } finally {
+      setAccessToken(null);
       setAuthState({
         isAuthenticated: false,
         user: null
       });
-      
-      if (response.ok) {
-        toast.success('Logged out successfully');
-        // Optionally redirect to home page
-        window.location.href = '/';
-      } else {
-        console.error('Logout API call failed:', response.statusText);
-        // Still consider the user logged out locally
-        toast.warning('Logged out locally. Server sync failed.');
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Still clear local state even if API call fails
-      localStorage.removeItem('accessToken');
-      setAuthState({
-        isAuthenticated: false,
-        user: null
-      });
-      toast.warning('Logged out locally. Server sync failed.');
+      window.location.href = '/';
     }
   };
 

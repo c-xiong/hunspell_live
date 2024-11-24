@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.permissions import IsAuthenticated
 from .services.personal_starlist_service import PersonalStarlistService
 from .services.personal_dictionary_service import PersonalDictionaryService
+from .services.spell_check_service import spell_checker_service
 
 class SpellCheckerView(APIView):
     def post(self, request):

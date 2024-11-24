@@ -139,12 +139,10 @@ export const useApi = (selectedLanguage: string) => {
 
   const addWordToDictionary = async (word: string): Promise<boolean> => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await apiRequest("/api/dictionary/add/", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}`
         },
         body: JSON.stringify({
           word,
@@ -168,11 +166,41 @@ export const useApi = (selectedLanguage: string) => {
     }
   };
 
+  const addWordToStarList = async (word: string): Promise<boolean> => {
+    try {
+      const response = await apiRequest("/api/star-list/add/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          word,
+          language: LANGUAGE_CODE_MAP[selectedLanguage] || 'en_US',
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add word");
+      
+      // Clear the suggestion cache for this word
+      setSuggestionCache(prev => {
+        const newCache = { ...prev };
+        delete newCache[word];
+        return newCache;
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error adding word to star list:", error);
+      return false;
+    }
+  };
+
   return {
     spellingResults,
     suggestionCache,
     checkSpelling,
     getSuggestions,
     addWordToDictionary,
+    addWordToStarList
   };
 };
