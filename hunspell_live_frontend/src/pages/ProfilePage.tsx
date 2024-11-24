@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useUserData } from '../hooks/useUserData';
-import { FaBook, FaStar, FaUser, FaLanguage, FaHome } from 'react-icons/fa';
+import { FaBook, FaTrash, FaStar, FaUser, FaLanguage, FaHome } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
 
@@ -54,82 +54,95 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className={`${styles.container} ${isDarkMode ? styles.darkMode : ''}`}>
-      {/* Header Section */}
-      <div className={styles.header}>
-        <Link to="/" className={styles.homeButton}>
-          <FaHome className={styles.buttonIcon} />
-          Return to Home
-        </Link>
-        <h1 className={styles.title}>Profile</h1>
-      </div>
-
-      {/* Main Content */}
-      <div className={styles.content}>
-        {/* Sidebar Navigation */}
-        <div className={styles.sidebar}>
-          <button 
-            className={`${styles.tabButton} ${activeTab === 'info' ? styles.active : ''}`}
-            onClick={() => setActiveTab('info')}
-          >
-            <FaUser /> User Info
-          </button>
-          <button 
-            className={`${styles.tabButton} ${activeTab === 'dictionary' ? styles.active : ''}`}
-            onClick={() => setActiveTab('dictionary')}
-          >
-            <FaBook /> Personal Dictionary
-          </button>
-          <button 
-            className={`${styles.tabButton} ${activeTab === 'starlist' ? styles.active : ''}`}
-            onClick={() => setActiveTab('starlist')}
-          >
-            <FaStar /> Star List
-          </button>
+    <div className={styles.pageWrapper}>
+      <div className={`${styles.container} ${isDarkMode ? styles.darkMode : ''}`}>
+        {/* Header Section */}
+        <div className={styles.header}>
+          <div className={styles.headerTop}>
+            <Link to="/" className={styles.homeButton}>
+              <FaHome className={styles.buttonIcon} />
+              Return to Home
+            </Link>
+            <h1 className={styles.title}>My Profile</h1>
+          </div>
+          <div className={styles.headerNav}>
+            <button 
+              className={`${styles.tabButton} ${activeTab === 'info' ? styles.active : ''}`}
+              onClick={() => setActiveTab('info')}
+            >
+              <FaUser /> Overview
+            </button>
+            <button 
+              className={`${styles.tabButton} ${activeTab === 'dictionary' ? styles.active : ''}`}
+              onClick={() => setActiveTab('dictionary')}
+            >
+              <FaBook /> Dictionary
+            </button>
+            <button 
+              className={`${styles.tabButton} ${activeTab === 'starlist' ? styles.active : ''}`}
+              onClick={() => setActiveTab('starlist')}
+            >
+              <FaStar /> Starred Words
+            </button>
+          </div>
         </div>
 
-        {/* Main Panel */}
-        <div className={styles.mainPanel}>
+        {/* Main Content */}
+        <div className={styles.mainContent}>
           {activeTab === 'info' && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>User Information</h2>
               <div className={styles.userInfo}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Username:</span>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Username</span>
                   <span className={styles.value}>{user?.username}</span>
                 </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Email:</span>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Email</span>
                   <span className={styles.value}>{user?.email}</span>
                 </div>
-                {/* Add more user info fields as needed */}
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Dictionary Words</span>
+                  <span className={styles.value}>
+                    {Object.values(dictionaryWords).flat().length}
+                  </span>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Starred Words</span>
+                  <span className={styles.value}>
+                    {Object.values(starListWords).flat().length}
+                  </span>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'dictionary' && (
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Personal Dictionary</h2>
-              <div className={styles.languageTabs}>
-                {dictionaryLanguages.map(language => (
-                  <button 
-                    key={language}
-                    className={`${styles.languageTab} ${selectedDictLanguage === language ? styles.active : ''}`}
-                    onClick={() => handleDictionaryLanguageChange(language)}
-                  >
-                    <FaLanguage /> {language}
-                  </button>
-                ))}
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Personal Dictionary</h2>
+                <div className={styles.languageTabs}>
+                  {dictionaryLanguages.map(language => (
+                    <button 
+                      key={language}
+                      className={`${styles.languageTab} ${selectedDictLanguage === language ? styles.active : ''}`}
+                      onClick={() => handleDictionaryLanguageChange(language)}
+                    >
+                      <FaLanguage /> {language}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className={styles.wordList}>
+              <div className={styles.wordGrid}>
                 {dictionaryWords[selectedDictLanguage]?.map(word => (
-                  <div key={word} className={styles.wordItem}>
+                  <div key={word} className={styles.wordCard}>
                     <span className={styles.word}>{word}</span>
                     <button 
                       className={styles.deleteButton}
                       onClick={() => removeFromDictionary(word, selectedDictLanguage)}
+                      title="Delete word"
                     >
-                      Delete
+                      <FaTrash />
                     </button>
                   </div>
                 ))}
@@ -139,27 +152,30 @@ const ProfilePage: React.FC = () => {
 
           {activeTab === 'starlist' && (
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Star List</h2>
-              <div className={styles.languageTabs}>
-                {starListLanguages.map(language => (
-                  <button 
-                    key={language}
-                    className={`${styles.languageTab} ${selectedStarLanguage === language ? styles.active : ''}`}
-                    onClick={() => handleStarListLanguageChange(language)}
-                  >
-                    <FaLanguage /> {language}
-                  </button>
-                ))}
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Starred Words</h2>
+                <div className={styles.languageTabs}>
+                  {starListLanguages.map(language => (
+                    <button 
+                      key={language}
+                      className={`${styles.languageTab} ${selectedStarLanguage === language ? styles.active : ''}`}
+                      onClick={() => handleStarListLanguageChange(language)}
+                    >
+                      <FaLanguage /> {language}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className={styles.wordList}>
+              <div className={styles.wordGrid}>
                 {starListWords[selectedStarLanguage]?.map(word => (
-                  <div key={word} className={styles.wordItem}>
+                  <div key={word} className={styles.wordCard}>
                     <span className={styles.word}>{word}</span>
                     <button 
                       className={styles.unstarButton}
                       onClick={() => removeFromStarList(word, selectedStarLanguage)}
+                      title="Remove from starred"
                     >
-                      Unstar
+                      <FaStar />
                     </button>
                   </div>
                 ))}
