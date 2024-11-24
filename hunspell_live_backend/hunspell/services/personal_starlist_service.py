@@ -31,7 +31,8 @@ class PersonalStarlistService:
         if PersonalDictionary.objects.filter(
             user=user, 
             word=word,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='starlist'
         ).exists():
             raise ValidationError(f"Word already exists in your {lang_code} starlist")
 
@@ -39,7 +40,8 @@ class PersonalStarlistService:
         PersonalDictionary.objects.create(
             user=user,
             word=word,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='starlist'
         )
         return True
 
@@ -59,12 +61,17 @@ class PersonalStarlistService:
             ValidationError: If starlist doesn't exist for the specified language
         """
         # First check if the language exists for this user
-        if not PersonalDictionary.objects.filter(user=user, lang_code=lang_code).exists():
+        if not PersonalDictionary.objects.filter(
+            user=user, 
+            lang_code=lang_code,
+            word_type='starlist'
+        ).exists():
             raise ValidationError(f"No starlist exists for language '{lang_code}'")
         
         return PersonalDictionary.objects.filter(
             user=user,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='starlist'
         ).values_list('word', flat=True)
 
     @staticmethod
@@ -102,8 +109,9 @@ class PersonalStarlistService:
             user: The authenticated user
             
         Returns:
-            list: List of language codes
+            list: List of language codes that have at least one word
         """
         return PersonalDictionary.objects.filter(
-            user=user
+            user=user,
+            word_type='starlist'
         ).values_list('lang_code', flat=True).distinct()

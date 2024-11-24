@@ -23,6 +23,7 @@ import { LanguageOption, SpellingResult } from "../types/spelling";
 import styles from "../styles/HomePage.module.css";
 import { useAuth } from "../hooks/useAuth";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
+import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -41,6 +42,7 @@ const HomePage: React.FC = () => {
     return savedTheme === "dark";
   });
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
+  const navigate = useNavigate();
 
   const { checkSpelling, getSuggestions, addWordToDictionary } = useApi(
     selectedOption.value
@@ -738,10 +740,18 @@ const HomePage: React.FC = () => {
     window.location.href = "/login";
   };
 
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+
   const userControls = (
     <div className={styles.userControls}>
       <div className={styles.buttonWrapper}>
-        <FaUser className={styles.profileIcon} />
+        <FaUser 
+          className={styles.profileIcon} 
+          onClick={handleProfileClick} 
+          style={{ cursor: 'pointer' }}
+        />
         {isLoading ? (
           <div className={styles.profileCard}>Loading...</div>
         ) : (

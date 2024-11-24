@@ -31,7 +31,8 @@ class PersonalDictionaryService:
         if PersonalDictionary.objects.filter(
             user=user, 
             word=word,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='dictionary'
         ).exists():
             raise ValidationError(f"Word already exists in your {lang_code} dictionary")
 
@@ -39,7 +40,8 @@ class PersonalDictionaryService:
         PersonalDictionary.objects.create(
             user=user,
             word=word,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='dictionary'
         )
         return True
 
@@ -59,12 +61,17 @@ class PersonalDictionaryService:
             ValidationError: If dictionary doesn't exist for the specified language
         """
         # First check if the language exists for this user
-        if not PersonalDictionary.objects.filter(user=user, lang_code=lang_code).exists():
+        if not PersonalDictionary.objects.filter(
+            user=user, 
+            lang_code=lang_code,
+            word_type='dictionary'
+        ).exists():
             raise ValidationError(f"No dictionary exists for language '{lang_code}'")
         
         return PersonalDictionary.objects.filter(
             user=user,
-            lang_code=lang_code
+            lang_code=lang_code,
+            word_type='dictionary'
         ).values_list('word', flat=True)
 
     @staticmethod
@@ -102,8 +109,9 @@ class PersonalDictionaryService:
             user: The authenticated user
             
         Returns:
-            list: List of language codes
+            list: List of language codes that have at least one word
         """
         return PersonalDictionary.objects.filter(
-            user=user
+            user=user,
+            word_type='dictionary'
         ).values_list('lang_code', flat=True).distinct()

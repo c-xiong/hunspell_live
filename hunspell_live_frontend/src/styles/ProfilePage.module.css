@@ -1,0 +1,289 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.content {
+  display: flex;
+  gap: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar {
+  width: 250px;
+  padding: 1.5rem;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  color: #6b7280;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  background-color: #f3f4f6;
+  color: #4F46E5;
+}
+
+.tabButton.active {
+  background-color: #4F46E5;
+  color: white;
+}
+
+.mainPanel {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.section {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.label {
+  font-weight: 600;
+  color: #4b5563;
+  min-width: 100px;
+}
+
+.value {
+  color: #1f2937;
+}
+
+.languageTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+}
+
+.languageTab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  color: #6b7280;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.languageTab:hover {
+  background-color: #f3f4f6;
+  color: #4F46E5;
+}
+
+.languageTab.active {
+  background-color: #4F46E5;
+  color: white;
+}
+
+.wordList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wordItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.wordItem:hover {
+  background-color: #f3f4f6;
+}
+
+.word {
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.deleteButton, .unstarButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteButton {
+  background-color: #ef4444;
+  color: white;
+}
+
+.unstarButton {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.deleteButton:hover {
+  background-color: #dc2626;
+}
+
+.unstarButton:hover {
+  background-color: #d97706;
+}
+
+/* Dark mode styles */
+:global(body.dark-mode) .container {
+  background-color: #0f172a;
+}
+
+:global(body.dark-mode) .content {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+:global(body.dark-mode) .title {
+  color: #e5e7eb;
+}
+
+:global(body.dark-mode) .sectionTitle {
+  color: #e5e7eb;
+}
+
+:global(body.dark-mode) .tabButton {
+  color: #9ca3af;
+}
+
+:global(body.dark-mode) .tabButton:hover {
+  background-color: #374151;
+  color: #60a5fa;
+}
+
+:global(body.dark-mode) .tabButton.active {
+  background-color: #60a5fa;
+}
+
+:global(body.dark-mode) .infoItem {
+  background-color: #374151;
+}
+
+:global(body.dark-mode) .label {
+  color: #9ca3af;
+}
+
+:global(body.dark-mode) .value {
+  color: #e5e7eb;
+}
+
+:global(body.dark-mode) .wordItem {
+  background-color: #374151;
+}
+
+:global(body.dark-mode) .word {
+  color: #e5e7eb;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  color: #4F46E5;
+}
+
+.homeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #5952d4;
+  text-decoration: none;
+  font-size: 20px;
+  margin-bottom: 16px;
+  transition: color 0.2s ease;
+  width: fit-content;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.homeButton:hover {
+  color: #454096;
+  background-color: rgba(89, 82, 212, 0.1);
+}
+
+.buttonIcon {
+  font-size: 20px;
+}
+
+/* Add to your existing dark mode styles */
+:global(body.dark-mode) .homeButton {
+  color: #818cf8;
+  background-color: transparent;
+}
+
+:global(body.dark-mode) .homeButton:hover {
+  color: #a5b4fc;
+  background-color: rgba(129, 140, 248, 0.1);
+} 
