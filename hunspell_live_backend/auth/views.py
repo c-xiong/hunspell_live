@@ -27,93 +27,181 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     
     def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        
-        if not email or not password:
+        try:
+            email = request.data.get('email')
+            password = request.data.get('password')
+            
+            if not email or not password:
+                return Response(
+                    {"error": "Email and password are required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                return Response(
+                    {"error": "User with this email already exists"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            # Add password length validation
+            if len(password) < 8:
+                return Response(
+                    {"error": "Password must be at least 8 characters long"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {"message": "User created successfully"}, 
+                    status=status.HTTP_201_CREATED
+                )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
             return Response(
-                {"error": "Email and password are required"}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Registration failed", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "User created successfully"}, 
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Add a new class for login using TokenObtainPairView
 class LoginView(CookieMixin, TokenObtainPairView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        password = request.data.get('password')
+        try:
+            email = request.data.get('email')
+            password = request.data.get('password')
 
-        if email:
-            try:
-                user = User.objects.get(email=email)
-                request.data['username'] = user.username  # Add username to request data
-            except User.DoesNotExist:
+            if not email or not password:
                 return Response(
-                    {"error": "No user found with this email"}, 
+                    {"error": "Email and password are required"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        response = super().post(request, *args, **kwargs)
-        return response
+            if email:
+                try:
+                    user = User.objects.get(email=email)
+                    request.data['username'] = user.username
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": "No user found with this email"}, 
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+        
+            try:
+                response = super().post(request, *args, **kwargs)
+                return response
+            except Exception as e:
+                return Response(
+                    {"error": "Invalid credentials"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+                
+        except Exception as e:
+            return Response(
+                {"error": "Login failed", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 # 添加自定义的 TokenRefreshView
 class CustomTokenRefreshView(CookieMixin, TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
-        if refresh_token:
+        try:
+            refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
+            if not refresh_token:
+                return Response(
+                    {"error": "No refresh token found in cookies"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
             request.data['refresh'] = refresh_token
-        return super().post(request, *args, **kwargs)
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            return Response(
+                {"error": "Token refresh failed", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 def home(request):
-    return HttpResponse("Welcome to the Home Page")
+    try:
+        return HttpResponse("Welcome to the Home Page")
+    except Exception as e:
+        return HttpResponse(
+            "Service temporarily unavailable", 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_info(request):
-    user = request.user
     try:
-        google_account = SocialAccount.objects.get(user=user, provider='google')
-        extra_data = google_account.extra_data
-        return Response({
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'google_id': extra_data.get('sub'),
-            'picture': extra_data.get('picture'),
-        })
-    except SocialAccount.DoesNotExist:
-        return Response({
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-        })
+        user = request.user
+        try:
+            google_account = SocialAccount.objects.get(user=user, provider='google')
+            extra_data = google_account.extra_data
+            return Response({
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'google_id': extra_data.get('sub'),
+                'picture': extra_data.get('picture'),
+            })
+        except SocialAccount.DoesNotExist:
+            return Response({
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            })
+    except Exception as e:
+        return Response(
+            {"error": "Failed to retrieve user information", "details": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     try:
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
-        if refresh_token:
+        if not refresh_token:
+            return Response(
+                {"error": "No refresh token found"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
             token = RefreshToken(refresh_token)
             token.blacklist()
+        except Exception as e:
+            return Response(
+                {"error": "Invalid token", "details": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
-        response = Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+        response = Response(
+            {"message": "Successfully logged out."}, 
+            status=status.HTTP_200_OK
+        )
         response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
         return response
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Logout failed", "details": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 def google_login(request):
-    return redirect('accounts/google/login/')
+    try:
+        return redirect('accounts/google/login/')
+    except Exception as e:
+        return Response(
+            {
+                "error": "Google login redirect failed",
+                "details": str(e)
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
