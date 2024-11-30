@@ -270,7 +270,7 @@ const HomePage: React.FC = () => {
 
     const rect = element.getBoundingClientRect();
 
-    // Main popup container - allows tooltips to overflow
+    // Create popup container
     const popup = document.createElement("div");
     popup.style.position = "fixed";
     popup.style.left = `${rect.left}px`;
@@ -282,13 +282,12 @@ const HomePage: React.FC = () => {
       ? "0 4px 12px rgba(0, 0, 0, 0.5)"
       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
     popup.style.zIndex = "1000";
-    // Calculate minimum width based on word length
     const wordWidth = rect.width;
-    const minWidth = Math.max(wordWidth + 200, 250); // Reduced from 300 to 200
+    const minWidth = Math.max(wordWidth + 200, 250);
     popup.style.minWidth = `${minWidth}px`;
     popup.style.overflow = "visible";
 
-    // Inner scrollable container for suggestions
+    // Create scroll container
     const scrollContainer = document.createElement("div");
     scrollContainer.style.minHeight = "60px";
     scrollContainer.style.maxHeight = "300px";
@@ -298,197 +297,205 @@ const HomePage: React.FC = () => {
     scrollContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.appendChild(scrollContainer);
 
-    if (suggestions.suggestions.length === 0) {
-      const noSuggestionsElement = document.createElement("div");
-      noSuggestionsElement.textContent = "No suggestions available";
-      noSuggestionsElement.style.padding = "8px 16px";
-      noSuggestionsElement.style.fontSize = "18px";
-      noSuggestionsElement.style.fontWeight = "bold";
-      noSuggestionsElement.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
-      noSuggestionsElement.style.fontStyle = "italic";
-      scrollContainer.appendChild(noSuggestionsElement);
-    } else {
-      // Create ignore button container
-      const ignoreContainer = document.createElement("div");
-      ignoreContainer.style.padding = "12px 16px";
-      ignoreContainer.style.borderBottom = isDarkMode
-        ? "1px solid #374151"
-        : "1px solid #e5e7eb";
-      ignoreContainer.style.backgroundColor = isDarkMode
-        ? "#1f2937"
-        : "#ffffff";
-      ignoreContainer.style.display = "flex";
-      ignoreContainer.style.alignItems = "center";
-      ignoreContainer.style.justifyContent = "center";
-      ignoreContainer.style.gap = "12px"; // Add gap between buttons
+    // Create ignore/dictionary buttons container
+    const ignoreContainer = document.createElement("div");
+    ignoreContainer.style.display = "flex";
+    ignoreContainer.style.justifyContent = "flex-end";
+    ignoreContainer.style.padding = "8px 16px";
+    ignoreContainer.style.gap = "8px";
+    ignoreContainer.style.borderBottom = isDarkMode
+      ? "1px solid #374151"
+      : "1px solid #e5e7eb";
 
-      // Create ignore button with icon
-      const ignoreButton = document.createElement("button");
-      ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
-      const buttonStyles = {
-        border: "none",
-        background: "none",
-        cursor: "pointer",
-        fontSize: "20px",
-        color: isDarkMode ? "#9ca3af" : "#6b7280",
-        padding: "8px 16px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "50%",
-        transition: "color 0.2s, background-color 0.2s",
-        borderRadius: "4px",
-      };
+    // Create ignore button with icon
+    const ignoreButton = document.createElement("button");
+    ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
+    const buttonStyles = {
+      border: "none",
+      background: "none",
+      cursor: "pointer",
+      fontSize: "20px",
+      color: isDarkMode ? "#9ca3af" : "#6b7280",
+      padding: "8px 16px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "50%",
+      transition: "color 0.2s, background-color 0.2s",
+      borderRadius: "4px",
+    };
 
-      Object.assign(ignoreButton.style, buttonStyles);
+    Object.assign(ignoreButton.style, buttonStyles);
 
-      // Create dictionary button with icon
-      const dictionaryButton = document.createElement("button");
-      dictionaryButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"/></svg>`;
-      Object.assign(dictionaryButton.style, buttonStyles);
+    // Create dictionary button with icon
+    const dictionaryButton = document.createElement("button");
+    dictionaryButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"/></svg>`;
+    Object.assign(dictionaryButton.style, buttonStyles);
 
-      // Add hover effects
-      const addButtonHoverEffect = (button: HTMLButtonElement) => {
-        button.addEventListener("mouseover", () => {
-          button.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
-          button.style.color = isDarkMode ? "#e5e7eb" : "#4b5563";
-        });
+    // Add hover effects
+    const addButtonHoverEffect = (button: HTMLButtonElement) => {
+      button.addEventListener("mouseover", () => {
+        button.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
+        button.style.color = isDarkMode ? "#e5e7eb" : "#4b5563";
+      });
 
-        button.addEventListener("mouseout", () => {
-          button.style.backgroundColor = "transparent";
-          button.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
-        });
-      };
+      button.addEventListener("mouseout", () => {
+        button.style.backgroundColor = "transparent";
+        button.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
+      });
+    };
 
-      addButtonHoverEffect(ignoreButton);
-      addButtonHoverEffect(dictionaryButton);
+    addButtonHoverEffect(ignoreButton);
+    addButtonHoverEffect(dictionaryButton);
 
-      // Add tooltips
-      const createTooltip = (text: string) => {
-        const tooltip = document.createElement("span");
-        tooltip.textContent = text;
+    // Add tooltips
+    const createTooltip = (text: string) => {
+      const tooltip = document.createElement("span");
+      tooltip.textContent = text;
+      tooltip.style.visibility = "hidden";
+      tooltip.style.backgroundColor = isDarkMode ? "#4b5563" : "#333";
+      tooltip.style.color = "#fff";
+      tooltip.style.textAlign = "center";
+      tooltip.style.padding = "5px 10px";
+      tooltip.style.borderRadius = "6px";
+      tooltip.style.position = "absolute";
+      tooltip.style.zIndex = "1002";
+      tooltip.style.left = "50%";
+      tooltip.style.transform = "translateX(-50%)";
+      tooltip.style.bottom = "-30px"; // Position below the button
+      tooltip.style.fontSize = "14px";
+      tooltip.style.whiteSpace = "nowrap";
+      tooltip.style.pointerEvents = "none";
+      tooltip.style.opacity = "0";
+      tooltip.style.transition = "opacity 0.2s ease-in-out";
+      return tooltip;
+    };
+
+    const ignoreTooltip = createTooltip("Ignore this word");
+    const dictionaryTooltip = createTooltip("Add to dictionary");
+
+    ignoreButton.style.position = "relative";
+    dictionaryButton.style.position = "relative";
+
+    ignoreButton.appendChild(ignoreTooltip);
+    dictionaryButton.appendChild(dictionaryTooltip);
+
+    // Add tooltip visibility handlers
+    const addTooltipHandlers = (
+      button: HTMLButtonElement,
+      tooltip: HTMLSpanElement
+    ) => {
+      button.addEventListener("mouseover", () => {
+        tooltip.style.visibility = "visible";
+        tooltip.style.opacity = "1";
+      });
+
+      button.addEventListener("mouseout", () => {
         tooltip.style.visibility = "hidden";
-        tooltip.style.backgroundColor = isDarkMode ? "#4b5563" : "#333";
-        tooltip.style.color = "#fff";
-        tooltip.style.textAlign = "center";
-        tooltip.style.padding = "5px 10px";
-        tooltip.style.borderRadius = "6px";
-        tooltip.style.position = "absolute";
-        tooltip.style.zIndex = "1002";
-        tooltip.style.left = "50%";
-        tooltip.style.transform = "translateX(-50%)";
-        tooltip.style.bottom = "-30px"; // Position below the button
-        tooltip.style.fontSize = "14px";
-        tooltip.style.whiteSpace = "nowrap";
-        tooltip.style.pointerEvents = "none";
         tooltip.style.opacity = "0";
-        tooltip.style.transition = "opacity 0.2s ease-in-out";
-        return tooltip;
-      };
+      });
+    };
 
-      const ignoreTooltip = createTooltip("Ignore this word");
-      const dictionaryTooltip = createTooltip("Add to dictionary");
+    addTooltipHandlers(ignoreButton, ignoreTooltip);
+    addTooltipHandlers(dictionaryButton, dictionaryTooltip);
 
-      ignoreButton.style.position = "relative";
-      dictionaryButton.style.position = "relative";
+    // Add click handlers
+    ignoreButton.addEventListener("click", () => {
+      if (element && editorRef.current) {
+        element.outerHTML = word;
+        // Add word to ignored words
+        const newIgnoredWords = new Set(ignoredWords);
+        newIgnoredWords.add(word.toLowerCase());
+        setIgnoredWords(newIgnoredWords);
 
-      ignoreButton.appendChild(ignoreTooltip);
-      dictionaryButton.appendChild(dictionaryTooltip);
+        setSpellingResults((prev) =>
+          prev.filter(
+            (result) =>
+              !(
+                result.word.toLowerCase() === word.toLowerCase() &&
+                result.index === startPosition
+              )
+          )
+        );
+      }
+      document.body.removeChild(popup);
+    });
 
-      // Add tooltip visibility handlers
-      const addTooltipHandlers = (
-        button: HTMLButtonElement,
-        tooltip: HTMLSpanElement
-      ) => {
-        button.addEventListener("mouseover", () => {
-          tooltip.style.visibility = "visible";
-        });
-
-        button.addEventListener("mouseout", () => {
-          tooltip.style.visibility = "hidden";
-        });
-      };
-
-      addTooltipHandlers(ignoreButton, ignoreTooltip);
-      addTooltipHandlers(dictionaryButton, dictionaryTooltip);
-
-      // Add click handlers
-      ignoreButton.addEventListener("click", () => {
-        if (element && editorRef.current) {
-          element.outerHTML = word;
-          // Add word to ignored words
-          const newIgnoredWords = new Set(ignoredWords);
-          newIgnoredWords.add(word.toLowerCase());
-          setIgnoredWords(newIgnoredWords);
-
-          setSpellingResults((prev) =>
-            prev.filter(
-              (result) =>
-                !(
-                  result.word.toLowerCase() === word.toLowerCase() &&
-                  result.index === startPosition
-                )
-            )
-          );
-        }
+    dictionaryButton.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!isAuthenticated) {
+        toast.warning("Please login to add words to dictionary");
         document.body.removeChild(popup);
-      });
+        return;
+      }
 
-      dictionaryButton.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        if (!isAuthenticated) {
-          toast.warning("Please login to add words to dictionary");
-          document.body.removeChild(popup);
-          return;
+      try {
+        const loadingToast = toast.loading("Adding word to dictionary...");
+        const success = await addWordToDictionary(word);
+        toast.dismiss(loadingToast);
+
+        if (!success) {
+          throw new Error("Failed to add word");
         }
 
-        try {
-          const loadingToast = toast.loading("Adding word to dictionary...");
-          const success = await addWordToDictionary(word);
-          toast.dismiss(loadingToast);
+        toast.success("Word added to dictionary successfully");
+        document.body.removeChild(popup);
+      } catch (error) {
+        toast.error("Failed to add word to dictionary");
+        console.error("Error adding word:", error);
+      }
+    });
 
-          if (!success) {
-            throw new Error("Failed to add word");
-          }
+    ignoreContainer.appendChild(ignoreButton);
+    ignoreContainer.appendChild(dictionaryButton);
+    scrollContainer.appendChild(ignoreContainer);
 
-          toast.success("Word added to dictionary successfully");
-          document.body.removeChild(popup);
-        } catch (error) {
-          toast.error("Failed to add word to dictionary");
-          console.error("Error adding word:", error);
-        }
-      });
+    // Style the popup more like a card
+    popup.style.backgroundColor = "#ffffff";
+    popup.style.border = "1px solid #e5e7eb";
+    popup.style.borderRadius = "8px";
+    popup.style.boxShadow =
+      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
 
-      ignoreContainer.appendChild(ignoreButton);
-      ignoreContainer.appendChild(dictionaryButton);
-      scrollContainer.appendChild(ignoreContainer);
+    // Add some spacing between sections
+    scrollContainer.style.paddingTop = "0";
+    scrollContainer.style.paddingBottom = "8px";
 
-      // Style the popup more like a card
-      popup.style.backgroundColor = "#ffffff";
-      popup.style.border = "1px solid #e5e7eb";
-      popup.style.borderRadius = "8px";
-      popup.style.boxShadow =
-        "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
+    // Calculate dynamic height based on number of items
+    const itemHeight = 44; // Height of each suggestion item in pixels
+    const headerHeight = 52; // Height of ignore/dictionary buttons section
+    const padding = 24; // Extra padding
+    const numItems = suggestions.suggestions.length;
+    const calculatedHeight =
+      numItems === 0 ? 60 : numItems * itemHeight + headerHeight + padding;
+    const maxHeight = 300; // Maximum height before scrolling
 
-      // Add some spacing between sections
-      scrollContainer.style.paddingTop = "0";
-      scrollContainer.style.paddingBottom = "8px";
+    scrollContainer.style.minHeight = `${Math.min(
+      calculatedHeight,
+      maxHeight
+    )}px`;
+    scrollContainer.style.maxHeight = `${maxHeight}px`;
 
-      // Calculate dynamic height based on number of items
-      const itemHeight = 44; // Height of each suggestion item in pixels
-      const headerHeight = 52; // Height of ignore/dictionary buttons section
-      const padding = 30; // Extra padding
-      const numItems = suggestions.suggestions.length;
-      const calculatedHeight =
-        numItems === 0 ? 60 : numItems * itemHeight + headerHeight + padding;
-      const maxHeight = 300; // Maximum height before scrolling
-
-      scrollContainer.style.minHeight = `${Math.min(
-        calculatedHeight,
-        maxHeight
-      )}px`;
-      scrollContainer.style.maxHeight = `${maxHeight}px`;
-
+    if (suggestions.suggestions.length === 0) {
+      // Create no suggestions message
+      const noSuggestionsContainer = document.createElement("div");
+      noSuggestionsContainer.style.display = "flex";
+      noSuggestionsContainer.style.justifyContent = "center";
+      noSuggestionsContainer.style.alignItems = "center";
+      noSuggestionsContainer.style.padding = "2px";
+      noSuggestionsContainer.style.margin = "4px 0";
+      
+      const noSuggestionsText = document.createElement("span");
+      noSuggestionsText.textContent = "No suggestions available";
+      noSuggestionsText.style.fontSize = "21px";
+      noSuggestionsText.style.fontStyle = "italic";
+      noSuggestionsText.style.fontWeight = "bold";
+      noSuggestionsText.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
+      
+      noSuggestionsContainer.appendChild(noSuggestionsText);
+      scrollContainer.appendChild(noSuggestionsContainer);
+    } else {
+      // Existing suggestions code
       suggestions.suggestions.forEach((suggestion) => {
         const suggestionContainer = document.createElement("div");
         suggestionContainer.style.display = "flex";
@@ -616,65 +623,65 @@ const HomePage: React.FC = () => {
 
         scrollContainer.appendChild(suggestionContainer); // Append to scrollContainer instead of popup
       });
-
-      // Update scrollbar styles for dark mode
-      if (isDarkMode) {
-        scrollContainer.style.scrollbarColor = "#4b5563 #1f2937"; // For Firefox
-        scrollContainer.style.scrollbarWidth = "thin";
-
-        // For Webkit browsers (Chrome, Safari, Edge)
-        const styleSheet = document.createElement("style");
-        styleSheet.textContent = `
-          .suggestion-scroll::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-          }
-          .suggestion-scroll::-webkit-scrollbar-track {
-            background: #1f2937;
-          }
-          .suggestion-scroll::-webkit-scrollbar-thumb {
-            background-color: #4b5563;
-            border-radius: 4px;
-            border: 2px solid #1f2937;
-          }
-        `;
-        document.head.appendChild(styleSheet);
-        scrollContainer.classList.add("suggestion-scroll");
-      }
-
-      // Update popup container styles
-      popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-      popup.style.border = isDarkMode
-        ? "1px solid #374151"
-        : "1px solid #e5e7eb";
-      popup.style.borderRadius = "12px";
-      popup.style.boxShadow = isDarkMode
-        ? "0 4px 12px rgba(0, 0, 0, 0.5)"
-        : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
-
-      // Update ignore/dictionary section styles
-      ignoreContainer.style.backgroundColor = isDarkMode
-        ? "#1f2937"
-        : "#ffffff";
-      ignoreContainer.style.borderBottom = isDarkMode
-        ? "1px solid #374151"
-        : "1px solid #e5e7eb";
-
-      document.body.appendChild(popup);
-
-      const handleClickOutside = (e: MouseEvent) => {
-        if (
-          !popup.contains(e.target as Node) &&
-          document.body.contains(popup)
-        ) {
-          document.body.removeChild(popup);
-          document.removeEventListener("click", handleClickOutside);
-        }
-      };
-      setTimeout(() => {
-        document.addEventListener("click", handleClickOutside);
-      }, 0);
     }
+
+    // Update scrollbar styles for dark mode
+    if (isDarkMode) {
+      scrollContainer.style.scrollbarColor = "#4b5563 #1f2937"; // For Firefox
+      scrollContainer.style.scrollbarWidth = "thin";
+
+      // For Webkit browsers (Chrome, Safari, Edge)
+      const styleSheet = document.createElement("style");
+      styleSheet.textContent = `
+        .suggestion-scroll::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .suggestion-scroll::-webkit-scrollbar-track {
+          background: #1f2937;
+        }
+        .suggestion-scroll::-webkit-scrollbar-thumb {
+          background-color: #4b5563;
+          border-radius: 4px;
+          border: 2px solid #1f2937;
+        }
+      `;
+      document.head.appendChild(styleSheet);
+      scrollContainer.classList.add("suggestion-scroll");
+    }
+
+    // Update popup container styles
+    popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+    popup.style.border = isDarkMode
+      ? "1px solid #374151"
+      : "1px solid #e5e7eb";
+    popup.style.borderRadius = "12px";
+    popup.style.boxShadow = isDarkMode
+      ? "0 4px 12px rgba(0, 0, 0, 0.5)"
+      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
+
+    // Update ignore/dictionary section styles
+    ignoreContainer.style.backgroundColor = isDarkMode
+      ? "#1f2937"
+      : "#ffffff";
+    ignoreContainer.style.borderBottom = isDarkMode
+      ? "1px solid #374151"
+      : "1px solid #e5e7eb";
+
+    // Append popup to document body
+    document.body.appendChild(popup);
+
+    // Add click outside handler
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
+        document.body.removeChild(popup);
+        document.removeEventListener("click", handleClickOutside);
+      }
+    };
+
+    setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 0);
   };
 
   const handleSuggestionClick = async (
