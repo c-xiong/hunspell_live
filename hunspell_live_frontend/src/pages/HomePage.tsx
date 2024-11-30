@@ -16,6 +16,7 @@ import {
   FaAt,
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
+import { useUserData } from "../hooks/useUserData";
 import { styles as inlineStyles } from "../styles/HomePage.styles";
 import { LanguageOption, SpellingResult } from "../types/spelling";
 import styles from "../styles/HomePage.module.css";
@@ -65,6 +66,8 @@ const HomePage: React.FC = () => {
     addWordToStarList,
     recordReplacement,
   } = useApi(selectedOption.value);
+
+  const { fetchDictionaryWords, dictionaryWords } = useUserData();
 
   const options: LanguageOption[] = languageOptions;
 
@@ -200,10 +203,14 @@ const HomePage: React.FC = () => {
     const loadingToast = toast.loading("Checking spelling...");
 
     try {
+      // Fetch user's dictionary words for the selected language
+      await fetchDictionaryWords(selectedOption.value);
+      const userDictionaryWords = dictionaryWords[selectedOption.value] || [];
+
       const results = await checkSpelling(text);
-      // Filter out ignored words
+      // Filter out ignored words and words in the user's dictionary
       const newResults = results.filter(
-        (result) => !ignoredWords.has(result.word.toLowerCase())
+        (result) => !ignoredWords.has(result.word.toLowerCase()) && !userDictionaryWords.includes(result.word)
       );
 
       toast.dismiss(loadingToast);
@@ -449,6 +456,23 @@ const HomePage: React.FC = () => {
 
         if (!success) {
           throw new Error("Failed to add word");
+        }
+
+        // Remove the word from spelling results and update the display
+        if (element && editorRef.current) {
+          // Remove the underline by replacing the span with plain text
+          element.outerHTML = word;
+
+          // Update spelling results to remove this word
+          setSpellingResults((prev) =>
+            prev.filter(
+              (result) =>
+                !(
+                  result.word === word &&
+                  result.index === startPosition
+                )
+            )
+          );
         }
 
         toast.success("Word added to dictionary successfully");

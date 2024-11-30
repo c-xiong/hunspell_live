@@ -74,9 +74,9 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
   const displayValue = value || options[0] || { label: "Select...", value: "" };
 
   const style = {
-    fontSize: '14px',
-    padding: '8px 12px',
-    height: '40px',
+    fontSize: '18px',
+    padding: '10px 12px',
+    height: '45px',
     lineHeight: '24px',
     display: 'flex',
     alignItems: 'center',
@@ -136,7 +136,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
                 fontSize: "18px",
-                padding: "8px 12px",
+                padding: "2px 8px",
                 height: "40px",
                 ...darkModeStyles.searchInput,
               }}

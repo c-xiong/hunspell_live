@@ -59,8 +59,15 @@ export const useUserData = () => {
   };
 
   const fetchDictionaryWords = async (language: string) => {
+    if (!dictionaryLanguages.includes(language)) {
+      console.log('Language not in dictionary languages:', language); // Debug log
+      return;
+    }
+
     try {
       const accessToken = localStorage.getItem('accessToken');
+      console.log('Fetching dictionary words for language:', language); // Debug log
+      
       const response = await apiRequest(`/api/dictionary/words/?language=${language}`, {
         method: 'GET',
         headers: {
@@ -70,10 +77,13 @@ export const useUserData = () => {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Received dictionary words:', data.words); // Debug log
         setDictionaryWords(prev => ({
           ...prev,
           [language]: data.words
         }));
+      } else {
+        console.error('Failed to fetch dictionary words:', await response.text()); // Debug log
       }
     } catch (error) {
       console.error('Error fetching dictionary words:', error);
