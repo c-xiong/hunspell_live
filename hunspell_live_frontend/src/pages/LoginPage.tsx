@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/useAuth';
 import { FaUser, FaLock, FaArrowRight, FaHome } from 'react-icons/fa';
-import styles from '../styles/Auth.module.css';
+import styles from '../styles/Login.module.css';
 import { useTheme } from '../hooks/useTheme';
 
 const Login: React.FC = (): JSX.Element => {
@@ -29,22 +29,7 @@ const Login: React.FC = (): JSX.Element => {
         navigate('/');
       }
     } catch (error: any) {
-      if (error.response?.data) {
-        const data = error.response.data;
-        if (data.email && Array.isArray(data.email)) {
-          toast.error(data.email[0]);
-        } else if (data.error) {
-          toast.error(data.error);
-        } else if (data.detail) {
-          toast.error(data.detail);
-        } else if (data.non_field_errors) {
-          toast.error(data.non_field_errors[0]);
-        } else {
-          toast.error('Invalid email or password.');
-        }
-      } else {
-        toast.error('An unexpected error occurred. Please try again later.');
-      }
+      toast.error(error.message || 'An unexpected error occurred. Please try again later.');
       console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);

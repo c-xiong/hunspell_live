@@ -1,14 +1,12 @@
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
-import { ChakraProvider } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './contexts/AuthContext';
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <ChakraProvider>
         <Outlet />
         <ToastContainer
           position="top-center"
@@ -21,7 +19,6 @@ const App: React.FC = () => {
           draggable
           pauseOnHover
         />
-      </ChakraProvider>
     </AuthProvider>
   );
 };

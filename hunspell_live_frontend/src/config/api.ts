@@ -90,8 +90,9 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
 
   try {
     let response = await executeRequest(tokenManager.getToken());
+    const data = await response.json();
 
-    if (response.status === 401) {
+    if (response.status === 401 && endpoint !== '/auth/login/') {
       const newAccessToken = await refreshAccessToken();
       
       if (newAccessToken) {
@@ -103,17 +104,25 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
         }
       }
 
-      // 如果刷新失败，清除 token 并重定向到登录页
       tokenManager.setToken(null);
-      window.location.href = '/login';
       throw new Error('Authentication failed');
     }
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        ok: false,
+        status: response.status,
+        data: data,
+        json: () => Promise.resolve(data)
+      };
     }
     
-    return response;
+    return {
+      ok: true,
+      status: response.status,
+      data: data,
+      json: () => Promise.resolve(data)
+    };
   } catch (error) {
     console.error('API request failed:', error);
     throw error;

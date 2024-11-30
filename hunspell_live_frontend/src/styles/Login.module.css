@@ -1,0 +1,422 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 20px;
+    transition: background-color 0.2s ease;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  
+  .loginCard {
+    width: 100%;
+    max-width: 1000px;
+    margin: 5px;
+    padding: 60px 30px 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    border: #4c5363 0.5px solid;
+    background-color: #f3f4f6;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: visible;
+  }
+  
+  .title {
+    font-size: 48px;
+    font-weight: 700;
+    text-align: center;
+    margin: 24px 0;
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: -0.02em;
+    position: relative;
+    padding: 0 50px 6px;
+  }
+  
+  .title::before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    border-radius: 2px;
+    transform: scaleX(0);
+    animation: slideIn 0.8s ease-out forwards;
+  }
+  
+  .subtitle {
+    color: #666;
+    font-size: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  .form {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  .inputGroup {
+    position: relative;
+  }
+  
+  .inputIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 20px;
+  }
+  
+  .visuallyHidden {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+  }
+  
+  .input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+  }
+  
+  .loginButton {
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .loginButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  }
+  
+  .loginButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .registerText {
+    margin-top: 24px;
+    text-align: center;
+    color: #4b5563;
+    font-size: 16px;
+  }
+  
+  .registerLink {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .registerLink:hover {
+    text-decoration: underline;
+  }
+  
+  .homeButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5952d4;
+    text-decoration: none;
+    font-size: 20px;
+    transition: color 0.2s ease;
+    width: fit-content;
+    border-radius: 8px;
+    padding: 8px;
+    left: 32px;
+    top: 22px;
+    position: absolute;
+    align-self: flex-start;
+  }
+  
+  .homeButton:hover {
+    color: #454096;
+    background-color: rgba(89, 82, 212, 0.1);
+  }
+  
+  .buttonIcon {
+    font-size: 20px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 480px) {
+    .loginCard {
+      padding: 16px;
+    }
+  
+    .title {
+      font-size: 24px;
+    }
+  
+    .subtitle {
+      font-size: 14px;
+    }
+  
+    .inputIcon {
+      font-size: 16px;
+    }
+  
+    .loginButton {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+  
+  /* Dark mode styles */
+  :global(.dark-mode) .container {
+    background-color: #0f172a;
+  }
+  
+  :global(.dark-mode) .loginCard {
+    background-color: #25272b;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  :global(.dark-mode) .title {
+    color: #e5e7eb;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  :global(.dark-mode) .subtitle {
+    color: #9ca3af;
+  }
+  
+  :global(.dark-mode) .input {
+    background-color: #435e8a;
+    border-color: #334155;
+    color: #ffffff;
+  }
+  
+  :global(.dark-mode) .input::placeholder {
+    color: #94a3b8;
+  }
+  
+  :global(.dark-mode) .input:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
+  }
+  
+  :global(.dark-mode) .inputIcon {
+    color: #94a3b8;
+  }
+  
+  :global(.dark-mode) .registerText {
+    color: #e5e7eb;
+  }
+  
+  :global(.dark-mode) .registerLink {
+    color: #818cf8;
+  }
+  
+  :global(.dark-mode) .registerLink:hover {
+    color: #a5b4fc;
+  }
+  
+  :global(.dark-mode) .homeButton {
+    color: #818cf8;
+    background-color: transparent;
+  }
+  
+  :global(.dark-mode) .homeButton:hover {
+    color: #a5b4fc;
+    background-color: rgba(129, 140, 248, 0.1);
+  }
+  
+  :global(.dark-mode) .loginButton {
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    color: #ffffff;
+  }
+  
+  :global(.dark-mode) .loginButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  }
+  
+  :global(.dark-mode) .loginButton:disabled {
+    background: #4b5563;
+    color: #9ca3af;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  
+  .formSection {
+    margin-bottom: 32px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .inputGroup {
+    margin-bottom: 20px;
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+  
+  .inputWrapper {
+    position: relative;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+  }
+  
+  /* Dark mode additions */
+  :global(.dark-mode) .sectionTitle {
+    color: #e5e7eb;
+    border-bottom-color: #374151;
+  }
+  
+  :global(.dark-mode) .label {
+    color: #9ca3af;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .sectionTitle {
+      font-size: 1.125rem;
+    }
+  
+    .label {
+      font-size: 0.813rem;
+    }
+  }
+  
+  .formSectionsContainer {
+    display: flex;
+    gap: 32px;
+    /* margin-bottom: 6px; */
+  }
+  
+  .formSection {
+    flex: 1;
+    min-width: 0; /* Prevents flex items from overflowing */
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .formSectionsContainer {
+      flex-direction: column;
+      gap: 24px;
+    }
+  
+    .formSection {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+      min-height: 80vh;
+    }
+  
+    .loginCard {
+      margin: 10px auto;
+      padding: 20px;
+      max-height: none;
+      overflow-y: auto;
+    }
+  
+    .form {
+      padding-top: 10px;
+    }
+  
+    .formSectionsContainer {
+      gap: 16px;
+      /* margin-bottom: 0px; */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 8px;
+      height: auto;
+    }
+  
+    .loginCard {
+      margin: 8px auto;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+  
+    .inputGroup {
+      margin-bottom: 12px;
+    }
+  
+    .input, select.input {
+      padding: 10px 10px 10px 36px;
+      font-size: 14px;
+    }
+  
+    .inputIcon {
+      left: 10px;
+    }
+  }

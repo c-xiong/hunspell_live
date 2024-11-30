@@ -84,32 +84,31 @@ export const useAuth = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        tokenManager.setToken(data.access);
-        setAccessToken(data.access);
-        
-        const userResponse = await apiRequest("/auth/user/", {
-          method: "GET",
+      if (!response.ok) {
+        throw new Error(response.data.error);
+      }
+
+      tokenManager.setToken(response.data.access);
+      setAccessToken(response.data.access);
+      
+      const userResponse = await apiRequest("/auth/user/", {
+        method: "GET",
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setAuthState({
+          isAuthenticated: true,
+          user: userData
         });
-        
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setAuthState({
-            isAuthenticated: true,
-            user: userData
-          });
-          toast.success('Successfully logged in!');
-          return true;
-        }
+        toast.success('Successfully logged in!');
+        return true;
       }
       
-      toast.error('Invalid credentials');
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
-      return false;
+      throw error;
     }
   };
 
@@ -145,30 +144,15 @@ export const useAuth = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success('Registration successful! You can now log in.');
-        return true;
-      } else {
-        if (data.gender) {
-          toast.error(`Gender: ${data.gender[0]}`);
-        } else if (data.education) {
-          toast.error(`Education: ${data.education[0]}`);
-        } else if (data.email) {
-          toast.error(data.email[0]);
-        } else if (data.password) {
-          toast.error(data.password[0]);
-        } else if (data.detail) {
-          toast.error(data.detail);
-        } else {
-          toast.error(data.message || 'Registration failed. Please try again.');
-        }
-        return false;
+      if (!response.ok) {
+        throw new Error(response.data.error || 'Registration failed');
       }
-    } catch (error) {
+
+      toast.success('Registration successful! You can now log in.');
+      return true;
+    } catch (error: any) {
       console.error('Registration failed:', error);
-      toast.error('An unexpected error occurred. Please try again later.');
+      toast.error(error.message || 'An unexpected error occurred. Please try again later.');
       return false;
     }
   };

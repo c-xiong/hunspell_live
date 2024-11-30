@@ -290,10 +290,10 @@
     border: 2px solid #e5e7eb;
     border-radius: 12px;
     padding: 16px;
-    width: 300px;
+    width: 350px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     top: calc(100% + 12px);
-    left: 10%;
+    left: 0%;
     transform: translateX(-50%);
     z-index: 1000;
   }
@@ -587,8 +587,8 @@
   
   .topControls {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 30px;
+    right: 45px;
     display: flex;
     align-items: center;
     gap: 12px;
