@@ -13,9 +13,7 @@ import {
   FaGithub,
   FaMoon,
   FaSun,
-  FaBan,
-  FaBook,
-  FaAt
+  FaAt,
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
 import { styles as inlineStyles } from "../styles/HomePage.styles";
@@ -23,8 +21,8 @@ import { LanguageOption, SpellingResult } from "../types/spelling";
 import styles from "../styles/HomePage.module.css";
 import { useAuth } from "../hooks/useAuth";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
-import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../contexts/AuthContext";
 
 const HomePage: React.FC = () => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
@@ -35,7 +33,9 @@ const HomePage: React.FC = () => {
       ? JSON.parse(savedLanguage)
       : { label: "English", value: "en" };
   });
-  const [text, setText] = useState("");
+  const [text, setText] = useState(() => {
+    return localStorage.getItem("editorContent") || "";
+  });
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -47,10 +47,14 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | null>(null);
 
-  const { checkSpelling, getSuggestions, addWordToDictionary, addWordToStarList } = useApi(
-    selectedOption.value
-  );
+  const {
+    checkSpelling,
+    getSuggestions,
+    addWordToDictionary,
+    addWordToStarList,
+  } = useApi(selectedOption.value);
 
   const options: LanguageOption[] = LANGUAGE_OPTIONS;
 
@@ -62,7 +66,7 @@ const HomePage: React.FC = () => {
 
   // Add theme toggle handler
   const toggleTheme = () => {
-    setIsDarkMode(prev => {
+    setIsDarkMode((prev) => {
       const newTheme = !prev;
       localStorage.setItem("theme", newTheme ? "dark" : "light");
       return newTheme;
@@ -72,14 +76,14 @@ const HomePage: React.FC = () => {
   // Add this near the top of your return statement, after the login button
   const themeToggle = (
     <div className={styles.buttonWrapper}>
-      <button 
-        onClick={toggleTheme} 
-        className={`${styles.themeButton} ${isDarkMode ? styles.darkMode : ''}`}
+      <button
+        onClick={toggleTheme}
+        className={`${styles.themeButton} ${isDarkMode ? styles.darkMode : ""}`}
       >
         {isDarkMode ? <FaSun /> : <FaMoon />}
       </button>
       <span className={styles.tooltip}>
-        {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
       </span>
     </div>
   );
@@ -104,15 +108,17 @@ const HomePage: React.FC = () => {
   };
 
   const handleClearText = () => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = "";
-      setText("");
-      setSpellingResults([]);
-      // Reset counts
-      setCharCount(0);
-      setWordCount(0);
-      toast.success("Text cleared successfully");
-    }
+    // Clear the current content from localStorage
+    localStorage.removeItem("editorContent");
+
+    editorRef.current.innerHTML = "";
+    setText("");
+    setSpellingResults([]);
+    setCharCount(0);
+    setWordCount(0);
+    toast.success(
+      "Text cleared successfully."
+    );
   };
 
   const handlePaste = async () => {
@@ -122,7 +128,7 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = pastedText;
         setText(pastedText);
         setSpellingResults([]);
-        
+
         // Update counts for pasted text
         setCharCount(pastedText.length);
         setWordCount(pastedText.trim().split(/\s+/).filter(Boolean).length);
@@ -186,8 +192,10 @@ const HomePage: React.FC = () => {
     try {
       const results = await checkSpelling(text);
       // Filter out ignored words
-      const newResults = results.filter(result => !ignoredWords.has(result.word.toLowerCase()));
-      
+      const newResults = results.filter(
+        (result) => !ignoredWords.has(result.word.toLowerCase())
+      );
+
       toast.dismiss(loadingToast);
 
       if (newResults.length > 0) {
@@ -247,7 +255,7 @@ const HomePage: React.FC = () => {
     const startPosition = parseInt(element.dataset.start || "0", 10);
     if (!word) return;
 
-    // Preserve the original word case when getting suggestions
+    // Keep suggestion functionality available for all users
     const suggestions = await getSuggestions(word);
 
     // If no suggestions are returned for the exact case, try lowercase
@@ -269,8 +277,8 @@ const HomePage: React.FC = () => {
     popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
     popup.style.borderRadius = "12px";
-    popup.style.boxShadow = isDarkMode 
-      ? "0 4px 12px rgba(0, 0, 0, 0.5)" 
+    popup.style.boxShadow = isDarkMode
+      ? "0 4px 12px rgba(0, 0, 0, 0.5)"
       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
     popup.style.zIndex = "1000";
     // Calculate minimum width based on word length
@@ -302,10 +310,12 @@ const HomePage: React.FC = () => {
       // Create ignore button container
       const ignoreContainer = document.createElement("div");
       ignoreContainer.style.padding = "12px 16px";
-      ignoreContainer.style.borderBottom = isDarkMode 
-        ? "1px solid #374151" 
+      ignoreContainer.style.borderBottom = isDarkMode
+        ? "1px solid #374151"
         : "1px solid #e5e7eb";
-      ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+      ignoreContainer.style.backgroundColor = isDarkMode
+        ? "#1f2937"
+        : "#ffffff";
       ignoreContainer.style.display = "flex";
       ignoreContainer.style.alignItems = "center";
       ignoreContainer.style.justifyContent = "center";
@@ -385,7 +395,10 @@ const HomePage: React.FC = () => {
       dictionaryButton.appendChild(dictionaryTooltip);
 
       // Add tooltip visibility handlers
-      const addTooltipHandlers = (button: HTMLButtonElement, tooltip: HTMLSpanElement) => {
+      const addTooltipHandlers = (
+        button: HTMLButtonElement,
+        tooltip: HTMLSpanElement
+      ) => {
         button.addEventListener("mouseover", () => {
           tooltip.style.visibility = "visible";
         });
@@ -406,7 +419,7 @@ const HomePage: React.FC = () => {
           const newIgnoredWords = new Set(ignoredWords);
           newIgnoredWords.add(word.toLowerCase());
           setIgnoredWords(newIgnoredWords);
-          
+
           setSpellingResults((prev) =>
             prev.filter(
               (result) =>
@@ -420,30 +433,25 @@ const HomePage: React.FC = () => {
         document.body.removeChild(popup);
       });
 
-      dictionaryButton.addEventListener("click", async () => {
+      dictionaryButton.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (!isAuthenticated) {
+          toast.warning("Please login to add words to dictionary");
+          document.body.removeChild(popup);
+          return;
+        }
+
         try {
           const loadingToast = toast.loading("Adding word to dictionary...");
           const success = await addWordToDictionary(word);
           toast.dismiss(loadingToast);
-          
-          if (success) {
-            if (element && editorRef.current) {
-              element.outerHTML = word;
-              setSpellingResults((prev) =>
-                prev.filter(
-                  (result) =>
-                    !(
-                      result.word.toLowerCase() === word.toLowerCase() &&
-                      result.index === startPosition
-                    )
-                )
-              );
-            }
-            toast.success("Word added to dictionary successfully");
-            document.body.removeChild(popup);
-          } else {
+
+          if (!success) {
             throw new Error("Failed to add word");
           }
+
+          toast.success("Word added to dictionary successfully");
+          document.body.removeChild(popup);
         } catch (error) {
           toast.error("Failed to add word to dictionary");
           console.error("Error adding word:", error);
@@ -458,8 +466,9 @@ const HomePage: React.FC = () => {
       popup.style.backgroundColor = "#ffffff";
       popup.style.border = "1px solid #e5e7eb";
       popup.style.borderRadius = "8px";
-      popup.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
-      
+      popup.style.boxShadow =
+        "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
+
       // Add some spacing between sections
       scrollContainer.style.paddingTop = "0";
       scrollContainer.style.paddingBottom = "8px";
@@ -469,10 +478,14 @@ const HomePage: React.FC = () => {
       const headerHeight = 52; // Height of ignore/dictionary buttons section
       const padding = 30; // Extra padding
       const numItems = suggestions.suggestions.length;
-      const calculatedHeight = numItems === 0 ? 60 : (numItems * itemHeight) + headerHeight + padding;
+      const calculatedHeight =
+        numItems === 0 ? 60 : numItems * itemHeight + headerHeight + padding;
       const maxHeight = 300; // Maximum height before scrolling
 
-      scrollContainer.style.minHeight = `${Math.min(calculatedHeight, maxHeight)}px`;
+      scrollContainer.style.minHeight = `${Math.min(
+        calculatedHeight,
+        maxHeight
+      )}px`;
       scrollContainer.style.maxHeight = `${maxHeight}px`;
 
       suggestions.suggestions.forEach((suggestion) => {
@@ -485,7 +498,9 @@ const HomePage: React.FC = () => {
         suggestionContainer.style.cursor = "pointer";
         suggestionContainer.style.minWidth = "100px";
         suggestionContainer.style.gap = "12px";
-        suggestionContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+        suggestionContainer.style.backgroundColor = isDarkMode
+          ? "#1f2937"
+          : "#ffffff";
 
         const addButton = document.createElement("button");
         addButton.textContent = "★";
@@ -555,11 +570,15 @@ const HomePage: React.FC = () => {
         suggestionContainer.appendChild(suggestionElement);
 
         suggestionContainer.addEventListener("mouseover", () => {
-          suggestionContainer.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
+          suggestionContainer.style.backgroundColor = isDarkMode
+            ? "#374151"
+            : "#f3f4f6";
           suggestionElement.style.color = isDarkMode ? "#ffffff" : "#000000";
         });
         suggestionContainer.addEventListener("mouseout", () => {
-          suggestionContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
+          suggestionContainer.style.backgroundColor = isDarkMode
+            ? "#1f2937"
+            : "#ffffff";
           suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
         });
 
@@ -571,24 +590,22 @@ const HomePage: React.FC = () => {
 
         addButton.addEventListener("click", async (e) => {
           e.stopPropagation();
+          if (!isAuthenticated) {
+            toast.warning("Please login to add words to star list");
+            document.body.removeChild(popup);
+            return;
+          }
 
           try {
-            // Show loading toast
             const loadingToast = toast.loading("Adding word to star list...");
-
             const success = await addWordToStarList(suggestion);
-
-            // Dismiss loading toast
             toast.dismiss(loadingToast);
 
             if (!success) {
               throw new Error("Failed to add word");
             }
 
-            // Show success message
             toast.success("Word added to star list successfully");
-
-            // Close the suggestions popup
             document.body.removeChild(popup);
           } catch (error) {
             toast.error("Failed to add word to star list");
@@ -603,7 +620,7 @@ const HomePage: React.FC = () => {
       if (isDarkMode) {
         scrollContainer.style.scrollbarColor = "#4b5563 #1f2937"; // For Firefox
         scrollContainer.style.scrollbarWidth = "thin";
-        
+
         // For Webkit browsers (Chrome, Safari, Edge)
         const styleSheet = document.createElement("style");
         styleSheet.textContent = `
@@ -626,22 +643,29 @@ const HomePage: React.FC = () => {
 
       // Update popup container styles
       popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-      popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
+      popup.style.border = isDarkMode
+        ? "1px solid #374151"
+        : "1px solid #e5e7eb";
       popup.style.borderRadius = "12px";
-      popup.style.boxShadow = isDarkMode 
-        ? "0 4px 12px rgba(0, 0, 0, 0.5)" 
+      popup.style.boxShadow = isDarkMode
+        ? "0 4px 12px rgba(0, 0, 0, 0.5)"
         : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
 
       // Update ignore/dictionary section styles
-      ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-      ignoreContainer.style.borderBottom = isDarkMode 
-        ? "1px solid #374151" 
+      ignoreContainer.style.backgroundColor = isDarkMode
+        ? "#1f2937"
+        : "#ffffff";
+      ignoreContainer.style.borderBottom = isDarkMode
+        ? "1px solid #374151"
         : "1px solid #e5e7eb";
 
       document.body.appendChild(popup);
 
       const handleClickOutside = (e: MouseEvent) => {
-        if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
+        if (
+          !popup.contains(e.target as Node) &&
+          document.body.contains(popup)
+        ) {
           document.body.removeChild(popup);
           document.removeEventListener("click", handleClickOutside);
         }
@@ -766,16 +790,16 @@ const HomePage: React.FC = () => {
   };
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate("/profile");
   };
 
   const userControls = (
     <div className={styles.userControls}>
       <div className={styles.buttonWrapper}>
-        <FaUser 
-          className={styles.profileIcon} 
-          onClick={handleProfileClick} 
-          style={{ cursor: 'pointer' }}
+        <FaUser
+          className={styles.profileIcon}
+          onClick={handleProfileClick}
+          style={{ cursor: "pointer" }}
         />
         {isLoading ? (
           <div className={styles.profileCard}>Loading...</div>
@@ -804,18 +828,65 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (isDarkMode) {
-      document.body.classList.add('dark-mode');
+      document.body.classList.add("dark-mode");
     } else {
-      document.body.classList.remove('dark-mode');
+      document.body.classList.remove("dark-mode");
     }
   }, [isDarkMode]);
+
+  // Add useEffect to save content whenever it changes
+  useEffect(() => {
+    localStorage.setItem("editorContent", text);
+  }, [text]);
+
+  // Add initialization of editor content from localStorage
+  useEffect(() => {
+    if (editorRef.current && text) {
+      editorRef.current.innerHTML = text;
+      setCharCount(text.length);
+      setWordCount(text.trim().split(/\s+/).filter(Boolean).length);
+    }
+  }, []); // Run only on mount
+
+  // Add auto-save functionality
+  useEffect(() => {
+    // Only show saving status if there is content
+    if (text) {
+      setSaveStatus("saving");
+      const saveTimeout = setTimeout(() => {
+        localStorage.setItem("editorContent", text);
+        setSaveStatus("saved");
+        console.log("Content auto-saved");
+      }, 1000);
+
+      return () => clearTimeout(saveTimeout);
+    } else {
+      // Clear save status when content is empty
+      setSaveStatus(null);
+    }
+  }, [text]);
+
+  // Add save on page leave
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (text) {
+        localStorage.setItem("editorContent", text);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [text]);
 
   return (
     <div
       ref={containerRef}
       style={inlineStyles.container}
       onClick={focusEditor}
-      className={isDarkMode ? styles.darkMode : ''}
+      className={isDarkMode ? styles.darkMode : ""}
     >
       <div className={styles.topControls}>
         {accessToken ? (
@@ -834,14 +905,14 @@ const HomePage: React.FC = () => {
       </div>
       <div style={inlineStyles.content}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.title}>
-            Hunspell Live
-          </h1>
+          <h1 className={styles.title}>Hunspell Live</h1>
         </div>
         <div
           style={{
             ...inlineStyles.editorContainer,
-            backgroundColor: isDarkMode ? '#1f2937' : inlineStyles.editorContainer.backgroundColor,
+            backgroundColor: isDarkMode
+              ? "#1f2937"
+              : inlineStyles.editorContainer.backgroundColor,
           }}
         >
           <div style={inlineStyles.controlsContainer}>
@@ -914,16 +985,28 @@ const HomePage: React.FC = () => {
             onInput={handleTextChange}
             style={{
               ...inlineStyles.editor,
-              backgroundColor: isDarkMode ? '#374151' : '#ffffff',
-              color: isDarkMode ? '#ffffff' : 'inherit',
+              backgroundColor: isDarkMode ? "#374151" : "#ffffff",
+              color: isDarkMode ? "#ffffff" : "inherit",
               direction: TEXT_DIRECTION_MAP[selectedOption.value] || "ltr",
-              textAlign: TEXT_DIRECTION_MAP[selectedOption.value] === "rtl" ? "right" : "left",
+              textAlign:
+                TEXT_DIRECTION_MAP[selectedOption.value] === "rtl"
+                  ? "right"
+                  : "left",
             }}
             data-placeholder="Enter or paste your text here to check spelling"
           />
           <div className={styles.countDisplay}>
             <span>Characters: {charCount}</span>
             <span>Words: {wordCount}</span>
+            {saveStatus && (
+              <span
+                className={`${styles.saveStatus} ${
+                  saveStatus === "saved" ? styles.saved : styles.saving
+                }`}
+              >
+                {saveStatus === "saved" ? "Saved" : "Saving..."}
+              </span>
+            )}
           </div>
         </div>
       </div>
