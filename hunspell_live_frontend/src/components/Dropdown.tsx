@@ -46,7 +46,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
   const darkModeStyles = {
     button: {
       backgroundColor: isDarkMode ? '#1f2937' : 'white',
-      border: `2px solid ${isDarkMode ? '#4b5563' : '#374151'}`,
+      border: `1px solid ${isDarkMode ? '#4b5563' : '#374151'}`,
       color: isDarkMode ? '#e5e7eb' : 'inherit',
     },
     dropdownMenu: {
@@ -76,7 +76,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
     <div
       ref={dropdownRef}
       className="dropdown"
-      style={{ padding: "0 0 16px 0", width: "280px", position: "relative" }}
+      style={{ padding: "8px 0", width: "240px", position: "relative" }}
       onClick={(e) => e.stopPropagation()}
     >
       <button
