@@ -12,7 +12,7 @@ Hunspell Live is a customized spell-checking tool powered by [Spylls](https://sp
 ## Prerequisites
 - [Docker Desktop](https://www.docker.com/get-started)
 
-## Getting Started
+## Getting Started 🚀
 
 ### Clone the Repository
 ```bash
@@ -20,13 +20,13 @@ git clone https://github.com/imred42/hunspell_live.git
 cd hunspell_live
 ```
 
-### Environment Setup
+### Environment Setup ⚙️
 1. Create a `.env` file in the root directory
 2. Add the following environment variables:
 ```bash
-DJANGO_SECRET_KEY=your_secret_key_here
+DJANGO_SECRET_KEY=
 BASE_URL_DEV=http://localhost:8000
-BASE_URL_PROD=https://your-production-api.com
+BASE_URL_PROD=
 ```
 
 ### Build and Run
@@ -57,19 +57,4 @@ To add your own Hunspell dictionaries:
 
 Your new language will now appear in the client interface dropdown menu.
 
-## License
-
-```
-Copyright 2024 Chenfei Xiong
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+## License ⚖️
