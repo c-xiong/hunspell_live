@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-c3k*7(fa8lgjedj&^^do5!q(at^6nrqh^u1nw(w@yy(b0+s$3d')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '0.0.0.0,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 APPEND_SLASH = False
 # Application definition
@@ -97,11 +97,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'django_db'),
-        'USER': os.environ.get('POSTGRES_USER', 'django_user'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'django_password'),
-        'HOST': 'db',
-        'PORT': 5432,
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
 
@@ -174,7 +174,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = False  # Disable allowing all origins
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Add your frontend's origin here
+    "https://<your-frontend-app-name>.up.railway.app",
+    "http://localhost:5173",
 ]
 
 # If you need to allow credentials, add this setting

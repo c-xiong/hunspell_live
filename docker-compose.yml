@@ -2,8 +2,13 @@ services:
   web:
     build: ./hunspell_live_backend
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "
+        while ! nc -z db 5432; do
+          echo 'Waiting for database...'
+          sleep 1
+        done
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./dicts_config/default_dicts_config.json:/code/dicts_config/default_dicts_config.json
       - ./hunspell_live_backend:/code
@@ -13,7 +18,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgres://django_user:django_password@db:5432/django_db
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_password
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=True
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0

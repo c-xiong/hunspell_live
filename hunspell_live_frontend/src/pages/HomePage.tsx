@@ -24,6 +24,15 @@ import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 
+// Define the type for language options
+interface LanguageOption {
+  label: string;
+  value: string;
+}
+
+// Convert the readonly array to mutable
+const languageOptions: LanguageOption[] = [...LANGUAGE_OPTIONS];
+
 const HomePage: React.FC = () => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const { accessToken } = useAuthContext();
@@ -57,7 +66,7 @@ const HomePage: React.FC = () => {
     recordReplacement,
   } = useApi(selectedOption.value);
 
-  const options: LanguageOption[] = LANGUAGE_OPTIONS;
+  const options: LanguageOption[] = languageOptions;
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -251,7 +260,11 @@ const HomePage: React.FC = () => {
   };
 
   const handleMisspelledWordClick = async (event: Event) => {
-    const element = event.target as HTMLSpanElement;
+    const element = event.target as HTMLElement;
+    if (!element) return;
+
+    const closestElement = element.closest?.('.some-class');
+
     const word = element.dataset.word;
     const startPosition = parseInt(element.dataset.start || "0", 10);
     if (!word) return;
