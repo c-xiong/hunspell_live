@@ -8,6 +8,12 @@ interface LoginResponse {
   access: string;
 }
 
+interface ProfileData {
+  birthdate?: string;
+  gender?: string;
+  education?: string;
+}
+
 export const useAuth = () => {
   const { setAccessToken } = useAuthContext();
   const [authState, setAuthState] = useState<AuthState>({
@@ -123,14 +129,20 @@ export const useAuth = () => {
     }
   };
 
-  const register = async (email: string, password: string): Promise<boolean> => {
+  const register = async (email: string, password: string, profileData?: ProfileData): Promise<boolean> => {
     try {
       const response = await apiRequest("/auth/register/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          birthdate: profileData?.birthdate,
+          gender: profileData?.gender,
+          education: profileData?.education
+        }),
       });
 
       const data = await response.json();
@@ -139,7 +151,11 @@ export const useAuth = () => {
         toast.success('Registration successful! You can now log in.');
         return true;
       } else {
-        if (data.email) {
+        if (data.gender) {
+          toast.error(`Gender: ${data.gender[0]}`);
+        } else if (data.education) {
+          toast.error(`Education: ${data.education[0]}`);
+        } else if (data.email) {
           toast.error(data.email[0]);
         } else if (data.password) {
           toast.error(data.password[0]);

@@ -138,24 +138,36 @@ def home(request):
 def user_info(request):
     try:
         user = request.user
+        # Get user's profile
+        profile = getattr(user, 'profile', None)
+        
+        # Base user data
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+        }
+        
+        # Add profile data if it exists
+        if profile:
+            user_data.update({
+                'birthdate': profile.birthdate,
+                'gender': profile.get_gender_display(),
+                'education': profile.get_education_display(),
+            })
+        
         try:
+            # Add Google account data if exists
             google_account = SocialAccount.objects.get(user=user, provider='google')
             extra_data = google_account.extra_data
-            return Response({
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
+            user_data.update({
                 'google_id': extra_data.get('sub'),
                 'picture': extra_data.get('picture'),
             })
         except SocialAccount.DoesNotExist:
-            return Response({
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            })
+            pass
+            
+        return Response(user_data)
+        
     except Exception as e:
         return Response(
             {"error": "Failed to retrieve user information", "details": str(e)},

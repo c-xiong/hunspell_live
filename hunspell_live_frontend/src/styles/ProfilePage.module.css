@@ -129,14 +129,14 @@
 
 .userInfo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
 
 .infoCard {
   background-color: #f9fafb;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   display: flex;
@@ -339,5 +339,26 @@
   .container {
     max-width: 1400px;
   }
+}
+
+.label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.value {
+  font-size: 1.125rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+/* Dark mode adjustments */
+:global(body.dark-mode) .label {
+  color: #9ca3af;
+}
+
+:global(body.dark-mode) .value {
+  color: #f3f4f6;
 }
   

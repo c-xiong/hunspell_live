@@ -8,6 +8,14 @@ import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
 import { LANGUAGE_OPTIONS } from '../constants/language';
 
+interface User {
+  username: string;
+  email: string;
+  birthdate: string;
+  gender: string;
+  education: string;
+}
+
 const ProfilePage: React.FC = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { isDarkMode } = useTheme();
@@ -110,6 +118,20 @@ const ProfilePage: React.FC = () => {
                 <div className={styles.infoCard}>
                   <span className={styles.label}>Email</span>
                   <span className={styles.value}>{user?.email}</span>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Birth Date</span>
+                  <span className={styles.value}>
+                    {user?.birthdate ? new Date(user.birthdate).toLocaleDateString() : 'Not provided'}
+                  </span>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Gender</span>
+                  <span className={styles.value}>{user?.gender || 'Not provided'}</span>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Education</span>
+                  <span className={styles.value}>{user?.education || 'Not provided'}</span>
                 </div>
                 <div className={styles.infoCard}>
                   <span className={styles.label}>Dictionary Words</span>

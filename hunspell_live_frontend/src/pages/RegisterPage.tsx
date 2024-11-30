@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaUser, FaLock, FaArrowRight, FaHome } from 'react-icons/fa';
+import { FaUser, FaLock, FaArrowRight, FaHome, FaGraduationCap, FaBirthdayCake, FaVenusMars } from 'react-icons/fa';
 import styles from '../styles/Auth.module.css';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
@@ -13,11 +13,36 @@ const Register: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { isDarkMode } = useTheme();
+  const [birthdate, setBirthdate] = useState<string>('');
+  const [gender, setGender] = useState<string>('');
+  const [education, setEducation] = useState<string>('');
+
+  const GENDER_CHOICES = [
+    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Male' },
+    { value: 'non_binary', label: 'Non-binary' },
+    { value: 'prefer_not_say', label: 'Prefer not to say' },
+  ];
+
+  const EDUCATION_CHOICES = [
+    { value: 'no formal education', label: 'No formal education' },
+    { value: 'elementary school', label: 'Elementary School' },
+    { value: 'middle school', label: 'Middle School' },
+    { value: 'high school', label: 'High School' },
+    { value: 'some college', label: 'Some College' },
+    { value: 'associate degree', label: 'Associate Degree' },
+    { value: 'bachelor degree', label: "Bachelor's Degree" },
+    { value: 'master degree', label: "Master's Degree" },
+    { value: 'professional degree', label: 'Professional Degree' },
+    { value: 'doctorate', label: 'Doctorate' },
+  ];
+
+  const today = new Date().toISOString().split('T')[0];
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!email || !password || !birthdate || !gender || !education) {
       toast.warning('Please fill in all fields');
       return;
     }
@@ -33,9 +58,22 @@ const Register: React.FC = (): JSX.Element => {
       return;
     }
 
+    if (birthdate) {
+      const birthdateObj = new Date(birthdate);
+      const now = new Date();
+      if (birthdateObj > now) {
+        toast.error('Date of birth cannot be in the future');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
-      const success = await register(email, password);
+      const success = await register(email, password, {
+        birthdate,
+        gender,
+        education
+      });
       if (success) {
         navigate('/login');
       }
@@ -71,34 +109,103 @@ const Register: React.FC = (): JSX.Element => {
         <h1 className={styles.title}>Welcome to Hunspell Live</h1>
         
         <form onSubmit={handleRegister} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.visuallyHidden}>Email</label>
-            <FaUser className={styles.inputIcon} />
-            <input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
-              disabled={isSubmitting}
-              required
-            />
-          </div>
+          <div className={styles.formSectionsContainer}>
+            <div className={styles.formSection}>
+              <h2 className={styles.sectionTitle}>Account Information</h2>
+              <div className={styles.inputGroup}>
+                <label htmlFor="email" className={styles.label}>Email</label>
+                <div className={styles.inputWrapper}>
+                  <FaUser className={styles.inputIcon} />
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={styles.input}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className={styles.inputGroup}>
-            <label htmlFor="password" className={styles.visuallyHidden}>Password</label>
-            <FaLock className={styles.inputIcon} />
-            <input
-              id="password"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
-              disabled={isSubmitting}
-              required
-            />
+              <div className={styles.inputGroup}>
+                <label htmlFor="password" className={styles.label}>Password</label>
+                <div className={styles.inputWrapper}>
+                  <FaLock className={styles.inputIcon} />
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={styles.input}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.formSection}>
+              <h2 className={styles.sectionTitle}>Personal Information</h2>
+              <div className={styles.inputGroup}>
+                <label htmlFor="birthdate" className={styles.label}>Date of Birth</label>
+                <div className={styles.inputWrapper}>
+                  <FaBirthdayCake className={styles.inputIcon} />
+                  <input
+                    id="birthdate"
+                    type="date"
+                    value={birthdate}
+                    onChange={(e) => setBirthdate(e.target.value)}
+                    className={styles.input}
+                    disabled={isSubmitting}
+                    max={today}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="gender" className={styles.label}>Gender</label>
+                <div className={styles.inputWrapper}>
+                  <FaVenusMars className={styles.inputIcon} />
+                  <select
+                    id="gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className={styles.input}
+                    disabled={isSubmitting}
+                    required
+                  >
+                    <option value="">Select your gender</option>
+                    {GENDER_CHOICES.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="education" className={styles.label}>Education Level (graduated or currently enrolled)</label>
+                <div className={styles.inputWrapper}>
+                  <FaGraduationCap className={styles.inputIcon} />
+                  <select
+                    id="education"
+                    value={education}
+                    onChange={(e) => setEducation(e.target.value)}
+                    className={styles.input}
+                    disabled={isSubmitting}
+                    required
+                  >
+                    <option value="">Select your education level</option>
+                    {EDUCATION_CHOICES.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button 
@@ -106,9 +213,7 @@ const Register: React.FC = (): JSX.Element => {
             className={styles.loginButton}
             disabled={isSubmitting}
           >
-            {isSubmitting ? (
-              'Registering...'
-            ) : (
+            {isSubmitting ? 'Registering...' : (
               <>
                 Register
                 <FaArrowRight className={styles.buttonIcon} />
