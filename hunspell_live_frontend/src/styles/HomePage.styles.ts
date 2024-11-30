@@ -5,12 +5,12 @@ export const styles = {
     width: "1200px",
     position: "relative" as const,
     overflow: "hidden",
-    padding: "0 20px"
+    padding: "0 30px"
   },
   editorContainer: {
     backgroundColor: "#f3f4f6",
     borderRadius: "8px",
-    padding: "24px",
+    padding: "20px",
     transition: "background-color 0.2s ease",
   },
   editor: {

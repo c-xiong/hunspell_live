@@ -54,6 +54,7 @@ const HomePage: React.FC = () => {
     getSuggestions,
     addWordToDictionary,
     addWordToStarList,
+    recordReplacement,
   } = useApi(selectedOption.value);
 
   const options: LanguageOption[] = LANGUAGE_OPTIONS;
@@ -676,12 +677,17 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleSuggestionClick = (
+  const handleSuggestionClick = async (
     suggestion: string,
     originalWord: string,
     startPosition: number
   ) => {
     if (!editorRef.current) return;
+
+    // Record the replacement using the API hook
+    await recordReplacement(originalWord, suggestion);
+
+    // Continue with existing replacement logic
     const spans = editorRef.current.querySelectorAll(
       `span.misspelled[data-word="${originalWord}"]`
     );

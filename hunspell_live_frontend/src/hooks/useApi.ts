@@ -195,12 +195,39 @@ export const useApi = (selectedLanguage: string) => {
     }
   };
 
+  // Add new function to record replacements
+  const recordReplacement = async (originalWord: string, replacementWord: string): Promise<boolean> => {
+    try {
+      const response = await apiRequest("/api/replacements/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          original_word: originalWord,
+          replacement_word: replacementWord,
+          language: LANGUAGE_CODE_MAP[selectedLanguage] || 'en_US',
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to record replacement");
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error recording replacement:", error);
+      return false;
+    }
+  };
+
   return {
     spellingResults,
     suggestionCache,
     checkSpelling,
     getSuggestions,
     addWordToDictionary,
-    addWordToStarList
+    addWordToStarList,
+    recordReplacement
   };
 };

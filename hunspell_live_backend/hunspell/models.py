@@ -23,3 +23,15 @@ class PersonalDictionary(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s {self.lang_code} dictionary - {self.word}" 
+
+class WordReplacement(models.Model):
+    original_word = models.CharField(max_length=100)
+    replacement_word = models.CharField(max_length=100)
+    lang_code = models.CharField(max_length=10)  # e.g., 'en_US', 'de_DE'
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.original_word} -> {self.replacement_word} ({self.lang_code})" 

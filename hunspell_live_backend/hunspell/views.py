@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .services.personal_starlist_service import PersonalStarlistService
 from .services.personal_dictionary_service import PersonalDictionaryService
 from .services.spell_check_service import spell_checker_service
+from .models import WordReplacement
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class SpellCheckerView(APIView):
     def post(self, request):
@@ -253,3 +255,80 @@ class PersonalDictionaryView(APIView):
                 {"error": f"An unexpected error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class WordReplacementView(APIView):
+    def get(self, request):
+        language = request.query_params.get('language')
+        
+        queryset = WordReplacement.objects.all()
+        if language:
+            queryset = queryset.filter(lang_code=language)
+            
+        replacements = queryset.values(
+            'original_word',
+            'replacement_word',
+            'lang_code',
+            'created_at'
+        )
+        
+        return Response({
+            "replacements": list(replacements)
+        })
+    
+    def post(self, request):
+        original_word = request.data.get('original_word')
+        replacement_word = request.data.get('replacement_word')
+        language = request.data.get('language', 'en_US')
+        
+        if not original_word or not replacement_word:
+            return Response(
+                {"error": "Both original_word and replacement_word are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            WordReplacement.objects.create(
+                original_word=original_word,
+                replacement_word=replacement_word,
+                lang_code=language
+            )
+            
+            return Response({
+                "message": "Word replacement recorded successfully",
+                "original_word": original_word,
+                "replacement_word": replacement_word,
+                "language": language
+            })
+            
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class AllWordReplacementsView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+    
+    def get(self, request):
+        print(f"User: {request.user}, Is staff: {request.user.is_staff}")
+        
+        language = request.query_params.get('language')
+        
+        queryset = WordReplacement.objects.all()
+        
+        # Apply language filter if provided
+        if language:
+            queryset = queryset.filter(lang_code=language)
+            
+        replacements = queryset.values(
+            'original_word',
+            'replacement_word',
+            'lang_code',
+            'created_at'
+        ).order_by('-created_at')
+        
+        return Response({
+            "count": queryset.count(),
+            "replacements": list(replacements)
+        })
