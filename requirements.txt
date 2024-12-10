@@ -1,4 +1,4 @@
-Django>=3.2,<4.0
+Django==5.0.6
 djangorestframework
 djangorestframework-simplejwt
 drf-yasg

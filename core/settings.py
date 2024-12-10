@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -65,8 +66,9 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -125,6 +127,12 @@ else:
             'PORT': os.environ["PGPORT"],
         }
     }
+    # DATABASES = {
+    #     'default': dj_database_url.config(
+    #         default=os.getenv('DATABASE_URL'),
+    #         conn_max_age=600
+    #     )
+    # }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -174,6 +182,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -204,7 +213,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'AUTH_COOKIE': 'refreshToken',  # cookie name
-    'AUTH_COOKIE_SECURE': not DEBUG,     # 开发环境设为 False，生产环境设为 True
+    'AUTH_COOKIE_SECURE': not DEBUG,     # 发环境设为 False，生产环境设为 True
     'AUTH_COOKIE_HTTP_ONLY': True,
     'AUTH_COOKIE_PATH': '/',
     'AUTH_COOKIE_SAMESITE': 'Lax' if DEBUG else 'Strict',  # Fixed ternary operator syntax
