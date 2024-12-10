@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.PROD 
+export const API_BASE_URL = import.meta.env.VITE_MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
   : import.meta.env.VITE_API_URL_DEV;
 
