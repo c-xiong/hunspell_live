@@ -28,13 +28,8 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = [
-    'hunspelllive-production.up.railway.app',
-    '.railway.app',
-    'localhost',
-    '127.0.0.1'
-]
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 APPEND_SLASH = False
 # Application definition
 
@@ -101,36 +96,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 # Database configuration
-if DEBUG:
-    # Local development database configuration
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB', 'django_db'),
-            'USER': os.getenv('PGUSER', 'django_user'),
-            'PASSWORD': os.getenv('PGPASSWORD', 'django_password'),
-            'HOST': os.getenv('PGHOST', 'db'),
-            'PORT': os.getenv('POSTGRES_PORT', '5432'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv('PGDATABASE', 'django_db'),
+        'USER': os.getenv('PGUSER', 'django_user'),
+        'PASSWORD': os.getenv('PGPASSWORD', 'django_password'),
+        'HOST': os.getenv('PGHOST', 'db'),
+        'PORT': os.getenv('PGPORT', '5432'),
     }
-else:
-    # Production database configuration using Railway's DATABASE_URL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ["PGDATABASE"],
-            'USER': os.environ["PGUSER"],
-            'PASSWORD': os.environ["PGPASSWORD"],
-            'HOST': os.environ["PGHOST"],
-            'PORT': os.environ["PGPORT"],
-        }
-    }
-    # DATABASES = {
-    #     'default': dj_database_url.config(
-    #         default=os.getenv('DATABASE_URL'),
-    #         conn_max_age=600
-    #     )
-    # }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -183,23 +158,13 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "https://hunspelllive-production.up.railway.app",
-    "https://hunspell-live.vercel.app"
-]
-# 如果在开发环境，允许所有源
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000').split(',')
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOW_ALL_ORIGINS = False
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://hunspelllive-production.up.railway.app",
-    "https://hunspell-live.vercel.app"
-]
-
-# If you need to allow credentials, add this setting
-CORS_ALLOW_CREDENTIALS = True
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
@@ -219,3 +184,43 @@ HEALTH_CHECK_URL = '/health/'
 
 # Add this with your security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_METHODS = [
+        'DELETE',
+        'GET',
+        'OPTIONS',
+        'PATCH',
+        'POST',
+        'PUT',
+    ]
+    CORS_ALLOW_HEADERS = [
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+    ]
+
+# Security settings
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# Cookie settings
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'Lax' if DEBUG else 'Strict'
+SESSION_COOKIE_SAMESITE = 'Lax' if DEBUG else 'Strict'
