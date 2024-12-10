@@ -1,11 +1,6 @@
-const API_URLS = {
-  prod: 'https://your-production-api.com',
-  dev: 'http://localhost:8000'
-};
-
 export const API_BASE_URL = import.meta.env.PROD 
-  ? (import.meta.env.BASE_URL_PROD || API_URLS.prod)
-  : (import.meta.env.BASE_URL_DEV || API_URLS.dev);
+  ? import.meta.env.VITE_API_URL_PROD
+  : import.meta.env.VITE_API_URL_DEV;
 
 // TokenManager 类定义
 class TokenManager {

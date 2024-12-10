@@ -127,8 +127,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.env.production
-.env.*
+hunspell_live_backend/.env
+hunspell_live_frontend/.env
 
 # Spyder project settings
 .spyderproject

@@ -10,3 +10,4 @@ cryptography
 dj-rest-auth
 spylls
 requests
+python-dotenv

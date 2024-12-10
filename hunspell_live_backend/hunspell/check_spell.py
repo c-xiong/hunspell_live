@@ -5,10 +5,22 @@ from pathlib import Path
 import json
 
 class SpellChecker:
-    # Load supported languages from JSON configuration
-    config_path = Path(__file__).parent.parent / 'dicts_config/default_dicts_config.json'
-    with open(config_path, 'r') as f:
-        SUPPORTED_LANGUAGES = set(json.load(f).keys())
+    # Load and merge dictionary configurations
+    config_path = Path(__file__).parent.parent / 'dicts_config'
+    default_config_path = config_path / 'default_dicts_config.json'
+    custom_config_path = config_path / 'custom_dicts_config.json'
+    
+    # Load default config
+    with open(default_config_path, 'r') as f:
+        SUPPORTED_LANGUAGES = json.load(f)
+    
+    # Load and merge custom config if it exists
+    if custom_config_path.exists():
+        with open(custom_config_path, 'r') as f:
+            custom_config = json.load(f)
+            SUPPORTED_LANGUAGES.update(custom_config)  # Merge configurations
+    
+    SUPPORTED_LANGUAGES = set(SUPPORTED_LANGUAGES.keys())  # Convert to set for faster lookups
 
     def __init__(self, lang_code='en_US'):
         print(f"Initializing SpellChecker for language: {lang_code}")

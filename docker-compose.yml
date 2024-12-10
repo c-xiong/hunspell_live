@@ -1,6 +1,8 @@
 services:
   web:
     build: ./hunspell_live_backend
+    env_file:
+      - ./hunspell_live_backend/.env
     command: >
       sh -c "
         while ! nc -z db 5432; do
@@ -10,22 +12,13 @@ services:
         python manage.py migrate &&
         python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./dicts_config/default_dicts_config.json:/code/dicts_config/default_dicts_config.json
+      - ./dicts_config:/code/dicts_config
       - ./hunspell_live_backend:/code
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=django_db
-      - POSTGRES_USER=django_user
-      - POSTGRES_PASSWORD=django_password
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - DJANGO_DEBUG=True
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 
   frontend:
     build: ./hunspell_live_frontend
