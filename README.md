@@ -21,7 +21,7 @@ cd hunspell_live
 2. Add the following environment variables:
 ```bash
 DJANGO_SECRET_KEY=
-BASE_URL_DEV=http://localhost:8000
+BASE_URL_DEV=http://localhost:8080
 BASE_URL_PROD=
 ```
 

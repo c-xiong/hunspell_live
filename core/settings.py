@@ -31,7 +31,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-rc^*w^w&6g9_(uvx#6s
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [
     'hunspelllive-production.up.railway.app',
-    '.railway.app'
+    '.railway.app',
+    'localhost',
+    '127.0.0.1'
 ]
 APPEND_SLASH = False
 # Application definition
@@ -179,7 +181,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://hunspelllive-production.up.railway.app"
+    "https://hunspelllive-production.up.railway.app",
 ]
 # 如果在开发环境，允许所有源
 if DEBUG:
@@ -209,3 +211,6 @@ SIMPLE_JWT = {
 }
 
 HEALTH_CHECK_URL = '/health/'
+
+# Add this with your security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
