@@ -15,11 +15,11 @@ services:
     environment:
       - DJANGO_DEBUG=True
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
+      - PGDATABASE=${PGDATABASE}
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGHOST=db
+      - PGPORT=5432
     restart: unless-stopped
 
   frontend:
@@ -47,7 +47,7 @@ services:
       - POSTGRES_USER=${PGUSER}
       - POSTGRES_PASSWORD=${PGPASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django_user -d django_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}"]
       interval: 10s
       timeout: 5s
       retries: 5
