@@ -6,7 +6,7 @@ buildCommand = "python manage.py collectstatic --noinput"
 startCommand = "gunicorn core.wsgi:application"
 healthcheckPath = "/health/"
 restartPolicyType = "on_failure"
-healthcheckTimeout = "75"
+healthcheckTimeout = 75
 
 [env]
 RAILWAY_ENVIRONMENT = "production"
