@@ -22,6 +22,7 @@ from drf_yasg import openapi
 from django.http import HttpResponse, HttpResponseServerError
 from django.db import connections
 from django.db.utils import OperationalError
+from .views import health_check
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -36,23 +37,23 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
-def health_check(request):
-    try:
-        # 测试数据库连接
-        db_conn = connections['default']
-        db_conn.cursor()
+# def health_check(request):
+#     try:
+#         # 测试数据库连接
+#         db_conn = connections['default']
+#         db_conn.cursor()
         
-        # 如果没有抛出异常，说明数据库连接正常
-        return HttpResponse(
-            "OK", 
-            content_type="text/plain",
-            status=200
-        )
-    except OperationalError:
-        return HttpResponseServerError(
-            "Database unavailable", 
-            content_type="text/plain"
-        )
+#         # 如果没有抛出异常，说明数据库连接正常
+#         return HttpResponse(
+#             "OK", 
+#             content_type="text/plain",
+#             status=200
+#         )
+#     except OperationalError:
+#         return HttpResponseServerError(
+#             "Database unavailable", 
+#             content_type="text/plain"
+#         )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -62,5 +63,5 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('accounts/', include('allauth.urls')),
-    path('health/', health_check, name='health-check'),
+    path('health/', health_check, name='health_check'),
 ]
