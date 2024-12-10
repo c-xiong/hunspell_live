@@ -79,7 +79,8 @@ export const useUserData = () => {
           [language]: data.words
         }));
       } else {
-        console.error('Failed to fetch dictionary words:', await response.text()); // Debug log
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch data');
       }
     } catch (error) {
       console.error('Error fetching dictionary words:', error);
@@ -103,6 +104,9 @@ export const useUserData = () => {
           ...prev,
           [language]: data.words
         }));
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch data');
       }
     } catch (error) {
       console.error('Error fetching star list words:', error);

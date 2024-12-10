@@ -3,6 +3,12 @@ import { apiRequest } from '../config/api';
 import { tokenManager } from '../config/api';
 import { toast } from 'react-toastify';
 import { useAuthContext } from '../contexts/AuthContext'
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: any | null;
+}
+
 interface LoginResponse {
   refresh: string;
   access: string;
@@ -85,11 +91,13 @@ export const useAuth = () => {
       });
 
       if (!response.ok) {
-        throw new Error(response.data.error);
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
-      tokenManager.setToken(response.data.access);
-      setAccessToken(response.data.access);
+      const responseData = await response.json();
+      tokenManager.setToken(responseData.access);
+      setAccessToken(responseData.access);
       
       const userResponse = await apiRequest("/auth/user/", {
         method: "GET",
@@ -145,7 +153,8 @@ export const useAuth = () => {
       });
 
       if (!response.ok) {
-        throw new Error(response.data.error || 'Registration failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Registration failed');
       }
 
       toast.success('Registration successful! You can now log in.');

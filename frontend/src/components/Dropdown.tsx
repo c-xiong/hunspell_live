@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, CSSProperties } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 interface Option {
@@ -72,7 +72,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
 
   const displayValue = value || options[0] || { label: "Select...", value: "" };
 
-  const style = {
+  const style: CSSProperties = {
     fontSize: '18px',
     padding: '10px 12px',
     height: '45px',
@@ -81,9 +81,6 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
     alignItems: 'center',
     backgroundColor: isDarkMode ? '#1f2937' : 'white',
     color: isDarkMode ? '#e5e7eb' : 'inherit',
-    '&:hover': {
-      backgroundColor: isDarkMode ? '#374151' : '#f3f4f6'
-    }
   } as CSSProperties;
 
   return (
@@ -159,10 +156,6 @@ const Dropdown: React.FC<DropdownProps> = ({ options, value, onChange, isDarkMod
                 alignItems: "center",
                 backgroundColor: isDarkMode ? '#1f2937' : 'white',
                 color: isDarkMode ? '#e5e7eb' : 'inherit',
-                ':hover': {
-                  backgroundColor: isDarkMode ? '#374151' : '#f8f9fa',
-                  color: isDarkMode ? '#ffffff' : 'inherit',
-                },
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.backgroundColor = isDarkMode ? '#374151' : '#f8f9fa';

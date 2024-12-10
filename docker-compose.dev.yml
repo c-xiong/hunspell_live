@@ -22,6 +22,21 @@ services:
       - POSTGRES_PORT=5432
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - web
+    restart: unless-stopped
+
   db:
     image: postgres:13
     volumes:

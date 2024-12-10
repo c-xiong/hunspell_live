@@ -7,6 +7,12 @@ export const styles = {
     overflow: "hidden",
     padding: "0 30px"
   },
+  content: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column" as const,
+    width: "100%",
+  },
   editorContainer: {
     backgroundColor: "#f3f4f6",
     borderRadius: "8px",

@@ -25,6 +25,13 @@ import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 
+// Update the scrollbar styles
+const scrollbarStyles = {
+  scrollbarWidth: 'thin' as const,
+  scrollbarColor: '#4b5563 #1f2937',
+  // ... other styles
+};
+
 const HomePage: React.FC = () => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const { accessToken } = useAuthContext();
@@ -60,7 +67,7 @@ const HomePage: React.FC = () => {
 
   const { fetchDictionaryWords, dictionaryWords } = useUserData();
 
-  const options: LanguageOption[] = LANGUAGE_OPTIONS;
+  const options: LanguageOption[] = [...LANGUAGE_OPTIONS];
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -651,12 +658,12 @@ const HomePage: React.FC = () => {
 
     // Update scrollbar styles for dark mode
     if (isDarkMode) {
-      scrollContainer.style.scrollbarColor = "#4b5563 #1f2937"; // For Firefox
-      scrollContainer.style.scrollbarWidth = "thin";
-
-      // For Webkit browsers (Chrome, Safari, Edge)
       const styleSheet = document.createElement("style");
       styleSheet.textContent = `
+        .suggestion-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: #4b5563 #1f2937;
+        }
         .suggestion-scroll::-webkit-scrollbar {
           width: 8px;
           height: 8px;
@@ -781,11 +788,12 @@ const HomePage: React.FC = () => {
   }, []);
 
   const focusEditor = (event: React.MouseEvent) => {
+    const target = event.target as Element;
     if (
-      event.target instanceof Node &&
-      (event.target.closest(".custom-dropdown") ||
-        event.target.closest(".loginCard") ||
-        event.target.closest(".ant-select-dropdown"))
+      target &&
+      (target.closest?.(".custom-dropdown") ||
+       target.closest?.(".loginCard") ||
+       target.closest?.(".ant-select-dropdown"))
     ) {
       return;
     }
