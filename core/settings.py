@@ -187,7 +187,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite
+    "http://localhost:5173",  # 本地开发
+    "https://hunspell-live.vercel.app/",  # Railway 前端地址
+    "https://hunspell.chenfeixiong.com/"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -217,6 +219,8 @@ if DEBUG:
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "https://hunspell-live.vercel.app/",
+    "https://hunspell.chenfeixiong.com/"
 ]
 
 # Cookie settings
