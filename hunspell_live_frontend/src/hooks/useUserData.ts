@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../config/api';
 import { toast } from 'react-toastify';
+import { useAuthContext } from '../contexts/AuthContext';
 
 interface UserWord {
   word: string;
@@ -17,15 +18,14 @@ export const useUserData = () => {
   const [dictionaryLanguages, setDictionaryLanguages] = useState<string[]>([]);
   const [starListLanguages, setStarListLanguages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { accessToken } = useAuthContext();
 
   const fetchDictionaryLanguages = async () => {
+    if (!accessToken) return;
+    
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await apiRequest('/api/dictionary/languages/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
+        method: 'GET'
       });
       
       if (response.ok) {
@@ -34,18 +34,15 @@ export const useUserData = () => {
       }
     } catch (error) {
       console.error('Error fetching dictionary languages:', error);
-      toast.error('Failed to load dictionary languages');
     }
   };
 
   const fetchStarListLanguages = async () => {
+    if (!accessToken) return;
+    
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await apiRequest('/api/star-list/languages/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
+        method: 'GET'
       });
       
       if (response.ok) {
@@ -54,7 +51,6 @@ export const useUserData = () => {
       }
     } catch (error) {
       console.error('Error fetching star list languages:', error);
-      toast.error('Failed to load star list languages');
     }
   };
 
@@ -229,15 +225,17 @@ export const useUserData = () => {
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
-      await Promise.all([
-        fetchDictionaryLanguages(),
-        fetchStarListLanguages()
-      ]);
+      if (accessToken) {
+        await Promise.all([
+          fetchDictionaryLanguages(),
+          fetchStarListLanguages()
+        ]);
+      }
       setIsLoading(false);
     };
 
     initializeData();
-  }, []);
+  }, [accessToken]);
 
   return {
     dictionaryWords,

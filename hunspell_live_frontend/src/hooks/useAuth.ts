@@ -3,9 +3,6 @@ import { apiRequest } from '../config/api';
 import { tokenManager } from '../config/api';
 import { toast } from 'react-toastify';
 import { useAuthContext } from '../contexts/AuthContext'
-import { AuthState, ApiResponse } from '../types/auth';
-import { ApiResponse } from '../types/api';
-
 interface LoginResponse {
   refresh: string;
   access: string;
@@ -17,16 +14,12 @@ interface ProfileData {
   education?: string;
 }
 
-const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
-  loading: false,
-  error: null
-};
-
 export const useAuth = () => {
   const { setAccessToken } = useAuthContext();
-  const [authState, setAuthState] = useState<AuthState>(initialState);
+  const [authState, setAuthState] = useState<AuthState>({
+    isAuthenticated: false,
+    user: null
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -40,9 +33,7 @@ export const useAuth = () => {
       if (!accessToken) {
         setAuthState({
           isAuthenticated: false,
-          user: null,
-          loading: false,
-          error: null
+          user: null
         });
         setAccessToken(null);
         return;
@@ -62,17 +53,13 @@ export const useAuth = () => {
         const userData = await response.json();
         setAuthState({
           isAuthenticated: true,
-          user: userData,
-          loading: false,
-          error: null
+          user: userData
         });
       } else {
         tokenManager.setToken(null);
         setAuthState({
           isAuthenticated: false,
-          user: null,
-          loading: false,
-          error: null
+          user: null
         });
       }
     } catch (error) {
@@ -80,9 +67,7 @@ export const useAuth = () => {
       tokenManager.setToken(null);
       setAuthState({
         isAuthenticated: false,
-        user: null,
-        loading: false,
-        error: null
+        user: null
       });
     } finally {
       setIsLoading(false);
@@ -114,9 +99,7 @@ export const useAuth = () => {
         const userData = await userResponse.json();
         setAuthState({
           isAuthenticated: true,
-          user: userData,
-          loading: false,
-          error: null
+          user: userData
         });
         toast.success('Successfully logged in!');
         return true;
@@ -139,9 +122,7 @@ export const useAuth = () => {
       setAccessToken(null);
       setAuthState({
         isAuthenticated: false,
-        user: null,
-        loading: false,
-        error: null
+        user: null
       });
       window.location.href = '/';
     }

@@ -4,11 +4,13 @@ import { SpellingResult, SpellingSuggestion } from '../types/spelling';
 import { LANGUAGE_CODE_MAP } from '../constants/language';
 import { toast } from 'react-toastify';
 import { useUserData } from '../hooks/useUserData';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const useApi = (selectedLanguage: string) => {
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const [suggestionCache, setSuggestionCache] = useState<Record<string, string[]>>({});
   const { fetchDictionaryWords, dictionaryWords } = useUserData();
+  const { accessToken } = useAuthContext();
   
   // Batch fetch suggestions for multiple words
   const batchGetSuggestions = async (words: string[]): Promise<Record<string, string[]>> => {
@@ -65,11 +67,14 @@ export const useApi = (selectedLanguage: string) => {
     const languageCode = LANGUAGE_CODE_MAP[selectedLanguage] || 'en_US';
 
     try {
-      // 获取用户字典词
-      await fetchDictionaryWords(languageCode);
-      const userDictionaryWords = dictionaryWords[languageCode] || [];
-      console.log('Dictionary words from useUserData:', userDictionaryWords); // Debug log
+      // Only fetch dictionary words if user is logged in
+      let userDictionaryWords: string[] = [];
+      if (accessToken) {
+        await fetchDictionaryWords(languageCode);
+        userDictionaryWords = dictionaryWords[languageCode] || [];
+      }
 
+      // Rest of the spelling check logic
       const wordRegex = /[\p{L}\p{M}]+/gu;
       let match;
       const wordsWithIndices: { word: string; index: number }[] = [];
@@ -83,43 +88,38 @@ export const useApi = (selectedLanguage: string) => {
 
       const uniqueWords = [...new Set(wordsWithIndices.map(item => item.word))];
 
-      try {
-        const response = await apiRequest("/api/check/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=utf-8" },
-          body: JSON.stringify({
-            words: uniqueWords,
-            language: languageCode,
-          })
-        });
+      const response = await apiRequest("/api/check/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          words: uniqueWords,
+          language: languageCode,
+        })
+      });
 
-        if (!response.ok) throw new Error("Failed to check spelling");
-        
-        const result = await response.json();
-        const incorrectWords = result.results
-          .filter((res: { word: string; is_correct: boolean }) => !res.is_correct)
-          .map((res: { word: string; is_correct: boolean }) => res.word);
+      if (!response.ok) throw new Error("Failed to check spelling");
+      
+      const result = await response.json();
+      const incorrectWords = result.results
+        .filter((res: { word: string; is_correct: boolean }) => !res.is_correct)
+        .map((res: { word: string; is_correct: boolean }) => res.word);
 
-        // 使用从 useUserData 获取的字典词进行过滤
-        const filteredIncorrectWords = incorrectWords.filter(
-          word => !userDictionaryWords.includes(word)
-        );
+      // Only filter with dictionary words if user is logged in
+      const filteredIncorrectWords = accessToken 
+        ? incorrectWords.filter(word => !userDictionaryWords.includes(word))
+        : incorrectWords;
 
-        const newResults = wordsWithIndices
-          .filter(({ word }) => filteredIncorrectWords.includes(word))
-          .map(({ word, index }) => ({
-            index,
-            length: word.length,
-            word,
-          }));
+      const newResults = wordsWithIndices
+        .filter(({ word }) => filteredIncorrectWords.includes(word))
+        .map(({ word, index }) => ({
+          index,
+          length: word.length,
+          word,
+        }));
 
-        setSpellingResults(newResults);
-        return newResults;
-      } catch (error) {
-        console.error("Error checking spelling:", error);
-        toast.error('Failed to check spelling. Please try again.');
-        return [];
-      }
+      setSpellingResults(newResults);
+      return newResults;
+
     } catch (error) {
       console.error("Error checking spelling:", error);
       toast.error('Failed to check spelling. Please try again.');
