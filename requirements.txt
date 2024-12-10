@@ -11,6 +11,10 @@ requests
 python-dotenv
 
 # prod
-gunicorn==20.1.0
 dj-database-url==1.0.0
-psycopg2-binary==2.9.6
+
+asgiref==3.8.1
+gunicorn==22.0.0
+psycopg2==2.9.9
+sqlparse==0.5.0
+whitenoise==6.7.0
