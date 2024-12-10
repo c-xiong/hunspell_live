@@ -1,6 +1,6 @@
-export const API_BASE_URL = import.meta.env.VITE_MODE === 'production'
+export const API_BASE_URL = (import.meta.env.VITE_MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
-  : import.meta.env.VITE_API_URL_DEV;
+  : import.meta.env.VITE_API_URL_DEV)?.replace(/\/+$/, '');
 
 // TokenManager 类定义
 class TokenManager {
@@ -76,7 +76,9 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return fetch(`${API_BASE_URL}${endpoint}`, {
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    
+    return fetch(`${API_BASE_URL}${normalizedEndpoint}`, {
       ...options,
       credentials: 'include',
       headers,

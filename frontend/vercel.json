@@ -10,6 +10,6 @@
   ],
   "env": {
     "VITE_MODE": "production",
-    "VITE_API_URL_PROD": "https://hunspelllive-production.up.railway.app/"
+    "VITE_API_URL_PROD": "https://hunspelllive-production.up.railway.app"
   }
 } 

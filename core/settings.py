@@ -185,6 +185,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "https://hunspelllive-production.up.railway.app",
+    "https://hunspell-live.vercel.app"
 ]
 # 如果在开发环境，允许所有源
 if DEBUG:
@@ -193,7 +194,8 @@ else:
     CORS_ALLOW_ALL_ORIGINS = False
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://hunspelllive-production.up.railway.app"
+    "https://hunspelllive-production.up.railway.app",
+    "https://hunspell-live.vercel.app"
 ]
 
 # If you need to allow credentials, add this setting
