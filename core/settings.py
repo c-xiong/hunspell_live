@@ -34,7 +34,11 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key-for-bui
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 # ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
-ALLOWED_HOSTS = ['*', '.railway.app']
+ALLOWED_HOSTS = [
+    '*',
+    '.railway.app',
+    'hunspelllive-production.up.railway.app'  # 添加你的具体域名
+]
 APPEND_SLASH = False
 # Application definition
 
