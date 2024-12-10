@@ -1,6 +1,6 @@
 # Hunspell Live
 
-Live demo: [URL]
+Live demo: [Hunspell Live](https://hunspell.chenfeixiong.com/)
 
 ## Introduction
 Hunspell Live is a customized spell-checking tool powered by [Spylls](https://spylls.readthedocs.io/en/latest/). It enables developers and linguistic researchers to perform real-time spell checking using custom Hunspell dictionaries.
@@ -17,13 +17,27 @@ cd hunspell_live
 ```
 
 ### Environment Setup ⚙️
-1. Create a `.env` file in the root directory
+1. Create a `.env` file in the root directory for backend configuration
 2. Add the following environment variables:
 ```bash
 DJANGO_SECRET_KEY=
-BASE_URL_DEV=http://localhost:8080
-BASE_URL_PROD=
+DJANGO_DEBUG=True
+PGDATABASE=
+PGUSER=
+PGPASSWORD=
+PGHOST=
+PGPORT=
 ```
+
+3. Create a `.env` file in the `frontend` directory for frontend configuration
+4. Add the following environment variables:
+```bash
+VITE_MODE=development
+VITE_API_URL_DEV=http://localhost:8080
+VITE_API_URL_PROD=https://hunspelllive-production.up.railway.app/
+```
+
+> **Note:** For production builds, the frontend will automatically use the production environment variables.
 
 ### Build and Run
 ```bash
@@ -39,7 +53,7 @@ To add your own Hunspell dictionaries:
    {
      "language_code": {
        "name": "Full Language Name",
-       "direction": "ltr",  // or "rtl" fo right-to-left languages
+       "direction": "ltr",
        "path": "path/to/dictionary"
      }
    }
