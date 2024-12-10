@@ -2,10 +2,9 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python manage.py migrate && gunicorn --bind 0.0.0.0:$PORT core.wsgi:application"
+startCommand = "python manage.py migrate && gunicorn --bind 0.0.0.0:${PORT} core.wsgi:application"
 restartPolicyType = "on_failure"
 
 [env]
 RAILWAY_ENVIRONMENT = "production"
 DJANGO_DEBUG = "False"
-PORT = "8000"
