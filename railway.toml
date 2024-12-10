@@ -4,8 +4,6 @@ builder = "nixpacks"
 [deploy]
 startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:$PORT core.wsgi:application"
 restartPolicyType = "on_failure"
-healthcheckPath = "/health/"
-healthcheckTimeout = 300
 
 [env]
 RAILWAY_ENVIRONMENT = "production"
