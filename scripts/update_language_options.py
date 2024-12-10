@@ -73,7 +73,7 @@ formatted_content = ts_content.format(
 )
 
 # Write to the language.ts file
-output_path = Path('hunspell_live_frontend/src/constants/language.ts')
+output_path = Path('frontend/src/constants/language.ts')
 with open(output_path, 'w', encoding='utf-8') as f:
     f.write(formatted_content)
 

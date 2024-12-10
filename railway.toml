@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+buildCommand = "python manage.py collectstatic --noinput"
+
+[deploy]
+startCommand = "gunicorn your_project.wsgi:application"
+healthcheckPath = "/health/"
+restartPolicyType = "on_failure"
+
+[env]
+DJANGO_DEBUG = "False"

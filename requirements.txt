@@ -1,5 +1,3 @@
-gunicorn==20.1.0
-psycopg2-binary==2.9.6
 Django>=3.2,<4.0
 djangorestframework
 djangorestframework-simplejwt
@@ -11,3 +9,8 @@ dj-rest-auth
 spylls
 requests
 python-dotenv
+
+# prod
+gunicorn==20.1.0
+dj-database-url==1.0.0
+psycopg2-binary==2.9.6

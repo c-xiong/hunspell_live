@@ -1,8 +1,8 @@
 services:
   web:
-    build: ./hunspell_live_backend
+    build: .
     env_file:
-      - ./hunspell_live_backend/.env
+      - ./.env
     command: >
       sh -c "
         while ! nc -z db 5432; do
@@ -12,8 +12,7 @@ services:
         python manage.py migrate &&
         python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./dicts_config:/code/dicts_config
-      - ./hunspell_live_backend:/code
+      - .:/code
     ports:
       - "8000:8000"
     depends_on:
@@ -21,11 +20,11 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./hunspell_live_frontend
+    build: ./frontend
     ports:
       - "5173:5173"
     volumes:
-      - ./hunspell_live_frontend:/app
+      - ./frontend:/app
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true

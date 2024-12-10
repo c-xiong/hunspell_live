@@ -14,14 +14,16 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY .env .
-
-# Then copy the rest of the code
 COPY . .
 
 RUN python manage.py collectstatic --noinput
 
-# Expose the port the app runs on
 EXPOSE 8000
 
-# Command to run the application
-CMD python manage.py runserver 0.0.0.0:8000
+# CMD python manage.py runserver 0.0.0.0:8000
+# 使用环境变量决定启动命令
+CMD sh -c 'if [ "$RAILWAY_ENVIRONMENT" = "production" ]; then \
+    gunicorn --bind 0.0.0.0:$PORT your_project.wsgi:application; \
+    else \
+    python manage.py runserver 0.0.0.0:8000; \
+    fi'
