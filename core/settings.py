@@ -29,7 +29,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web', '.railway.app']
 APPEND_SLASH = False
 # Application definition
 
@@ -104,6 +104,11 @@ DATABASES = {
         'PASSWORD': os.getenv('PGPASSWORD', 'django_password'),
         'HOST': os.getenv('PGHOST', 'db'),
         'PORT': os.getenv('PGPORT', '5432'),
+        'CONN_MAX_AGE': 60,  # 1 minute connection persistence
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'sslmode': 'prefer' if DEBUG else 'require'  # Only require SSL in production
+        },
     }
 }
 
@@ -187,9 +192,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # 本地开发
-    "https://hunspell-live.vercel.app/",  # Railway 前端地址
-    "https://hunspell.chenfeixiong.com/"
+    "http://localhost:5173",  # Local development
+    "https://hunspell-live.vercel.app",  # Railway frontend address (removed trailing slash)
+    "https://hunspell.chenfeixiong.com"  # Removed trailing slash
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -219,8 +224,8 @@ if DEBUG:
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "https://hunspell-live.vercel.app/",
-    "https://hunspell.chenfeixiong.com/"
+    "https://hunspell-live.vercel.app",  # Removed trailing slash
+    "https://hunspell.chenfeixiong.com"  # Removed trailing slash
 ]
 
 # Cookie settings

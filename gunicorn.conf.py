@@ -3,7 +3,7 @@ import os
 import multiprocessing
 
 # Number of workers based on CPU cores
-workers = 4
+workers = multiprocessing.cpu_count() * 2 + 1
 bind = "0.0.0.0:8080"
 timeout = 120
 # Add these recommended settings
