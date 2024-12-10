@@ -26,17 +26,13 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key-for-build')
-SECRET_KEY = 'django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ["*"]
-# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
-# ALLOWED_HOSTS = [
-#     '*',
-#     '.railway.app',
-#     'hunspelllive-production.up.railway.app'  # 添加你的具体域名
-# ]
+ALLOWED_HOSTS = [
+    'hunspelllive-production.up.railway.app',
+    '.railway.app'
+]
 APPEND_SLASH = False
 # Application definition
 
@@ -173,9 +169,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -183,8 +179,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "https://<your-frontend-app-name>.up.railway.app" # haven't substitute front end deployed domain
+    "https://hunspelllive-production.up.railway.app"
 ]
 # 如果在开发环境，允许所有源
 if DEBUG:
@@ -193,9 +188,7 @@ else:
     CORS_ALLOW_ALL_ORIGINS = False
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://hunspelllive-production.up.railway.app/",  # 替换为你的后端域名
-    "https://<your-frontend-domain>.railway.app",  # 替换为你的前端域名
-    "https://*.railway.app"
+    "https://hunspelllive-production.up.railway.app"
 ]
 
 # If you need to allow credentials, add this setting
