@@ -161,4 +161,7 @@ cython_debug/
 #.idea/
 /frontend/node_modules
 /pgdata
+
+# macOS system files
 .DS_Store
+**/.DS_Store
