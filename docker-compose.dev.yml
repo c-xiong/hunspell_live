@@ -15,7 +15,7 @@ services:
     environment:
       - DJANGO_DEBUG=True
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - PGDATABASE=${PGDATABASE}
+      - PGDATABASE=django_db
       - PGUSER=${PGUSER}
       - PGPASSWORD=${PGPASSWORD}
       - PGHOST=db
@@ -33,7 +33,7 @@ services:
       - "5173:5173"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=${VITE_API_URL_DEV}
+      - VITE_API_URL=http://localhost:8080
     depends_on:
       - web
     restart: unless-stopped
@@ -43,7 +43,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=${PGDATABASE}
+      - POSTGRES_DB=django_db
       - POSTGRES_USER=${PGUSER}
       - POSTGRES_PASSWORD=${PGPASSWORD}
     healthcheck:

@@ -307,8 +307,9 @@ class WordReplacementView(APIView):
             )
 
 class AllWordReplacementsView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminUser]
+    # allow all users to get data
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
     
     def get(self, request):
         print(f"User: {request.user}, Is staff: {request.user.is_staff}")
