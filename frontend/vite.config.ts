@@ -6,6 +6,11 @@ export default defineConfig({
   define: {
     global: 'window',
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false
+  },
   optimizeDeps: {
     include: ['bootstrap']
   },
