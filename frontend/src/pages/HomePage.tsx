@@ -290,7 +290,7 @@ const HomePage: React.FC = () => {
     // Create popup container
     const popup = document.createElement("div");
     popup.style.position = "fixed";
-    popup.style.left = `${rect.left}px`;
+    popup.style.left = `${Math.max(rect.left - 70, 10)}px`;
     popup.style.top = `${rect.bottom + 8}px`;
     popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
@@ -513,8 +513,8 @@ const HomePage: React.FC = () => {
       noSuggestionsContainer.style.display = "flex";
       noSuggestionsContainer.style.justifyContent = "center";
       noSuggestionsContainer.style.alignItems = "center";
-      noSuggestionsContainer.style.padding = "2px";
-      noSuggestionsContainer.style.margin = "4px 0";
+      noSuggestionsContainer.style.padding = "8px";
+      noSuggestionsContainer.style.margin = "5px 0";
 
       const noSuggestionsText = document.createElement("span");
       noSuggestionsText.textContent = "No suggestions available";

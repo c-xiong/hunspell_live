@@ -9,10 +9,6 @@ interface AuthState {
   user: any | null;
 }
 
-interface LoginResponse {
-  refresh: string;
-  access: string;
-}
 
 interface ProfileData {
   age?: number;

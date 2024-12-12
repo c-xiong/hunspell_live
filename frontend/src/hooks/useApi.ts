@@ -216,11 +216,18 @@ export const useApi = (selectedLanguage: string) => {
   // Add new function to record replacements
   const recordReplacement = async (originalWord: string, replacementWord: string): Promise<boolean> => {
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Add authentication header only if user is logged in
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+
       const response = await apiRequest("/api/replacements/", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           original_word: originalWord,
           replacement_word: replacementWord,

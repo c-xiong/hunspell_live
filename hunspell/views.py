@@ -257,6 +257,9 @@ class PersonalDictionaryView(APIView):
             )
 
 class WordReplacementView(APIView):
+    authentication_classes = [JWTAuthentication]  # Allow anonymous access
+    permission_classes = []      # Allow anonymous access
+    
     def get(self, request):
         language = request.query_params.get('language')
         
@@ -287,17 +290,24 @@ class WordReplacementView(APIView):
             )
             
         try:
-            WordReplacement.objects.create(
-                original_word=original_word,
-                replacement_word=replacement_word,
-                lang_code=language
-            )
+            replacement_data = {
+                'original_word': original_word,
+                'replacement_word': replacement_word,
+                'lang_code': language,
+            }
+            
+            # Add user if authenticated
+            if request.user.is_authenticated:
+                replacement_data['user'] = request.user
+            
+            WordReplacement.objects.create(**replacement_data)
             
             return Response({
                 "message": "Word replacement recorded successfully",
                 "original_word": original_word,
                 "replacement_word": replacement_word,
-                "language": language
+                "language": language,
+                "user": request.user.username if request.user.is_authenticated else None
             })
             
         except Exception as e:
@@ -307,26 +317,25 @@ class WordReplacementView(APIView):
             )
 
 class AllWordReplacementsView(APIView):
-    # allow all users to get data
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAdminUser]
-    
     def get(self, request):
-        print(f"User: {request.user}, Is staff: {request.user.is_staff}")
-        
         language = request.query_params.get('language')
         
         queryset = WordReplacement.objects.all()
         
-        # Apply language filter if provided
+        # Apply filters if provided
         if language:
             queryset = queryset.filter(lang_code=language)
+            
+        # Add user filter if authenticated
+        if request.user.is_authenticated:
+            queryset = queryset.filter(user=request.user)
             
         replacements = queryset.values(
             'original_word',
             'replacement_word',
             'lang_code',
-            'created_at'
+            'created_at',
+            'user__username'  # Include username if available
         ).order_by('-created_at')
         
         return Response({
