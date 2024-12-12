@@ -42,7 +42,7 @@ VITE_API_URL_PROD=
 
 ### Build and Run
 ```bash
-docker compose up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 ### Adding Custom Dictionaries

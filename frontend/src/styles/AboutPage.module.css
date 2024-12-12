@@ -1,0 +1,248 @@
+.page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 80px 20px 40px;
+  margin: 0 auto;
+  transition: all 0.2s ease;
+  color: #1a1a1a;
+  font-family: 'Noto Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.content {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 40px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.subtitle {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.text {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #4b5563;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #4b5563;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  z-index: 10;
+}
+
+.backButton:hover {
+  background-color: #4b5563;
+  color: white;
+  transform: translateX(-2px);
+}
+
+.darkMode .backButton {
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  backdrop-filter: blur(5px);
+}
+
+.darkMode .backButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Dark mode styles */
+.darkMode {
+  background-color: #0f172a;
+  color: #e5e7eb;
+  min-width: 100%;
+}
+
+.darkMode .title, .darkMode .subtitle {
+  color: #e5e7eb;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.darkMode .text {
+  color: #9ca3af;
+}
+
+.darkMode .section {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .backButton {
+    position: static;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .page {
+    padding-top: 40px;
+  }
+  
+  .content {
+    padding: 0 10px;
+  }
+  
+  .section {
+    padding: 30px 20px;
+    margin-bottom: 30px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+  
+  .subtitle {
+    font-size: 28px;
+  }
+  
+  .text {
+    font-size: 16px;
+  }
+} 
+
+.timestamp {
+  font-size: 1em;
+  color: #666;
+  font-style: italic;
+  margin-top: 1rem;
+} 
+
+.link {
+  color: #4F46E5;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.link:hover {
+  border-bottom-color: currentColor;
+}
+
+.version {
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.featureList li {
+  padding: 16px 20px;
+  position: relative;
+  padding-left: 35px;
+  color: #4b5563;
+  background: rgba(79, 70, 229, 0.03);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.featureList li:hover {
+  transform: translateY(-2px);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+/* Dark mode modifications */
+.darkMode .link {
+  color: #818cf8;
+}
+
+.darkMode .version {
+  color: #9ca3af;
+}
+
+.darkMode .featureList li {
+  color: #9ca3af;
+}
+
+.darkMode .featureList li::before {
+  color: #818cf8;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .section {
+    margin: 20px 10px;
+    border-radius: 12px;
+  }
+  
+  .featureList li {
+    padding: 10px 0 10px 24px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 32px;
+  }
+  
+  .subtitle {
+    font-size: 24px;
+  }
+  
+  .text {
+    font-size: 15px;
+  }
+} 

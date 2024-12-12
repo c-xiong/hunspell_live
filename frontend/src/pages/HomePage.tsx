@@ -56,6 +56,9 @@ const HomePage: React.FC = () => {
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | null>(null);
+  const [showCookieConsent, setShowCookieConsent] = useState(() => {
+    return !localStorage.getItem("cookieConsent");
+  });
 
   const {
     checkSpelling,
@@ -926,6 +929,68 @@ const HomePage: React.FC = () => {
     };
   }, [text]);
 
+  const cookieConsent = showCookieConsent && (
+    <div className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ''}`}>
+      <p>This website uses cookies.</p>
+      <div className={styles.cookieButtons}>
+        <button 
+          onClick={() => {
+            localStorage.setItem("cookieConsent", "true");
+            setShowCookieConsent(false);
+          }}
+          className={styles.acceptButton}
+        >
+          Accept
+        </button>
+        <button 
+          onClick={() => setShowCookieConsent(false)}
+          className={styles.declineButton}
+        >
+          Decline
+        </button>
+      </div>
+    </div>
+  );
+
+  const handleAboutClick = () => {
+    navigate("/about");
+  };
+
+  const footer = (
+    <footer className={styles.footer}>
+      <div className={styles.footerLeft}>
+        <a
+          href="https://github.com/imred42/hunspell_live"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.githubLink}
+        >
+          <FaGithub />
+        </a>
+        {/* <a
+          href="https://chenfeixiong.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.githubLink}
+        >
+          <FaAt />
+        </a> */}
+        <a
+          href="https://buymeacoffee.com/imred42"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.coffeeLink}
+        >
+          ☕ Buy me a coffee
+        </a>
+      </div>
+
+      <div className={styles.footerRight}>
+        <span className={styles.copyright}>© {new Date().getFullYear()}</span>
+      </div>
+    </footer>
+  );
+
   return (
     <div
       ref={containerRef}
@@ -934,6 +999,9 @@ const HomePage: React.FC = () => {
       className={isDarkMode ? styles.darkMode : ""}
     >
       <div className={styles.topControls}>
+        <span onClick={handleAboutClick} className={styles.aboutLink}>
+          About
+        </span>
         {accessToken ? (
           <>
             {themeToggle}
@@ -1055,32 +1123,8 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
-      <footer className={styles.footer}>
-        <div className={styles.footerLeft}>
-          <a
-            href="https://github.com/imred42/hunspell_live"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.githubLink}
-          >
-            <FaGithub />
-          </a>
-          <a
-            href="https://chenfeixiong.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.githubLink}
-          >
-            <FaAt />
-          </a>
-        </div>
-
-        <div className={styles.footerRight}>
-          <span className={styles.copyright}>
-            © {new Date().getFullYear()} Chenfei Xiong
-          </span>
-        </div>
-      </footer>
+      {footer}
+      {cookieConsent}
     </div>
   );
 };

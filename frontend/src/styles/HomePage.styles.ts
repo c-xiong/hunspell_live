@@ -5,7 +5,8 @@ export const styles = {
     width: "1200px",
     position: "relative" as const,
     overflow: "hidden",
-    padding: "0 30px"
+    padding: "0 30px",
+    margin: "0 auto",
   },
   content: {
     flex: 1,

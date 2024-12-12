@@ -3,11 +3,11 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    width: 100%;
+    width: 60vw;
     padding: 20px;
     transition: background-color 0.2s ease;
     overflow-y: auto;
-    padding: 10px;
+    margin: 0 auto;
   }
   
   .loginCard {
@@ -15,20 +15,27 @@
     max-width: 1000px;
     margin: 5px;
     padding: 60px 30px 30px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 16px;
-    border: #4c5363 0.5px solid;
-    background-color: #f3f4f6;
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
     position: relative;
     overflow: visible;
+  }
+  
+  .loginCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
   }
   
   .title {
     font-size: 48px;
     font-weight: 700;
     text-align: center;
-    margin: 24px 0;
+    margin-bottom: 24px;
+    margin-top: 50px;
     background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -81,6 +88,8 @@
     transform: translateY(-50%);
     color: #6b7280;
     font-size: 20px;
+    opacity: 1;
+    z-index: 1;
   }
   
   .visuallyHidden {
@@ -94,12 +103,13 @@
   
   .input {
     width: 100%;
-    padding: 14px 14px 14px 44px;
-    border: 2px solid #e5e7eb;
+    padding: 14px 14px 14px 48px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     font-size: 16px;
     transition: all 0.2s ease;
-    background-color: #ffffff;
+    backdrop-filter: blur(5px);
   }
   
   .input:focus {
@@ -156,25 +166,28 @@
   }
   
   .homeButton {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    color: #5952d4;
-    text-decoration: none;
-    font-size: 20px;
-    transition: color 0.2s ease;
-    width: fit-content;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 8px;
-    left: 32px;
-    top: 22px;
-    position: absolute;
-    align-self: flex-start;
+    color: #4b5563;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: fixed;
+    top: 30px;
+    left: 40px;
+    z-index: 10;
+    text-decoration: none;
   }
   
   .homeButton:hover {
-    color: #454096;
-    background-color: rgba(89, 82, 212, 0.1);
+    background-color: #4b5563;
+    color: white;
+    transform: translateX(-2px);
   }
   
   .buttonIcon {
@@ -211,8 +224,8 @@
   }
   
   :global(.dark-mode) .loginCard {
-    background-color: #25272b;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
   }
   
   :global(.dark-mode) .title {
@@ -225,9 +238,9 @@
   }
   
   :global(.dark-mode) .input {
-    background-color: #435e8a;
-    border-color: #334155;
-    color: #ffffff;
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
   }
   
   :global(.dark-mode) .input::placeholder {
@@ -241,6 +254,7 @@
   
   :global(.dark-mode) .inputIcon {
     color: #94a3b8;
+    opacity: 1;
   }
   
   :global(.dark-mode) .registerText {
@@ -256,13 +270,16 @@
   }
   
   :global(.dark-mode) .homeButton {
-    color: #818cf8;
-    background-color: transparent;
+    background-color: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+    backdrop-filter: blur(5px);
   }
   
   :global(.dark-mode) .homeButton:hover {
-    color: #a5b4fc;
-    background-color: rgba(129, 140, 248, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
   }
   
   :global(.dark-mode) .loginButton {
@@ -374,6 +391,7 @@
   
   @media (max-width: 768px) {
     .container {
+      width: 100vw;
       padding: 10px;
       min-height: 80vh;
     }

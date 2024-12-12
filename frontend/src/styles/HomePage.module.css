@@ -227,7 +227,7 @@
   }
   
   .loginButton {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 6px;
     color: #464646;
     background-color: white;
@@ -236,7 +236,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-size: 20px;
     font-weight: 700;
     transition: all 0.2s ease;
@@ -455,7 +455,7 @@
     justify-content: center;
     gap: 0px;
     margin-bottom: 36px;
-    margin-top: 50px;
+    margin-top: 90px;
     position: relative;
     height: 80px;
   }
@@ -591,7 +591,7 @@
     right: 45px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     z-index: 1000;
     height: 48px;
   }
@@ -764,4 +764,146 @@
   
   .darkMode .saved {
     color: #81C784;
+  }
+  
+  .cookieConsent {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+    text-align: center;
+  }
+  
+  .cookieConsent p {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.4;
+  }
+  
+  .cookieButtons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .acceptButton,
+  .declineButton {
+    min-width: 100px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  
+  .acceptButton {
+    background-color: #10b981;
+    color: white;
+    border: none;
+  }
+  
+  .declineButton {
+    background-color: transparent;
+    color: #6b7280;
+    border: 1px solid #6b7280;
+  }
+  
+  .acceptButton:hover,
+  .declineButton:hover {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  /* Dark mode styles */
+  .darkMode .cookieConsent {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .darkMode .cookieConsent p {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .declineButton {
+    color: #9ca3af;
+    border-color: #9ca3af;
+  }
+  
+  .darkMode .declineButton:hover {
+    background-color: #4b5563;
+    color: #e5e7eb;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .aboutLink {
+    color: #464646;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+    transition: all 0.2s ease;
+    margin-right: 24px;
+  }
+  
+  .aboutLink:hover {
+    color: #4F46E5;
+    transform: translateY(-1px);
+    cursor: pointer;
+  }
+  
+  /* Dark mode styles */
+  .darkMode .aboutLink {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .aboutLink:hover {
+    color: #818cf8;
+  }
+  
+  .coffeeLink {
+    color: #333;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: #ffdd00;
+    font-weight: 600;
+  }
+  
+  .coffeeLink:hover {
+    transform: scale(1.05);
+    background-color: #ffd000;
+  }
+  
+  /* Dark mode styles */
+  .darkMode .coffeeLink {
+    color: #1a1a1a;
+    background-color: #ffdd00;
+  }
+  
+  .darkMode .coffeeLink:hover {
+    background-color: #ffd000;
   }
