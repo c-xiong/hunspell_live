@@ -45,7 +45,7 @@ const AboutPage: React.FC = () => {
             })}
           </p>
           <p className={styles.text}>
-            Hunspell Live is a customized spell-checking tool powered by{" "}
+            Hunspell Live is an open-source customized spell-checking tool powered by{" "}
             <a
               href="https://spylls.readthedocs.io/en/latest/"
               target="_blank"
@@ -76,43 +76,44 @@ const AboutPage: React.FC = () => {
         <section className={styles.section}>
           <h2 className={styles.subtitle}>Research Purpose</h2>
           <p className={styles.text}>
-            Hunspell Live is part of an academic research project aimed at
-            understanding and improving spell-checking technologies. By
-            analyzing anonymous usage patterns and corrections, we work to
-            enhance spell-checking accuracy and user experience for diverse
-            language backgrounds.
+            Hunspell Live aims to bridge Hunspell technology with real-world applications
+            while advancing our understanding of spell-checking systems. Through the
+            analysis of anonymous usage patterns and corrections, we strive to enhance
+            spell-checking accuracy and user experience across diverse linguistic
+            backgrounds.
           </p>
         </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.subtitle}>Privacy & Data Usage</h2>
-          <p className={styles.text}>
-            We take your privacy seriously. Our application uses cookies solely
-            for maintaining login sessions. We collect and store basic
-            demographic information (age, education level, gender, and native
-            languages) and word replacement data for research purposes only. As
-            an open-source project, we maintain complete transparency about our
-            data handling practices.
-          </p>
-          <p className={styles.text}>
-            We guarantee that your personal information will never be sold or
-            shared with third parties. All collected data is used exclusively
-            for improving our spell-checking algorithms and contributing to
-            academic research.
-          </p>
+        <section id="privacy" className={`${styles.section} ${styles.privacySection}`}>
+          <h2 className={`${styles.subtitle} ${styles.privacyTitle}`}>
+            <span className={styles.privacyIcon}>🔒</span> Privacy & Data Usage
+          </h2>
+          <div className={styles.privacyContent}>
+            <p className={`${styles.text} ${styles.privacyText}`}>
+              We take your privacy seriously. Our application uses cookies solely
+              for maintaining login sessions. We collect and store basic
+              demographic information (age, education level, gender, and native
+              languages) and word replacement data for research purposes only. As
+              an open-source project, we maintain complete transparency about our
+              data handling practices.
+            </p>
+            <p className={`${styles.text} ${styles.privacyText}`}>
+              We guarantee that your personal information will never be sold or
+              shared with third parties. All collected data is used exclusively
+              for contributing to academic research.
+            </p>
+          </div>
         </section>
 
-        <section className={styles.section}>
+        <section id="terms" className={styles.section}>
           <h2 className={styles.subtitle}>Terms of Use</h2>
           <p className={styles.text}>
-            By using Hunspell Live, you agree to our terms and conditions. These
-            terms ensure fair usage of the service and protect both users and
-            researchers. We encourage you to review them carefully before using
+            By using Hunspell Live, you agree to our terms and conditions. We encourage you to review them carefully before using
             the application.
           </p>
         </section>
 
-        <section className={styles.section}>
+        <section id="contact" className={styles.section}>
           <h2 className={styles.subtitle}>Contact & Support</h2>
           <p className={styles.text}>
             For questions, feedback, or support, please visit our{" "}

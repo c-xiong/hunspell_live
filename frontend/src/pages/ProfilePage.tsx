@@ -7,14 +7,26 @@ import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
 import { LANGUAGE_OPTIONS } from '../constants/language';
+import { LANGUAGE_CHOICES, EDUCATION_CHOICES } from '../constants/userChoices';
 
 interface User {
   username: string;
   email: string;
-  birthdate: string;
+  age: number;
   gender: string;
   education: string;
+  mother_languages: string[];
 }
+
+const getLanguageName = (code: string): string => {
+  const language = LANGUAGE_CHOICES.find(lang => lang.value === code);
+  return language?.label || code;
+};
+
+const getEducationLabel = (value: string): string => {
+  const education = EDUCATION_CHOICES.find(edu => edu.value === value);
+  return education?.label || value;
+};
 
 const ProfilePage: React.FC = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -120,10 +132,8 @@ const ProfilePage: React.FC = () => {
                   <span className={styles.value}>{user?.email}</span>
                 </div>
                 <div className={styles.infoCard}>
-                  <span className={styles.label}>Birth Date</span>
-                  <span className={styles.value}>
-                    {user?.birthdate ? new Date(user.birthdate).toLocaleDateString() : 'Not provided'}
-                  </span>
+                  <span className={styles.label}>Age</span>
+                  <span className={styles.value}>{user?.age || 'Not provided'}</span>
                 </div>
                 <div className={styles.infoCard}>
                   <span className={styles.label}>Gender</span>
@@ -131,7 +141,17 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <div className={styles.infoCard}>
                   <span className={styles.label}>Education</span>
-                  <span className={styles.value}>{user?.education || 'Not provided'}</span>
+                  <span className={styles.value}>
+                    {user?.education ? getEducationLabel(user.education) : 'Not provided'}
+                  </span>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.label}>Native Languages</span>
+                  <span className={styles.value}>
+                    {user?.mother_languages?.length > 0 
+                      ? user.mother_languages.map(code => getLanguageName(code)).join(', ')
+                      : 'Not provided'}
+                  </span>
                 </div>
                 <div className={styles.infoCard}>
                   <span className={styles.label}>Dictionary Words</span>
@@ -151,55 +171,67 @@ const ProfilePage: React.FC = () => {
 
           {activeTab === 'dictionary' && (
             <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <Dropdown
-                  options={filteredDictionaryOptions}
-                  value={filteredDictionaryOptions.find(option => option.value === selectedDictLanguage)}
-                  onChange={handleDictionaryLanguageChange}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-              <div className={styles.wordGrid}>
-                {dictionaryWords[selectedDictLanguage]?.map(word => (
-                  <div key={word} className={styles.wordCard}>
-                    <span className={styles.word}>{word}</span>
-                    <button 
-                      className={styles.deleteButton}
-                      onClick={() => removeFromDictionary(word, selectedDictLanguage)}
-                      title="Delete word"
-                    >
-                      <FaTrash />
-                    </button>
+              {dictionaryWords[selectedDictLanguage]?.length > 0 ? (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <Dropdown
+                      options={filteredDictionaryOptions}
+                      value={filteredDictionaryOptions.find(option => option.value === selectedDictLanguage)}
+                      onChange={handleDictionaryLanguageChange}
+                      isDarkMode={isDarkMode}
+                    />
                   </div>
-                ))}
-              </div>
+                  <div className={styles.wordGrid}>
+                    {dictionaryWords[selectedDictLanguage]?.map(word => (
+                      <div key={word} className={styles.wordCard}>
+                        <span className={styles.word}>{word}</span>
+                        <button 
+                          className={styles.deleteButton}
+                          onClick={() => removeFromDictionary(word, selectedDictLanguage)}
+                          title="Delete word"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className={styles.emptyState}>No dictionary words found</div>
+              )}
             </div>
           )}
 
           {activeTab === 'starlist' && (
             <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <Dropdown
-                  options={filteredStarListOptions}
-                  value={filteredStarListOptions.find(option => option.value === selectedStarLanguage)}
-                  onChange={handleStarListLanguageChange}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-              <div className={styles.wordGrid}>
-                {starListWords[selectedStarLanguage]?.map(word => (
-                  <div key={word} className={styles.wordCard}>
-                    <span className={styles.word}>{word}</span>
-                    <button 
-                      className={styles.unstarButton}
-                      onClick={() => removeFromStarList(word, selectedStarLanguage)}
-                      title="Remove from starred"
-                    >
-                      <FaStar />
-                    </button>
+              {starListWords[selectedStarLanguage]?.length > 0 ? (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <Dropdown
+                      options={filteredStarListOptions}
+                      value={filteredStarListOptions.find(option => option.value === selectedStarLanguage)}
+                      onChange={handleStarListLanguageChange}
+                      isDarkMode={isDarkMode}
+                    />
                   </div>
-                ))}
-              </div>
+                  <div className={styles.wordGrid}>
+                    {starListWords[selectedStarLanguage]?.map(word => (
+                      <div key={word} className={styles.wordCard}>
+                        <span className={styles.word}>{word}</span>
+                        <button 
+                          className={styles.unstarButton}
+                          onClick={() => removeFromStarList(word, selectedStarLanguage)}
+                          title="Remove from starred"
+                        >
+                          <FaStar />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className={styles.emptyState}>No starred words found</div>
+              )}
             </div>
           )}
         </div>

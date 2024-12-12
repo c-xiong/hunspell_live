@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    width: 60vw;
+    width: 70vw;
     padding: 20px;
     transition: background-color 0.2s ease;
     overflow-y: auto;
@@ -13,8 +13,8 @@
   .loginCard {
     width: 100%;
     max-width: 1000px;
-    margin: 5px;
-    padding: 60px 30px 30px;
+    margin: 10px auto;
+    padding: 20px 30px;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 16px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -22,20 +22,15 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
     position: relative;
-    overflow: visible;
-  }
-  
-  .loginCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
+    overflow: visible !important;
   }
   
   .title {
-    font-size: 48px;
+    font-size: 46px;
     font-weight: 700;
     text-align: center;
-    margin-bottom: 24px;
-    margin-top: 50px;
+    margin-bottom: 16px;
+    margin-top: 70px;
     background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -89,7 +84,8 @@
     color: #6b7280;
     font-size: 20px;
     opacity: 1;
-    z-index: 1;
+    pointer-events: none;
+    z-index: 2;
   }
   
   .visuallyHidden {
@@ -119,12 +115,12 @@
   }
   
   .loginButton {
-    margin-top: -30px;
+    margin-top: -20px;
     background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 14px;
+    padding: 12px;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
@@ -150,11 +146,11 @@
   }
   
   .registerText {
-    margin-top: 14px;
+    margin-top: 10px;
     text-align: center;
     color: #4b5563;
     font-size: 16px;
-    margin-bottom: -14px;
+    margin-bottom: -10px;
   }
   
   .registerLink {
@@ -182,7 +178,7 @@
     position: fixed;
     top: 30px;
     left: 40px;
-    z-index: 10;
+    z-index: 2;
     text-decoration: none;
   }
   
@@ -309,24 +305,24 @@
   
   .formSection {
     flex: 1;
-    margin-bottom: 32px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
   }
   
   .sectionTitle {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding-bottom: 8px;
     border-bottom: 2px solid #e5e7eb;
   }
   
   .inputGroup {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
   
   .label {
@@ -374,13 +370,13 @@
   
   .formSectionsContainer {
     display: flex;
-    gap: 40px;
-    margin-bottom: 20px;
+    gap: 20px;
+    margin-bottom: 16px;
   }
   
   .formSection {
     flex: 1;
-    padding: 20px;
+    padding: 15px;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -491,4 +487,220 @@
   :global(.dark-mode) .sectionTitle {
     color: #e5e7eb;
     border-bottom-color: #374151;
+  }
+  
+  .input[multiple] {
+    height: 300px;
+    padding: 8px 8px 8px 40px;
+    overflow-y: auto;
+    background-color: white;
+  }
+  
+  .input[multiple] option {
+    padding: 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .input[multiple] option:checked {
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    color: white;
+  }
+  
+  .input[multiple] option:hover {
+    background-color: #f3f4f6;
+    color: #0f172a;
+    cursor: pointer;
+  }
+  
+  /* Dark mode adjustments */
+  :global(.dark-mode) .input[multiple] {
+    background: rgba(30, 41, 59, 0.8);
+  }
+  
+  :global(.dark-mode) .input[multiple] option {
+    background-color: rgba(30, 41, 59, 0.8);
+    color: #e5e7eb;
+  }
+  
+  :global(.dark-mode) .input[multiple] option:hover {
+    background-color: rgba(55, 65, 81, 0.8);
+  }
+  
+  :global(.dark-mode) .input[multiple] option:checked {
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    color: white;
+  }
+  
+  /* Add helper text */
+  .helperText {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 4px;
+    margin-left: 40px;
+  }
+  
+  :global(.dark-mode) .helperText {
+    color: #9ca3af;
+  }
+  
+  .reactSelect {
+    width: 100%;
+    position: relative;
+    z-index: 5;
+  }
+  
+  /* Dark mode adjustments for react-select */
+  :global(.dark-mode) .reactSelect :global(.select__control) {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__menu) {
+    background-color: #1e293b !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__option) {
+    background-color: #1e293b !important;
+    color: #e5e7eb !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__option--is-focused) {
+    background-color: #374151 !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__option--is-selected) {
+    background-color: #4F46E5 !important;
+    color: white !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__single-value) {
+    color: #e5e7eb !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__multi-value) {
+    background-color: #374151 !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__multi-value__label) {
+    color: #e5e7eb !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__multi-value__remove) {
+    color: #e5e7eb !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__multi-value__remove:hover) {
+    background-color: #4b5563 !important;
+    color: #fff !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__input-container) {
+    color: #e5e7eb !important;
+  }
+  
+  :global(.dark-mode) .reactSelect :global(.select__placeholder) {
+    color: #94a3b8 !important;
+  }
+  
+  /* Adjust the input wrapper to accommodate the icon with react-select */
+  .inputWrapper .inputIcon {
+    position: absolute;
+    z-index: 4;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 20px;
+    pointer-events: none;
+  }
+  
+  .inputWrapper .reactSelect {
+    padding-left: 0;
+  }
+  
+  .inputWrapper .reactSelect > div:first-of-type {
+    padding-left: 36px;
+    background: transparent;
+  }
+  
+  .inputWrapper .reactSelect ~ .inputIcon {
+    color: #6b7280 !important;
+  }
+  
+  :global(.dark-mode) .inputWrapper .reactSelect ~ .inputIcon {
+    color: #94a3b8 !important;
+  }
+  
+  /* 添加新的样式来控制react-select下拉菜单的z-index */
+  .reactSelect > div:last-child {
+    z-index: 5;
+  }
+  
+  /* Remove react-select specific styles */
+  .reactSelect {
+    width: 100%;
+  }
+  
+  /* Add new select styles */
+  .select {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+    appearance: none; /* Removes default arrow in some browsers */
+    cursor: pointer;
+  }
+  
+  /* Add a custom arrow */
+  .inputWrapper {
+    position: relative;
+  }
+  
+  .inputWrapper::after {
+    content: '▼';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  
+  /* Multiple select specific styles */
+  .select[multiple] {
+    height: 300px;
+    padding: 8px;
+  }
+  
+  .select[multiple] option {
+    padding: 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+  }
+  
+  .select[multiple] option:checked {
+    background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+    color: white;
+  }
+  
+  /* Dark mode styles */
+  :global(.dark-mode) .select {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+  }
+  
+  :global(.dark-mode) .select option {
+    background-color: #1e293b;
+    color: #e5e7eb;
+  }
+  
+  :global(.dark-mode) .inputWrapper::after {
+    color: #94a3b8;
   }

@@ -17,6 +17,7 @@
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   border: #4c5363 0.5px solid;
+  position: relative;
 }
 
 .header {
@@ -33,25 +34,29 @@
 }
 
 .homeButton {
-  position: absolute;
-  left: 0;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 10px 20px;
   background-color: transparent;
-  color: #5952d4;
-  font-weight: 500;
-  font-size: 1.2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #4b5563;
+  font-size: 18px;
+  cursor: pointer;
   transition: all 0.2s ease;
+  position: absolute;
+  top: 10px;
+  left: 20px;
   text-decoration: none;
+  backdrop-filter: blur(5px);
+  border: #abadb2 solid 0.5px;
 }
 
 .homeButton:hover {
-  color: #454096;
-  background-color: rgba(89, 82, 212, 0.1);
-  transform: translateY(-1px);
+  background-color: #4b5563;
+  color: white;
+  transform: translateX(-2px);
 }
 
 .title {
@@ -255,13 +260,16 @@
 }
 
 :global(body.dark-mode) .homeButton {
-  background-color: transparent;
-  color: #818cf8;
+  background-color: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  backdrop-filter: blur(5px);
 }
 
 :global(body.dark-mode) .homeButton:hover {
-  background-color: rgba(129, 140, 248, 0.1);
-  color: #a5b4fc;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 :global(body.dark-mode) .languageDropdown {

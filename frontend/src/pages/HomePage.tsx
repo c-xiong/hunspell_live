@@ -27,8 +27,8 @@ import { useAuthContext } from "../contexts/AuthContext";
 
 // Update the scrollbar styles
 const scrollbarStyles = {
-  scrollbarWidth: 'thin' as const,
-  scrollbarColor: '#4b5563 #1f2937',
+  scrollbarWidth: "thin" as const,
+  scrollbarColor: "#4b5563 #1f2937",
   // ... other styles
 };
 
@@ -130,9 +130,7 @@ const HomePage: React.FC = () => {
     setSpellingResults([]);
     setCharCount(0);
     setWordCount(0);
-    toast.success(
-      "Text cleared successfully."
-    );
+    toast.success("Text cleared successfully.");
   };
 
   const handlePaste = async () => {
@@ -211,7 +209,9 @@ const HomePage: React.FC = () => {
       const results = await checkSpelling(text);
       // Filter out ignored words and words in the user's dictionary
       const newResults = results.filter(
-        (result) => !ignoredWords.has(result.word.toLowerCase()) && !userDictionaryWords.includes(result.word)
+        (result) =>
+          !ignoredWords.has(result.word.toLowerCase()) &&
+          !userDictionaryWords.includes(result.word)
       );
 
       toast.dismiss(loadingToast);
@@ -464,10 +464,7 @@ const HomePage: React.FC = () => {
           setSpellingResults((prev) =>
             prev.filter(
               (result) =>
-                !(
-                  result.word === word &&
-                  result.index === startPosition
-                )
+                !(result.word === word && result.index === startPosition)
             )
           );
         }
@@ -518,14 +515,14 @@ const HomePage: React.FC = () => {
       noSuggestionsContainer.style.alignItems = "center";
       noSuggestionsContainer.style.padding = "2px";
       noSuggestionsContainer.style.margin = "4px 0";
-      
+
       const noSuggestionsText = document.createElement("span");
       noSuggestionsText.textContent = "No suggestions available";
       noSuggestionsText.style.fontSize = "21px";
       noSuggestionsText.style.fontStyle = "italic";
       noSuggestionsText.style.fontWeight = "bold";
       noSuggestionsText.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
-      
+
       noSuggestionsContainer.appendChild(noSuggestionsText);
       scrollContainer.appendChild(noSuggestionsContainer);
     } else {
@@ -686,18 +683,14 @@ const HomePage: React.FC = () => {
 
     // Update popup container styles
     popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    popup.style.border = isDarkMode
-      ? "1px solid #374151"
-      : "1px solid #e5e7eb";
+    popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
     popup.style.borderRadius = "12px";
     popup.style.boxShadow = isDarkMode
       ? "0 4px 12px rgba(0, 0, 0, 0.5)"
       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
 
     // Update ignore/dictionary section styles
-    ignoreContainer.style.backgroundColor = isDarkMode
-      ? "#1f2937"
-      : "#ffffff";
+    ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     ignoreContainer.style.borderBottom = isDarkMode
       ? "1px solid #374151"
       : "1px solid #e5e7eb";
@@ -795,8 +788,8 @@ const HomePage: React.FC = () => {
     if (
       target &&
       (target.closest?.(".custom-dropdown") ||
-       target.closest?.(".loginCard") ||
-       target.closest?.(".ant-select-dropdown"))
+        target.closest?.(".loginCard") ||
+        target.closest?.(".ant-select-dropdown"))
     ) {
       return;
     }
@@ -930,10 +923,12 @@ const HomePage: React.FC = () => {
   }, [text]);
 
   const cookieConsent = showCookieConsent && (
-    <div className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ''}`}>
+    <div
+      className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ""}`}
+    >
       <p>This website uses cookies.</p>
       <div className={styles.cookieButtons}>
-        <button 
+        <button
           onClick={() => {
             localStorage.setItem("cookieConsent", "true");
             setShowCookieConsent(false);
@@ -942,7 +937,7 @@ const HomePage: React.FC = () => {
         >
           Accept
         </button>
-        <button 
+        <button
           onClick={() => setShowCookieConsent(false)}
           className={styles.declineButton}
         >
@@ -967,14 +962,6 @@ const HomePage: React.FC = () => {
         >
           <FaGithub />
         </a>
-        {/* <a
-          href="https://chenfeixiong.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.githubLink}
-        >
-          <FaAt />
-        </a> */}
         <a
           href="https://buymeacoffee.com/imred42"
           target="_blank"
@@ -986,7 +973,48 @@ const HomePage: React.FC = () => {
       </div>
 
       <div className={styles.footerRight}>
-        <span className={styles.copyright}>© {new Date().getFullYear()}</span>
+        <a
+          href="/about#contact"
+          className={styles.contactLink}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/about#contact");
+            setTimeout(() => {
+              const element = document.getElementById("contact");
+              element?.scrollIntoView({ behavior: "auto" });
+            }, 50);
+          }}
+        >
+          Contact Us
+        </a>
+        <a
+          href="/about#privacy"
+          className={styles.privacyLink}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/about#privacy");
+            setTimeout(() => {
+              const element = document.getElementById("privacy");
+              element?.scrollIntoView({ behavior: "auto" });
+            }, 50);
+          }}
+        >
+          Privacy Policy
+        </a>
+        <a
+          href="/about#terms"
+          className={styles.termsLink}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/about#terms");
+            setTimeout(() => {
+              const element = document.getElementById("terms");
+              element?.scrollIntoView({ behavior: "auto" });
+            }, 50);
+          }}
+        >
+          Terms of Service
+        </a>
       </div>
     </footer>
   );

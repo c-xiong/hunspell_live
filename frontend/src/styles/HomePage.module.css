@@ -63,8 +63,8 @@
   
   .copyButton {
     background-color: white;
-    color: #10b981;
-    border: #10b981 1px solid;
+    color: #08bed3;
+    border: #08bed3 1px solid;
     border-radius: 6px;
     padding: 10px 12px;
     cursor: pointer;
@@ -76,7 +76,7 @@
   }
   
   .copyButton:hover {
-    background-color: #10b981;
+    background-color: #08bed3;
     color: white;
   }
   
@@ -196,6 +196,7 @@
     font-weight: 700;
     border-bottom: 2px solid #f3f4f6;
     padding-bottom: 12px;
+    text-align: center;
   }
   
   .helpCard ul {
@@ -203,6 +204,7 @@
     padding-left: 8px;
     color: #4b5563;
     list-style-type: none;
+    text-align: left;
   }
   
   .helpCard li {
@@ -349,10 +351,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to top, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.9) 50%, transparent);
+    background: linear-gradient(to top, rgba(227, 225, 225, 0.98), rgba(206, 204, 204, 0.9) 30%, transparent);
     z-index: 900;
     backdrop-filter: blur(8px);
-    /* border-top: rgba(35, 35, 35, 0.236) 1px solid; */
   }
   
   .footerLeft {
@@ -548,8 +549,7 @@
   }
   
   .darkMode .footer {
-    background: linear-gradient(to top, rgba(26, 26, 26, 0.98), rgba(26, 26, 26, 0.9) 50%, transparent);
-    /* border-top: #3d3e40 1px solid; */
+    background: linear-gradient(to top, rgba(26, 26, 26, 0.98), rgba(26, 26, 26, 0.9) 30%, transparent);
   }
   
   .darkMode .githubLink {
@@ -701,12 +701,12 @@
   
   .darkMode .copyButton {
     background-color: #1f2937;
-    color: #10b981;
-    border-color: #10b981;
+    color: #08bed3;
+    border-color: #08bed3;
   }
   
   .darkMode .copyButton:hover {
-    background-color: #10b981;
+    background-color: #08bed3;
     color: #e5e7eb;
   }
   
@@ -906,4 +906,61 @@
   
   .darkMode .coffeeLink:hover {
     background-color: #ffd000;
+  }
+  
+  .contactLink,
+  .privacyLink,
+  .termsLink {
+    color: #333;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    position: relative;
+  }
+  
+  .contactLink:hover,
+  .privacyLink:hover,
+  .termsLink:hover {
+    color: #4F46E5;
+    transform: translateY(-1px);
+  }
+  
+  /* Add separator between footer links */
+  .contactLink::after,
+  .privacyLink::after,
+  .termsLink::after {
+    content: '|';
+    position: absolute;
+    right: -4px;
+    color: #9ca3af;
+  }
+  
+  /* Remove separator from last link */
+  .termsLink::after {
+    content: none;
+  }
+  
+  /* Dark mode styles */
+  .darkMode .contactLink,
+  .darkMode .privacyLink,
+  .darkMode .termsLink {
+    color: #e5e7eb;
+  }
+  
+  .darkMode .contactLink:hover,
+  .darkMode .privacyLink:hover,
+  .darkMode .termsLink:hover {
+    color: #818cf8;
+  }
+  
+  .darkMode .contactLink::after,
+  .darkMode .privacyLink::after,
+  .darkMode .termsLink::after {
+    color: #4b5563;
   }

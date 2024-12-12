@@ -15,9 +15,10 @@ interface LoginResponse {
 }
 
 interface ProfileData {
-  birthdate?: string;
+  age?: number;
   gender?: string;
   education?: string;
+  mother_languages?: string[];
 }
 
 export const useAuth = () => {
@@ -146,23 +147,22 @@ export const useAuth = () => {
         body: JSON.stringify({
           email,
           password,
-          birthdate: profileData?.birthdate,
+          age: profileData?.age,
           gender: profileData?.gender,
-          education: profileData?.education
+          education: profileData?.education,
+          mother_languages: profileData?.mother_languages
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
+        throw { response: { data: errorData } };
       }
 
-      toast.success('Registration successful! You can now log in.');
       return true;
     } catch (error: any) {
-      console.error('Registration failed:', error);
-      toast.error(error.message || 'An unexpected error occurred. Please try again later.');
-      return false;
+      console.error('Registration error details:', error.response?.data);
+      throw error;
     }
   };
 

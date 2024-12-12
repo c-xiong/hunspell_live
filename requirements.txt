@@ -9,7 +9,7 @@ dj-rest-auth
 spylls
 requests
 python-dotenv
-
+babel
 # prod
 dj-database-url==1.0.0
 

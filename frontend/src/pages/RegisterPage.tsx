@@ -9,11 +9,18 @@ import {
   FaGraduationCap,
   FaBirthdayCake,
   FaVenusMars,
+  FaLanguage,
 } from "react-icons/fa";
 import styles from "../styles/Register.module.css";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
-import { GENDER_CHOICES, EDUCATION_CHOICES } from "../constants/userChoices";
+import { GENDER_CHOICES, EDUCATION_CHOICES, LANGUAGE_CHOICES } from "../constants/userChoices";
+import Select from 'react-select';
+
+type OptionType = {
+  value: string;
+  label: string;
+};
 
 const Register: React.FC = (): JSX.Element => {
   const [email, setEmail] = useState<string>("");
@@ -22,17 +29,22 @@ const Register: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { isDarkMode } = useTheme();
-  const [birthdate, setBirthdate] = useState<string>("");
-  const [gender, setGender] = useState<string>("");
-  const [education, setEducation] = useState<string>("");
-
-  const today = new Date().toISOString().split("T")[0];
+  const [age, setAge] = useState<string>("");
+  const [gender, setGender] = useState<OptionType | null>(null);
+  const [education, setEducation] = useState<OptionType | null>(null);
+  const [motherLanguages, setMotherLanguages] = useState<OptionType[]>([]);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !password || !birthdate || !gender || !education) {
-      toast.warning("Please fill in all fields");
+    if (!email || !password || !age || !gender?.value || !education?.value || motherLanguages.length === 0) {
+      toast.warning("Please fill in all fields including at least one native language");
+      return;
+    }
+
+    const ageNumber = parseInt(age);
+    if (isNaN(ageNumber) || ageNumber <= 0) {
+      toast.error("Please enter a valid age");
       return;
     }
 
@@ -47,25 +59,17 @@ const Register: React.FC = (): JSX.Element => {
       return;
     }
 
-    if (birthdate) {
-      const birthdateObj = new Date(birthdate);
-      const now = new Date();
-      if (birthdateObj > now) {
-        toast.error("Date of birth cannot be in the future");
-        return;
-      }
-    }
-
     setIsSubmitting(true);
     try {
-      const success = await register(email, password, {
-        birthdate,
-        gender,
-        education,
+      await register(email, password, {
+        age: ageNumber,
+        gender: gender?.value,
+        education: education?.value,
+        mother_languages: motherLanguages.map(option => option.value)
       });
-      if (success) {
-        navigate("/login");
-      }
+      
+      toast.success("Registration successful! Please login.");
+      navigate("/login");
     } catch (error: any) {
       if (error.response?.data) {
         const data = error.response.data;
@@ -85,6 +89,12 @@ const Register: React.FC = (): JSX.Element => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleLanguageChange = (
+    selectedOptions: readonly OptionType[] | null
+  ) => {
+    setMotherLanguages(selectedOptions ? [...selectedOptions] : []);
   };
 
   return (
@@ -143,19 +153,25 @@ const Register: React.FC = (): JSX.Element => {
             <div className={styles.formSection}>
               <h2 className={styles.sectionTitle}>Personal Information</h2>
               <div className={styles.inputGroup}>
-                <label htmlFor="birthdate" className={styles.label}>
-                  Date of Birth
+                <label htmlFor="age" className={styles.label}>
+                  Age
                 </label>
                 <div className={styles.inputWrapper}>
                   <FaBirthdayCake className={styles.inputIcon} />
                   <input
-                    id="birthdate"
-                    type="date"
-                    value={birthdate}
-                    onChange={(e) => setBirthdate(e.target.value)}
+                    id="age"
+                    type="number"
+                    min="1"
+                    placeholder="Enter your age"
+                    value={age}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "" || (parseInt(value) > 0 && !value.includes("."))) {
+                        setAge(value);
+                      }
+                    }}
                     className={styles.input}
                     disabled={isSubmitting}
-                    max={today}
                     required
                   />
                 </div>
@@ -169,16 +185,16 @@ const Register: React.FC = (): JSX.Element => {
                   <FaVenusMars className={styles.inputIcon} />
                   <select
                     id="gender"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    className={styles.input}
+                    value={gender?.value || ''}
+                    onChange={(e) => setGender({ value: e.target.value, label: e.target.options[e.target.selectedIndex].text })}
                     disabled={isSubmitting}
+                    className={styles.select}
                     required
                   >
                     <option value="">Select your gender</option>
-                    {GENDER_CHOICES.map(({ value, label }) => (
-                      <option key={value} value={value}>
-                        {label}
+                    {GENDER_CHOICES.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))}
                   </select>
@@ -193,19 +209,40 @@ const Register: React.FC = (): JSX.Element => {
                   <FaGraduationCap className={styles.inputIcon} />
                   <select
                     id="education"
-                    value={education}
-                    onChange={(e) => setEducation(e.target.value)}
-                    className={styles.input}
+                    value={education?.value || ''}
+                    onChange={(e) => setEducation({ value: e.target.value, label: e.target.options[e.target.selectedIndex].text })}
                     disabled={isSubmitting}
+                    className={styles.select}
                     required
                   >
                     <option value="">Select your education level</option>
-                    {EDUCATION_CHOICES.map(({ value, label }) => (
-                      <option key={value} value={value}>
-                        {label}
+                    {EDUCATION_CHOICES.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="motherLanguages" className={styles.label}>
+                  Native Language(s)
+                </label>
+                <div className={styles.inputWrapper}>
+                  <FaLanguage className={styles.inputIcon} />
+                  <Select
+                    id="motherLanguages"
+                    isMulti
+                    options={LANGUAGE_CHOICES}
+                    value={motherLanguages}
+                    onChange={handleLanguageChange}
+                    isDisabled={isSubmitting}
+                    className={styles.reactSelect}
+                    classNamePrefix="select"
+                    placeholder="Select your mother language(s)"
+                    required
+                  />
                 </div>
               </div>
             </div>
