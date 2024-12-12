@@ -1,15 +1,12 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "nodeVersion": "18.x"
+      }
     }
-  ],
-  "env": {
-    "VITE_MODE": "production",
-    "VITE_API_URL_PROD": "https://hunspelllive-production.up.railway.app"
-  }
+  ]
 } 
