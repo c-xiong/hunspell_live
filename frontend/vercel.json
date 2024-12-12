@@ -6,7 +6,8 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "nodeVersion": "22.x"
+        "nodeVersion": "22.x",
+        "installCommand": "npm install && node scripts/install-rollup.js"
       }
     }
   ],

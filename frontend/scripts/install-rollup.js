@@ -12,7 +12,7 @@ function getArchSpecificPackage() {
             return '@rollup/rollup-linux-arm64-gnu';
         }
     }
-    // Add other platforms if needed
+    console.log('Platform:', platform, 'Architecture:', arch);
     return null;
 }
 
@@ -26,5 +26,5 @@ try {
     }
 } catch (error) {
     console.error('Failed to install Rollup:', error);
-    process.exit(1);
+    console.log('Continuing build process...');
 } 
