@@ -35,7 +35,6 @@ PGPASSWORD=
 ```bash
 VITE_MODE=development
 VITE_API_URL_DEV=http://localhost:8080
-VITE_API_URL_PROD=
 ```
 
 > **Note:** For production builds, the frontend will automatically use the production environment variables.
