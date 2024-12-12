@@ -926,7 +926,7 @@ const HomePage: React.FC = () => {
     <div
       className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ""}`}
     >
-      <p>This website uses cookies.</p>
+      <p>🍪 This website uses cookies.</p>
       <div className={styles.cookieButtons}>
         <button
           onClick={() => {
@@ -1046,7 +1046,10 @@ const HomePage: React.FC = () => {
       </div>
       <div style={inlineStyles.content}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.title}>Hunspell Live</h1>
+          <h1 className={styles.title}>
+            <span className={styles.titleMain}>Hunspell</span>
+            <span className={styles.titleSub}>Live</span>
+          </h1>
         </div>
         <div
           style={{
