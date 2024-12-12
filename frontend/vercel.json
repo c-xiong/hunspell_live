@@ -5,7 +5,7 @@
       "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "nodeVersion": "18.x"
+        "nodeVersion": "22.x"
       }
     }
   ]
