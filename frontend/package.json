@@ -52,5 +52,14 @@
     "typescript": "^4.4.2",
     "typescript-eslint": "^8.7.0",
     "vite": "^5.4.8"
-  }
+  },
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "nodeVersion": "18.x"
+      }
+    }
+  ]
 }
