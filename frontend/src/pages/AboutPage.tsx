@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaHome } from "react-icons/fa";
+import { FaHome } from "react-icons/fa";
 import styles from "../styles/AboutPage.module.css";
 
 const AboutPage: React.FC = () => {
@@ -28,7 +28,7 @@ const AboutPage: React.FC = () => {
           onClick={() => navigate("/")}
           aria-label="Return to home page"
         >
-          <FaHome/> Return to Home
+          <FaHome /> Return to Home
         </button>
       </nav>
 
@@ -45,7 +45,8 @@ const AboutPage: React.FC = () => {
             })}
           </p>
           <p className={styles.text}>
-            Hunspell Live is an open-source customized spell-checking tool powered by{" "}
+            Hunspell Live is an open-source customized spell-checking tool
+            powered by{" "}
             <a
               href="https://spylls.readthedocs.io/en/latest/"
               target="_blank"
@@ -68,6 +69,7 @@ const AboutPage: React.FC = () => {
               Support for custom Hunspell dictionaries for linguistic
               researchers
             </li>
+            <li>Support for different text directions (LTR and RTL)</li>
             <li>Research-oriented data collection</li>
             <li>Open-source and transparent</li>
           </ul>
@@ -76,26 +78,29 @@ const AboutPage: React.FC = () => {
         <section className={styles.section}>
           <h2 className={styles.subtitle}>Research Purpose</h2>
           <p className={styles.text}>
-            Hunspell Live aims to bridge Hunspell technology with real-world applications
-            while advancing our understanding of spell-checking systems. Through the
-            analysis of anonymous usage patterns and corrections, we strive to enhance
-            spell-checking accuracy and user experience across diverse linguistic
-            backgrounds.
+            Hunspell Live aims to bridge Hunspell technology with real-world
+            applications while advancing our understanding of spell-checking
+            systems. Through the analysis of anonymous usage patterns and
+            corrections, we strive to enhance spell-checking accuracy and user
+            experience across diverse linguistic backgrounds.
           </p>
         </section>
 
-        <section id="privacy" className={`${styles.section} ${styles.privacySection}`}>
+        <section
+          id="privacy"
+          className={`${styles.section} ${styles.privacySection}`}
+        >
           <h2 className={`${styles.subtitle} ${styles.privacyTitle}`}>
             <span className={styles.privacyIcon}>🔒</span> Privacy & Data Usage
           </h2>
           <div className={styles.privacyContent}>
             <p className={`${styles.text} ${styles.privacyText}`}>
-              We take your privacy seriously. Our application uses cookies solely
-              for maintaining login sessions. We collect and store basic
+              We take your privacy seriously. Our application uses cookies
+              solely for maintaining login sessions. We collect and store basic
               demographic information (age, education level, gender, and native
-              languages) and word replacement data for research purposes only. As
-              an open-source project, we maintain complete transparency about our
-              data handling practices.
+              languages) and word replacement data for research purposes only.
+              As an open-source project, we maintain complete transparency about
+              our data handling practices.
             </p>
             <p className={`${styles.text} ${styles.privacyText}`}>
               We guarantee that your personal information will never be sold or
@@ -108,8 +113,7 @@ const AboutPage: React.FC = () => {
         <section id="terms" className={styles.section}>
           <h2 className={styles.subtitle}>Terms of Use</h2>
           <p className={styles.text}>
-            By using Hunspell Live, you agree to our terms and conditions. We encourage you to review them carefully before using
-            the application.
+            By using Hunspell Live, you agree to our terms and conditions.
           </p>
         </section>
 
@@ -127,7 +131,7 @@ const AboutPage: React.FC = () => {
             </a>{" "}
             or contact my{"  "}
             <a href="mailto:chenfei.xiong@outlook.com" className={styles.link}>
-            email
+              email
             </a>
             .
           </p>

@@ -13,7 +13,6 @@ import {
   FaGithub,
   FaMoon,
   FaSun,
-  FaAt,
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
 import { useUserData } from "../hooks/useUserData";
@@ -25,12 +24,6 @@ import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 
-// Update the scrollbar styles
-const scrollbarStyles = {
-  scrollbarWidth: "thin" as const,
-  scrollbarColor: "#4b5563 #1f2937",
-  // ... other styles
-};
 
 const HomePage: React.FC = () => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
@@ -59,6 +52,13 @@ const HomePage: React.FC = () => {
   const [showCookieConsent, setShowCookieConsent] = useState(() => {
     return !localStorage.getItem("cookieConsent");
   });
+  const [changeHistory, setChangeHistory] = useState<Array<{
+    originalWord: string;
+    replacement: string;
+    position: number;
+    spellingResult: SpellingResult
+  }>>([]);
+  const [showUndo, setShowUndo] = useState(false);
 
   const {
     checkSpelling,
@@ -111,9 +111,9 @@ const HomePage: React.FC = () => {
     setSelectedOption(option);
     setText("");
     setSpellingResults([]);
+    setChangeHistory([]);
     if (editorRef.current) {
       editorRef.current.innerHTML = "";
-      // Update the text direction based on the selected language
       editorRef.current.style.direction =
         TEXT_DIRECTION_MAP[option.value] || "ltr";
       editorRef.current.style.textAlign =
@@ -122,14 +122,14 @@ const HomePage: React.FC = () => {
   };
 
   const handleClearText = () => {
-    // Clear the current content from localStorage
     localStorage.removeItem("editorContent");
-
     editorRef.current.innerHTML = "";
     setText("");
     setSpellingResults([]);
     setCharCount(0);
     setWordCount(0);
+    setChangeHistory([]);
+    setShowUndo(false);
     toast.success("Text cleared successfully.");
   };
 
@@ -140,6 +140,8 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = pastedText;
         setText(pastedText);
         setSpellingResults([]);
+        setChangeHistory([]);
+        setShowUndo(false);
 
         // Update counts for pasted text
         setCharCount(pastedText.length);
@@ -165,6 +167,8 @@ const HomePage: React.FC = () => {
     const newText = event.currentTarget.innerText;
     setText(newText);
     setSpellingResults([]);
+    setShowUndo(false);
+    setChangeHistory([]);
 
     // Update character and word count
     setCharCount(newText.length);
@@ -718,10 +722,24 @@ const HomePage: React.FC = () => {
   ) => {
     if (!editorRef.current) return;
 
-    // Record the replacement using the API hook
     await recordReplacement(originalWord, suggestion);
 
-    // Continue with existing replacement logic
+    const originalSpellingResult = spellingResults.find(
+      result => result.word === originalWord && result.index === startPosition
+    );
+
+    setChangeHistory(prev => [...prev, {
+      originalWord,
+      replacement: suggestion,
+      position: startPosition,
+      spellingResult: originalSpellingResult || {
+        word: originalWord,
+        index: startPosition,
+        length: originalWord.length
+      }
+    }]);
+    setShowUndo(true);
+
     const spans = editorRef.current.querySelectorAll(
       `span.misspelled[data-word="${originalWord}"]`
     );
@@ -816,9 +834,10 @@ const HomePage: React.FC = () => {
         editorRef.current.innerHTML = "";
         setText("");
         setSpellingResults([]);
-        // Reset counts
         setCharCount(0);
         setWordCount(0);
+        setChangeHistory([]);
+        setShowUndo(false);
         toast.success("Text cut to clipboard");
       } catch (error) {
         toast.error("Failed to cut text");
@@ -1019,6 +1038,65 @@ const HomePage: React.FC = () => {
     </footer>
   );
 
+  const handleUndo = () => {
+    if (changeHistory.length === 0) {
+      setShowUndo(false);
+      return;
+    }
+
+    const lastChange = changeHistory[changeHistory.length - 1];
+    const { originalWord, replacement, position, spellingResult } = lastChange;
+
+    if (!editorRef.current) return;
+
+    // Get the current text content
+    let content = editorRef.current.innerText;
+    
+    // Find the position of the replacement word
+    const beforeReplacement = content.slice(0, position);
+    const afterReplacement = content.slice(position + replacement.length);
+    
+    // Replace back with the original word
+    const newContent = beforeReplacement + originalWord + afterReplacement;
+    
+    // Update the editor content
+    editorRef.current.innerText = newContent;
+    setText(newContent);
+
+    // Remove the last change from history
+    setChangeHistory(prev => prev.slice(0, -1));
+
+    // Re-highlight the word as misspelled using the original spelling result
+    setSpellingResults(prev => [...prev, spellingResult]);
+
+    // Re-highlight misspelled words with complete info
+    highlightMisspelledWords([...spellingResults, spellingResult]);
+
+    // Show success message
+    toast.success('Last change undone');
+
+    // Update showUndo based on remaining history
+    if (changeHistory.length <= 1) {
+      setShowUndo(false);
+    }
+  };
+
+  // Add useEffect for keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Handle Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [changeHistory, spellingResults]);
+
   return (
     <div
       ref={containerRef}
@@ -1107,8 +1185,9 @@ const HomePage: React.FC = () => {
                     <li>Select your language from the dropdown menu</li>
                     <li>Type or paste your text in the editor</li>
                     <li>Click the check (✓) button to check spelling</li>
-                    <li>Click on underlined words to see suggestions</li>
+                    <li>Click on red underlined words to see suggestions</li>
                     <li>Click suggested word to replace</li>
+                    <li>Words in your dictionary will not be marked as incorrect</li>
                   </ul>
                 </div>
               </div>
@@ -1126,6 +1205,7 @@ const HomePage: React.FC = () => {
           <div
             ref={editorRef}
             contentEditable
+            spellCheck="false"
             onInput={handleTextChange}
             style={{
               ...inlineStyles.editor,
@@ -1156,6 +1236,21 @@ const HomePage: React.FC = () => {
       </div>
       {footer}
       {cookieConsent}
+      {showUndo && (
+        <div className={styles.buttonWrapper}>
+          <button 
+            onClick={handleUndo} 
+            className={`${styles.undoButton} ${isDarkMode ? styles.darkMode : ''}`}
+            title="Undo last replacement (Cmd/Ctrl + Z)"
+          >
+            <span className={styles.undoIcon}>↩️</span>
+            <span className={styles.undoText}>Undo</span>
+          </button>
+          <span className={styles.tooltip}>
+            Undo last word replacement (Cmd/Ctrl + Z)
+          </span>
+        </div>
+      )}
     </div>
   );
 };

@@ -32,7 +32,7 @@ export const styles = {
     fontFamily: "'Noto Sans', system-ui, -apple-system, sans-serif",
     flex: "1 1 auto",
     minHeight: "calc(100vh - 560px)",
-    maxHeight: "calc(100vh - 50px)",
+    maxHeight: "calc(100vh - 150px)",
     overflowY: "auto",
     backgroundColor: "#ffffff",
     boxShadow:
