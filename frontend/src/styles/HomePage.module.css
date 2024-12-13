@@ -818,7 +818,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 16px;
-    width: 300px;
+    width: 340px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     animation: slideIn 0.3s ease-out;
@@ -834,36 +834,23 @@
   
   .cookieButtons {
     display: flex;
-    gap: 8px;
     justify-content: center;
   }
   
-  .acceptButton,
-  .declineButton {
+  .acceptButton {
     min-width: 100px;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
-  }
-  
-  .acceptButton {
-    background-color: #10b981;
+    background-color: #4F46E5;
     color: white;
     border: none;
   }
   
-  .declineButton {
-    background-color: transparent;
-    color: #6b7280;
-    border: 1px solid #6b7280;
-  }
-  
-  .acceptButton:hover,
-  .declineButton:hover {
-    background-color: #6b7280;
-    color: white;
+  .acceptButton:hover {
+    background-color: #059669;
   }
   
   /* Dark mode styles */
@@ -873,16 +860,6 @@
   }
   
   .darkMode .cookieConsent p {
-    color: #e5e7eb;
-  }
-  
-  .darkMode .declineButton {
-    color: #9ca3af;
-    border-color: #9ca3af;
-  }
-  
-  .darkMode .declineButton:hover {
-    background-color: #4b5563;
     color: #e5e7eb;
   }
   

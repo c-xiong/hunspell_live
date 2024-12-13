@@ -942,10 +942,8 @@ const HomePage: React.FC = () => {
   }, [text]);
 
   const cookieConsent = showCookieConsent && (
-    <div
-      className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ""}`}
-    >
-      <p>🍪 This website uses cookies.</p>
+    <div className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ""}`}>
+      <p>🍪 This website only uses necessary cookies.</p>
       <div className={styles.cookieButtons}>
         <button
           onClick={() => {
@@ -954,13 +952,7 @@ const HomePage: React.FC = () => {
           }}
           className={styles.acceptButton}
         >
-          Accept
-        </button>
-        <button
-          onClick={() => setShowCookieConsent(false)}
-          className={styles.declineButton}
-        >
-          Decline
+          OK
         </button>
       </div>
     </div>
@@ -1004,7 +996,7 @@ const HomePage: React.FC = () => {
             }, 50);
           }}
         >
-          Contact Us
+          Contact Author
         </a>
         <a
           href="/about#privacy"
@@ -1018,7 +1010,7 @@ const HomePage: React.FC = () => {
             }, 50);
           }}
         >
-          Privacy Policy
+          Data & Privacy
         </a>
         <a
           href="/about#terms"
@@ -1032,7 +1024,7 @@ const HomePage: React.FC = () => {
             }, 50);
           }}
         >
-          Terms of Service
+          Terms
         </a>
       </div>
     </footer>
