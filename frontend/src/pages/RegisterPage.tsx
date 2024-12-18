@@ -5,11 +5,12 @@ import {
   FaUser,
   FaLock,
   FaArrowRight,
-  FaHome,
   FaGraduationCap,
   FaBirthdayCake,
   FaVenusMars,
   FaLanguage,
+  FaSun,
+  FaMoon,
 } from "react-icons/fa";
 import styles from "../styles/Register.module.css";
 import { useAuth } from "../hooks/useAuth";
@@ -28,7 +29,7 @@ const Register: React.FC = (): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const navigate = useNavigate();
   const { register } = useAuth();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [age, setAge] = useState<string>("");
   const [gender, setGender] = useState<OptionType | null>(null);
   const [education, setEducation] = useState<OptionType | null>(null);
@@ -99,12 +100,29 @@ const Register: React.FC = (): JSX.Element => {
 
   return (
     <div className={`${styles.container} ${isDarkMode ? "dark-mode" : ""}`}>
-      <div className={styles.loginCard}>
-        <Link to="/" className={styles.homeButton}>
-          <FaHome className={styles.buttonIcon} />
-          Return to Home
-        </Link>
+      <header className={`${styles.header} ${isDarkMode ? 'dark-mode' : ''}`}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <div className={styles.logo}>Hunspell Live</div>
+            <nav>
+              <Link to="/" className={styles.navLink}>
+                Home
+              </Link>
+            </nav>
+          </div>
+          <div className={styles.headerRight}>
+            <button 
+              className={styles.themeToggle} 
+              onClick={toggleTheme}
+              type="button"
+            >
+              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+            </button>
+          </div>
+        </div>
+      </header>
 
+      <div className={styles.loginCard}>
         <h1 className={styles.title}>Welcome to Hunspell Live</h1>
 
         <form onSubmit={handleRegister} className={styles.form}>

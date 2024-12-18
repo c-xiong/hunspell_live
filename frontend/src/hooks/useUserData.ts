@@ -3,11 +3,6 @@ import { apiRequest } from '../config/api';
 import { toast } from 'react-toastify';
 import { useAuthContext } from '../contexts/AuthContext';
 
-interface UserWord {
-  word: string;
-  language: string;
-}
-
 interface LanguageWords {
   [language: string]: string[];
 }
@@ -55,20 +50,13 @@ export const useUserData = () => {
   };
 
   const fetchDictionaryWords = async (language: string) => {
-    if (!dictionaryLanguages.includes(language)) {
-      console.log('Language not in dictionary languages:', language); // Debug log
+    if (!accessToken || !dictionaryLanguages.includes(language)) {
       return;
     }
 
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('Fetching dictionary words for language:', language); // Debug log
-      
       const response = await apiRequest(`/api/dictionary/words/?language=${language}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
+        method: 'GET'
       });
       
       if (response.ok) {
@@ -115,12 +103,12 @@ export const useUserData = () => {
   };
 
   const addToDictionary = async (word: string, language: string) => {
+    if (!accessToken) return false;
+    
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await apiRequest('/api/dictionary/add/', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ word, language })

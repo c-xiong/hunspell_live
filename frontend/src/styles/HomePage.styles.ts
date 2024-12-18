@@ -1,60 +1,106 @@
 export const styles = {
   container: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gridTemplateRows: "80px 1fr",
+    gridTemplateAreas: `
+      "header"
+      "main"
+    `,
     height: "100vh",
-    minHeight: "100vh",
-    width: "1200px",
-    position: "relative" as const,
-    overflow: "hidden",
-    padding: "0 30px 30px",
-    margin: "0 auto",
-  },
-  content: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column" as const,
     width: "100%",
-    marginBottom: "10px",
+    overflow: "hidden",
   },
+  
+  content: {
+    gridArea: "main",
+    padding: "24px",
+    display: "flex", 
+    flexDirection: "column" as const,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: "24px",
+    overflow: "hidden",
+    margin: "0 auto",
+    width: "100%",
+    maxWidth: "1400px",
+    height: "calc(100vh - 80px)",
+    "@media (max-width: 768px)": {
+      padding: "16px",
+      maxWidth: "95%",
+    },
+  },
+
+  editor: {
+    flex: "1 1 auto",
+    minHeight: "40vh",
+    width: "100%",
+    padding: "16px",
+    fontSize: "24px",
+    lineHeight: "1.6",
+    border: "none",
+    borderRadius: "8px",
+    backgroundColor: "#ffffff",
+    color: "#1a1a1a",
+    outline: "none",
+    resize: "none" as const,
+    overflowY: "auto",
+    "@media (max-width: 768px)": {
+      fontSize: "16px",
+      padding: "12px",
+      minHeight: "50vh",
+    },
+  },
+  
   editorContainer: {
+    width: "100%",
+    height: "calc(100vh - 200px)",
     backgroundColor: "#f3f4f6",
     borderRadius: "8px",
     padding: "20px",
     transition: "background-color 0.2s ease",
-    marginBottom: "10px",
+    marginBottom: "100px",
+    display: "flex",
+    flexDirection: "column" as const,
+    overflow: "hidden",
+    "@media (max-width: 768px)": {
+      height: "calc(100vh - 240px)",
+      padding: "12px",
+    },
   },
-  editor: {
-    border: "1.5px solid black",
-    borderRadius: "12px",
-    marginTop: "26px",
-    marginBottom: "20px",
-    padding: "14px",
-    fontSize: "24px",
-    fontFamily: "'Noto Sans', system-ui, -apple-system, sans-serif",
-    flex: "1 1 auto",
-    minHeight: "calc(100vh - 560px)",
-    maxHeight: "calc(100vh - 150px)",
-    overflowY: "auto",
-    backgroundColor: "#ffffff",
-    boxShadow:
-      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    transition: "all 0.2s ease",
-    lineHeight: "1.8",
-  },
+
   controlsContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "8px",
+    marginBottom: "16px",
     width: "100%",
+    padding: "0 8px",
+    "@media (max-width: 768px)": {
+      flexWrap: "wrap",
+      gap: "8px",
+      marginBottom: "12px",
+    },
   },
+
   buttonGroup: {
     display: "flex",
-    gap: "8px",
+    gap: "12px",
+    alignItems: "center",
+    "@media (max-width: 768px)": {
+      gap: "8px",
+      flexWrap: "wrap",
+    },
   },
+
   dropdownContainer: {
     marginLeft: "auto",
     position: "relative",
     zIndex: 10,
-    marginTop: "10px",
+    "@media (max-width: 768px)": {
+      width: "100%",
+      marginLeft: 0,
+      marginTop: "8px",
+    },
   },
 } as const;

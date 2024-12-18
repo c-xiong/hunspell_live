@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaHome } from "react-icons/fa";
+import { FaSun, FaMoon } from "react-icons/fa";
 import styles from "../styles/AboutPage.module.css";
 
 const AboutPage: React.FC = () => {
-  const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -20,17 +18,34 @@ const AboutPage: React.FC = () => {
     return () => window.removeEventListener("storage", handleThemeChange);
   }, []);
 
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
     <div className={`${styles.page} ${isDarkMode ? styles.darkMode : ""}`}>
-      <nav>
-        <button
-          className={styles.backButton}
-          onClick={() => navigate("/")}
-          aria-label="Return to home page"
-        >
-          <FaHome /> Return to Home
-        </button>
-      </nav>
+      <header
+        className={`${styles.header} ${isDarkMode ? styles.darkMode : ""}`}
+      >
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <div className={styles.logo}>Hunspell Live</div>
+            <nav>
+              <a href="/" className={styles.navLink}>
+                Home
+              </a>
+            </nav>
+          </div>
+
+          <div className={styles.headerRight}>
+            <button className={styles.themeToggle} onClick={toggleTheme}>
+              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+            </button>
+          </div>
+        </div>
+      </header>
 
       <main className={styles.content}>
         <section className={styles.section}>
@@ -45,8 +60,8 @@ const AboutPage: React.FC = () => {
             })}
           </p>
           <p className={styles.text}>
-            Hunspell Live is an open-source customized spell-checking tool
-            powered by{" "}
+            Hunspell Live is a sophisticated open-source spell-checking platform
+            that leverages the capabilities of{" "}
             <a
               href="https://spylls.readthedocs.io/en/latest/"
               target="_blank"
@@ -55,34 +70,35 @@ const AboutPage: React.FC = () => {
             >
               Spylls
             </a>
-            . It enables developers and linguistic researchers to perform
-            real-time spell checking using custom Hunspell dictionaries.
+            . This platform facilitates real-time spell checking utilizing
+            custom Hunspell dictionaries, serving both software developers and
+            linguistic researchers.
           </p>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.subtitle}>Key Features</h2>
+          <h2 className={styles.subtitle}>Core Capabilities</h2>
           <ul className={styles.featureList}>
-            <li>Real-time spell checking with instant feedback</li>
-            <li>Personal dictionary management</li>
+            <li>Advanced real-time spell checking with immediate feedback</li>
+            <li>Comprehensive dictionary management system</li>
             <li>
-              Support for custom Hunspell dictionaries for linguistic
-              researchers
+              Integration of custom Hunspell dictionaries for academic research
             </li>
-            <li>Support for different text directions (LTR and RTL)</li>
-            <li>Research-oriented data collection</li>
-            <li>Open-source and transparent</li>
+            <li>Multilingual text direction support (LTR and RTL)</li>
+            <li>Sophisticated data collection for research purposes</li>
+            <li>Transparent, open-source architecture</li>
           </ul>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.subtitle}>Research Purpose</h2>
+          <h2 className={styles.subtitle}>Research Objectives</h2>
           <p className={styles.text}>
-            Hunspell Live aims to bridge Hunspell technology with real-world
-            applications while advancing our understanding of spell-checking
-            systems. Through the analysis of anonymous usage patterns and
-            corrections, we strive to enhance spell-checking accuracy and user
-            experience across diverse linguistic backgrounds.
+            Hunspell Live serves as a bridge between Hunspell technology and
+            practical applications while facilitating academic research in
+            computational linguistics. Through systematic analysis of anonymized
+            usage patterns and corrections, we aim to advance spell-checking
+            algorithms and enhance user experience across diverse linguistic
+            contexts.
           </p>
         </section>
 
@@ -91,30 +107,47 @@ const AboutPage: React.FC = () => {
           className={`${styles.section} ${styles.privacySection}`}
         >
           <h2 className={`${styles.subtitle} ${styles.privacyTitle}`}>
-            <span className={styles.privacyIcon}>🔒</span> Privacy & Data Usage
+            <span className={styles.privacyIcon}>🔒</span> Data Privacy Protocol
           </h2>
           <div className={styles.privacyContent}>
             <p className={`${styles.text} ${styles.privacyText}`}>
-              We take your privacy seriously. Our application uses cookies
-              solely for maintaining login sessions. We collect and store basic
-              demographic information (age, education level, gender, and native
-              languages) and word replacement data for research purposes only.
-              As an open-source project, we maintain complete transparency about
-              our data handling practices.
+              We maintain stringent privacy standards in our operations. The
+              application employs cookies exclusively for session management
+              purposes. We collect essential demographic data (age, education
+              level, gender, and native languages) and word replacement patterns
+              solely for research purposes. As an open-source initiative, we
+              maintain complete transparency regarding our data handling
+              protocols.
             </p>
             <p className={`${styles.text} ${styles.privacyText}`}>
-              We guarantee that your personal information will never be sold or
-              shared with third parties. All collected data is used exclusively
-              for contributing to academic research.
+              We maintain a strict policy against sharing or selling personal
+              information to third parties. All collected data is utilized
+              exclusively for academic research purposes.
             </p>
           </div>
         </section>
 
         <section id="terms" className={styles.section}>
-          <h2 className={styles.subtitle}>Terms of Use</h2>
-          <p className={styles.text}>
-            By using Hunspell Live, you agree to our terms and conditions.
-          </p>
+          <h2 className={styles.subtitle}>Terms of Service</h2>
+          <div className={styles.termsContent}>
+            <p className={styles.text}>
+              Usage of Hunspell Live is subject to the following terms:
+            </p>
+            <ul className={`${styles.featureList} ${styles.termsList}`}>
+              <li>
+                Users consent to participate in research through the collection
+                of anonymized spell-checking data.
+              </li>
+              <li>
+                Spell-checking services are provided on an "as is" basis without
+                warranty of accuracy.
+              </li>
+              <li>
+                Users agree to utilize the service in compliance with all
+                applicable laws.
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section id="contact" className={styles.section}>

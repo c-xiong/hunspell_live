@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme } from '../hooks/useTheme';
 import { useUserData } from '../hooks/useUserData';
-import { FaBook, FaTrash, FaStar, FaUser, FaHome } from 'react-icons/fa';
+import { FaBook, FaTrash, FaStar, FaUser, FaSun, FaMoon } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
@@ -30,7 +29,10 @@ const getEducationLabel = (value: string): string => {
 
 const ProfilePage: React.FC = () => {
   const { user, isLoading: authLoading } = useAuth();
-  const { isDarkMode } = useTheme();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark";
+  });
   const [activeTab, setActiveTab] = useState<'info' | 'dictionary' | 'starlist'>('info');
   const [selectedDictLanguage, setSelectedDictLanguage] = useState<string>('');
   const [selectedStarLanguage, setSelectedStarLanguage] = useState<string>('');
@@ -69,6 +71,16 @@ const ProfilePage: React.FC = () => {
     }
   }, [starListLanguages]);
 
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const savedTheme = localStorage.getItem("theme");
+      setIsDarkMode(savedTheme === "dark");
+    };
+
+    window.addEventListener("storage", handleThemeChange);
+    return () => window.removeEventListener("storage", handleThemeChange);
+  }, []);
+
   const handleDictionaryLanguageChange = (option: { label: string, value: string }) => {
     setSelectedDictLanguage(option.value);
     fetchDictionaryWords(option.value);
@@ -79,44 +91,64 @@ const ProfilePage: React.FC = () => {
     fetchStarListWords(option.value);
   };
 
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const handleTabChange = (tab: 'info' | 'dictionary' | 'starlist') => {
+    setActiveTab(tab);
+  };
+
   if (authLoading || dataLoading) {
     return <div className={styles.loading}>Loading...</div>;
   }
 
   return (
-    <div className={styles.pageWrapper}>
-      <div className={`${styles.container} ${isDarkMode ? styles.darkMode : ''}`}>
-        {/* Header Section */}
-        <div className={styles.header}>
-          <div className={styles.headerTop}>
-            <Link to="/" className={styles.homeButton}>
-              <FaHome className={styles.buttonIcon} />
-              Return to Home
-            </Link>
-            <h1 className={styles.title}>My Profile</h1>
+    <div className={`${styles.pageWrapper} ${isDarkMode ? styles.darkMode : ''}`}>
+      <header className={`${styles.header} ${isDarkMode ? styles.darkMode : ''}`}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <div className={styles.logo}>Hunspell Live</div>
+            <nav>
+              <Link to="/" className={styles.navLink}>Home</Link>
+            </nav>
           </div>
-          <div className={styles.headerNav}>
+          <div className={styles.headerRight}>
             <button 
-              className={`${styles.tabButton} ${activeTab === 'info' ? styles.active : ''}`}
-              onClick={() => setActiveTab('info')}
+              className={styles.themeToggle}
+              onClick={toggleTheme}
             >
-              <FaUser /> Overview
-            </button>
-            <button 
-              className={`${styles.tabButton} ${activeTab === 'dictionary' ? styles.active : ''}`}
-              onClick={() => setActiveTab('dictionary')}
-            >
-              <FaBook /> Dictionary
-            </button>
-            <button 
-              className={`${styles.tabButton} ${activeTab === 'starlist' ? styles.active : ''}`}
-              onClick={() => setActiveTab('starlist')}
-            >
-              <FaStar /> Starred Words
+              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
             </button>
           </div>
         </div>
+      </header>
 
+      {/* Tab Navigation */}
+      <div className={styles.tabNavigation}>
+        <button 
+          onClick={() => handleTabChange('info')} 
+          className={`${styles.tabButton} ${activeTab === 'info' ? styles.active : ''}`}
+        >
+          <FaUser /> User Info
+        </button>
+        <button 
+          onClick={() => handleTabChange('dictionary')} 
+          className={`${styles.tabButton} ${activeTab === 'dictionary' ? styles.active : ''}`}
+        >
+          <FaBook /> Dictionary
+        </button>
+        <button 
+          onClick={() => handleTabChange('starlist')} 
+          className={`${styles.tabButton} ${activeTab === 'starlist' ? styles.active : ''}`}
+        >
+          <FaStar /> Star List
+        </button>
+      </div>
+
+      <div className={`${styles.container} ${isDarkMode ? styles.darkMode : ''}`}>
         {/* Main Content */}
         <div className={styles.mainContent}>
           {activeTab === 'info' && (

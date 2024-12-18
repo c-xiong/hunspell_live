@@ -14,5 +14,11 @@ export const useTheme = () => {
     }
   }, [isDarkMode]);
 
-  return { isDarkMode };
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    setIsDarkMode(!isDarkMode);
+  };
+
+  return { isDarkMode, toggleTheme };
 }; 

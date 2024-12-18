@@ -13,6 +13,7 @@ import {
   FaGithub,
   FaMoon,
   FaSun,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { useApi } from "../hooks/useApi";
 import { useUserData } from "../hooks/useUserData";
@@ -22,20 +23,25 @@ import styles from "../styles/HomePage.module.css";
 import { useAuth } from "../hooks/useAuth";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../contexts/AuthContext";
 
 
 const HomePage: React.FC = () => {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
-  const { accessToken } = useAuthContext();
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     return savedLanguage
       ? JSON.parse(savedLanguage)
       : { label: "English", value: "en" };
   });
+  const [charCount, setCharCount] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
   const [text, setText] = useState(() => {
-    return localStorage.getItem("editorContent") || "";
+    const savedContent = localStorage.getItem("editorContent") || "";
+    setTimeout(() => {
+      setCharCount(savedContent.length);
+      setWordCount(savedContent.trim().split(/\s+/).filter(Boolean).length);
+    }, 0);
+    return savedContent;
   });
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,8 +52,6 @@ const HomePage: React.FC = () => {
   });
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
-  const [charCount, setCharCount] = useState(0);
-  const [wordCount, setWordCount] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | null>(null);
   const [showCookieConsent, setShowCookieConsent] = useState(() => {
     return !localStorage.getItem("cookieConsent");
@@ -1096,31 +1100,53 @@ const HomePage: React.FC = () => {
       onClick={focusEditor}
       className={isDarkMode ? styles.darkMode : ""}
     >
-      <div className={styles.topControls}>
-        <span onClick={handleAboutClick} className={styles.aboutLink}>
-          About
-        </span>
-        {accessToken ? (
-          <>
-            {themeToggle}
-            {userControls}
-          </>
-        ) : (
-          <>
-            {themeToggle}
-            <button className={styles.loginButton} onClick={handleLoginClick}>
-              <FaUser /> Login
+      <header className={`${styles.header} ${isDarkMode ? styles.darkMode : ''}`}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <div className={styles.logo}>Hunspell Live</div>
+            <nav>
+              <a href="/about" className={styles.navLink}>About</a>
+            </nav>
+          </div>
+          
+          <div className={styles.headerRight}>
+            <button 
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
             </button>
-          </>
-        )}
-      </div>
-      <div style={inlineStyles.content}>
-        <div className={styles.titleContainer}>
-          <h1 className={styles.title}>
-            <span className={styles.titleMain}>Hunspell</span>
-            <span className={styles.titleSub}>Live</span>
-          </h1>
+            
+            {isAuthenticated ? (
+              <div className={styles.userMenu}>
+                <button className={styles.userButton}>
+                  <FaUser size={18} />
+                </button>
+                <div className={styles.userDropdown}>
+                  <a href="/profile" className={styles.userDropdownItem}>
+                    <FaUser size={16} />
+                    Profile
+                  </a>
+                  <button 
+                    onClick={logout} 
+                    className={`${styles.userDropdownItem} ${styles.logoutButton}`}
+                  >
+                    <FaSignOutAlt size={16} />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button className={styles.loginButton} onClick={handleLoginClick}>
+                <FaUser size={16} />
+                Login
+              </button>
+            )}
+          </div>
         </div>
+      </header>
+
+      <div style={inlineStyles.content}>
         <div
           style={{
             ...inlineStyles.editorContainer,

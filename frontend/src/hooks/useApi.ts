@@ -156,6 +156,8 @@ export const useApi = (selectedLanguage: string) => {
   };
 
   const addWordToDictionary = async (word: string): Promise<boolean> => {
+    if (!accessToken) return false;
+
     try {
       const response = await apiRequest("/api/dictionary/add/", {
         method: "POST",

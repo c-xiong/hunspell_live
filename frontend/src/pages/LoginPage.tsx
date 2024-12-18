@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/useAuth';
-import { FaUser, FaLock, FaArrowRight, FaHome } from 'react-icons/fa';
+import { FaUser, FaLock, FaArrowRight, FaSun, FaMoon } from 'react-icons/fa';
 import styles from '../styles/Login.module.css';
 import { useTheme } from '../hooks/useTheme';
 
@@ -12,7 +12,7 @@ const Login: React.FC = (): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,12 +38,29 @@ const Login: React.FC = (): JSX.Element => {
 
   return (
     <div className={`${styles.container} ${isDarkMode ? 'dark-mode' : ''}`}>
+      <header className={`${styles.header} ${isDarkMode ? 'dark-mode' : ''}`}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <div className={styles.logo}>Hunspell Live</div>
+            <nav>
+              <Link to="/" className={styles.navLink}>
+                Home
+              </Link>
+            </nav>
+          </div>
+          <div className={styles.headerRight}>
+            <button 
+              className={styles.themeToggle} 
+              onClick={toggleTheme}
+              type="button"
+            >
+              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+            </button>
+          </div>
+        </div>
+      </header>
+
       <div className={styles.loginCard}>
-        <Link to="/" className={styles.homeButton}>
-          <FaHome className={styles.buttonIcon} />
-          Return to Home
-        </Link>
-        
         <h1 className={styles.title}>Welcome to Hunspell Live</h1>
         
         <form onSubmit={handleLogin} className={styles.form}>
