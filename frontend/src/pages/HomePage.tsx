@@ -38,7 +38,7 @@ const HomePage: React.FC = () => {
   const [text, setText] = useState(() => {
     const savedContent = localStorage.getItem("editorContent") || "";
     setTimeout(() => {
-      setCharCount(savedContent.length);
+      setCharCount(savedContent.trim() ? savedContent.length : 0);
       setWordCount(savedContent.trim().split(/\s+/).filter(Boolean).length);
     }, 0);
     return savedContent;
@@ -175,7 +175,7 @@ const HomePage: React.FC = () => {
     setChangeHistory([]);
 
     // Update character and word count
-    setCharCount(newText.length);
+    setCharCount(newText.trim() ? newText.length : 0);
     setWordCount(newText.trim().split(/\s+/).filter(Boolean).length);
 
     const selection = window.getSelection();

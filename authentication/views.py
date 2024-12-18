@@ -137,3 +137,29 @@ def logout_view(request):
 
 def google_login(request):
     return redirect('accounts/google/login/')
+
+# Add this new class
+class TokenLoginView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not email or not password:
+            return Response(
+                {"error": "Email and password are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(email=email)
+            request.data['username'] = user.username
+        except User.DoesNotExist:
+            return Response(
+                {"error": "No user found with this email"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+        response = super().post(request, *args, **kwargs)
+        return response  # This will return just the tokens without setting cookies

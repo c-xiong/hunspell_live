@@ -9,6 +9,7 @@ from .services.personal_dictionary_service import PersonalDictionaryService
 from .services.spell_check_service import spell_checker_service
 from .models import WordReplacement
 from rest_framework_simplejwt.authentication import JWTAuthentication
+import os
 
 class SpellCheckerView(APIView):
     def post(self, request):
@@ -320,12 +321,13 @@ class AllWordReplacementsView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        if request.user.email != 'chenfei.xiong@outlook.com':
+        admin_emails = os.getenv('ADMIN_EMAIL', '').split(',')
+        if request.user.email not in admin_emails:
             return Response(
                 {"error": "Permission denied. Unauthorized user."},
                 status=status.HTTP_403_FORBIDDEN
             )
-            
+        
         language = request.query_params.get('language')
         
         queryset = WordReplacement.objects.all()
