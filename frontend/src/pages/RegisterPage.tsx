@@ -11,6 +11,8 @@ import {
   FaLanguage,
   FaSun,
   FaMoon,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import styles from "../styles/Register.module.css";
 import { useAuth } from "../hooks/useAuth";
@@ -34,6 +36,7 @@ const Register: React.FC = (): JSX.Element => {
   const [gender, setGender] = useState<OptionType | null>(null);
   const [education, setEducation] = useState<OptionType | null>(null);
   const [motherLanguages, setMotherLanguages] = useState<OptionType[]>([]);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -156,7 +159,7 @@ const Register: React.FC = (): JSX.Element => {
                   <FaLock className={styles.inputIcon} />
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -164,6 +167,14 @@ const Register: React.FC = (): JSX.Element => {
                     disabled={isSubmitting}
                     required
                   />
+                  <button
+                    type="button"
+                    className={styles.passwordToggle}
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
                 </div>
               </div>
             </div>

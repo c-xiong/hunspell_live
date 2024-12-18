@@ -317,7 +317,15 @@ class WordReplacementView(APIView):
             )
 
 class AllWordReplacementsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
+        if request.user.email != 'chenfei.xiong@outlook.com':
+            return Response(
+                {"error": "Permission denied. Unauthorized user."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
         language = request.query_params.get('language')
         
         queryset = WordReplacement.objects.all()
