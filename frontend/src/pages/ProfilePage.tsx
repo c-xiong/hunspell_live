@@ -7,19 +7,24 @@ import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
 import { LANGUAGE_OPTIONS } from '../constants/language';
 import { LANGUAGE_CHOICES, EDUCATION_CHOICES } from '../constants/userChoices';
-import { format } from 'date-fns';
+import * as dateFns from 'date-fns';
 
-interface User {
-  username: string;
-  email: string;
-  age: number;
-  gender: string;
-  education: string;
-  mother_languages: string[];
-}
+// interface User {
+//   username: string;
+//   email: string;
+//   age: number;
+//   gender: string;
+//   education: string;
+//   mother_languages: string[];
+// }
 
 const getLanguageName = (code: string): string => {
   const language = LANGUAGE_OPTIONS.find(lang => lang.value === code);
+  return language?.label || code;
+};
+
+const getNativeLanguageName = (code: string): string => {
+  const language = LANGUAGE_CHOICES.find(lang => lang.value === code);
   return language?.label || code;
 };
 
@@ -189,7 +194,7 @@ const ProfilePage: React.FC = () => {
                   <span className={styles.label}>Native Languages</span>
                   <span className={styles.value}>
                     {user?.mother_languages?.length > 0 
-                      ? user.mother_languages.map(code => getLanguageName(code)).join(', ')
+                      ? user.mother_languages.map(code => getNativeLanguageName(code)).join(', ')
                       : 'Not provided'}
                   </span>
                 </div>
@@ -290,7 +295,7 @@ const ProfilePage: React.FC = () => {
                       <div className={styles.replacementMeta}>
                         <span className={styles.language}>{getLanguageName(replacement.lang_code)}</span>
                         <span className={styles.date}>
-                          {format(new Date(replacement.created_at), 'MMM d, yyyy')}
+                          {dateFns.format(new Date(replacement.created_at), 'MMM d, yyyy')}
                         </span>
                       </div>
                     </div>
