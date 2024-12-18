@@ -1010,7 +1010,15 @@ const HomePage: React.FC = () => {
             navigate("/about#privacy");
             setTimeout(() => {
               const element = document.getElementById("privacy");
-              element?.scrollIntoView({ behavior: "auto" });
+              if (element) {
+                const offset = 100;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth"
+                });
+              }
             }, 50);
           }}
         >
@@ -1024,7 +1032,15 @@ const HomePage: React.FC = () => {
             navigate("/about#terms");
             setTimeout(() => {
               const element = document.getElementById("terms");
-              element?.scrollIntoView({ behavior: "auto" });
+              if (element) {
+                const offset = 100; // 可以调整这个值来改变偏移量
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth"
+                });
+              }
             }, 50);
           }}
         >

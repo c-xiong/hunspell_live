@@ -22,38 +22,23 @@
 .section {
   margin-bottom: 40px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  transition: all 0.3s ease;
-  scroll-margin-top: 80px;
-  scroll-behavior: auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: transform 0.2s ease;
   position: relative;
   overflow: hidden;
+  will-change: transform;
 }
 
 .section:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transform: translateX(-100%);
-  transition: 0.5s;
-}
-
-.section:hover::before {
-  transform: translateX(100%);
+  display: none;
 }
 
 .title {
@@ -62,18 +47,11 @@
   text-align: center;
   margin-bottom: 20px;
   color: #1a1a1a;
-  background: linear-gradient(45deg, #4F46E5 30%, #10B981 90%);
+  background: linear-gradient(90deg, #4F46E5, #10B981);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
-  background-size: 200% auto;
-  animation: gradientFlow 5s ease infinite;
-}
-
-@keyframes gradientFlow {
-  0% { background-position: 0% 50% }
-  50% { background-position: 100% 50% }
-  100% { background-position: 0% 50% }
+  background-size: 100% 100%;
+  animation: none;
 }
 
 .subtitle {
@@ -143,8 +121,8 @@
 }
 
 .darkMode .section {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: none;
 }
 
 /* Responsive adjustments */
@@ -231,19 +209,19 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .featureList li {
-  padding: 16px 20px;
+  padding: 12px 16px;
   position: relative;
   padding-left: 45px;
   color: #4b5563;
-  background: rgba(79, 70, 229, 0.03);
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  background: rgba(79, 70, 229, 0.04);
+  border-radius: 6px;
+  transition: transform 0.2s ease;
 }
 
 .featureList li:hover {
