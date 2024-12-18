@@ -258,13 +258,19 @@ class PersonalDictionaryView(APIView):
             )
 
 class WordReplacementView(APIView):
-    authentication_classes = [JWTAuthentication]  # Allow anonymous access
-    permission_classes = []      # Allow anonymous access
+    authentication_classes = [JWTAuthentication]
+    permission_classes = []  # Allow anonymous access for POST
     
     def get(self, request):
+        if not request.user.is_authenticated:
+            return Response(
+                {"error": "Authentication required"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         language = request.query_params.get('language')
         
-        queryset = WordReplacement.objects.all()
+        queryset = WordReplacement.objects.filter(user=request.user)
         if language:
             queryset = queryset.filter(lang_code=language)
             
@@ -272,9 +278,10 @@ class WordReplacementView(APIView):
             'original_word',
             'replacement_word',
             'lang_code',
-            'created_at'
-        )
-        
+            'created_at',
+            'user__username'
+        ).order_by('-created_at')
+            
         return Response({
             "replacements": list(replacements)
         })
@@ -336,9 +343,6 @@ class AllWordReplacementsView(APIView):
         if language:
             queryset = queryset.filter(lang_code=language)
             
-        # Add user filter if authenticated
-        if request.user.is_authenticated:
-            queryset = queryset.filter(user=request.user)
             
         replacements = queryset.values(
             'original_word',

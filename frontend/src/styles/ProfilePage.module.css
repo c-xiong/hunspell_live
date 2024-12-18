@@ -418,3 +418,73 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
+
+.replacementsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.replacementCard {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: transform 0.2s ease;
+}
+
+.replacementCard:hover {
+  transform: translateY(-2px);
+}
+
+.replacementWords {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.originalWord {
+  color: #ef4444;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.arrow {
+  color: #6b7280;
+}
+
+.replacementWord {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.replacementMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Dark mode styles */
+.darkMode .replacementCard {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.darkMode .originalWord {
+  color: #f87171;
+}
+
+.darkMode .arrow {
+  color: #9ca3af;
+}
+
+.darkMode .replacementWord {
+  color: #34d399;
+}
+
+.darkMode .replacementMeta {
+  color: #9ca3af;
+}

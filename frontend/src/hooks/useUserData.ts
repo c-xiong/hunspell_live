@@ -7,6 +7,14 @@ interface LanguageWords {
   [language: string]: string[];
 }
 
+interface Replacement {
+  original_word: string;
+  replacement_word: string;
+  lang_code: string;
+  created_at: string;
+  user__username: string;
+}
+
 export const useUserData = () => {
   const [dictionaryWords, setDictionaryWords] = useState<LanguageWords>({});
   const [starListWords, setStarListWords] = useState<LanguageWords>({});
@@ -14,6 +22,7 @@ export const useUserData = () => {
   const [starListLanguages, setStarListLanguages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { accessToken } = useAuthContext();
+  const [replacements, setReplacements] = useState<Replacement[]>([]);
 
   const fetchDictionaryLanguages = async () => {
     if (!accessToken) return;
@@ -214,13 +223,35 @@ export const useUserData = () => {
     }
   };
 
+  const fetchReplacements = async () => {
+    if (!accessToken) return;
+    
+    try {
+      const response = await apiRequest('/api/replacements/', {
+        method: 'GET'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setReplacements(data.replacements);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch replacements');
+      }
+    } catch (error) {
+      console.error('Error fetching replacements:', error);
+      toast.error('Failed to load replacements history');
+    }
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
       if (accessToken) {
         await Promise.all([
           fetchDictionaryLanguages(),
-          fetchStarListLanguages()
+          fetchStarListLanguages(),
+          fetchReplacements()
         ]);
       }
       setIsLoading(false);
@@ -240,6 +271,8 @@ export const useUserData = () => {
     addToDictionary,
     removeFromDictionary,
     removeFromStarList,
-    addToStarList
+    addToStarList,
+    replacements,
+    fetchReplacements,
   };
 }; 

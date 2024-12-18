@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserData } from '../hooks/useUserData';
-import { FaBook, FaTrash, FaStar, FaUser, FaSun, FaMoon } from 'react-icons/fa';
+import { FaBook, FaTrash, FaStar, FaUser, FaSun, FaMoon, FaHistory } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import styles from '../styles/ProfilePage.module.css';
 import Dropdown from '../components/Dropdown';
 import { LANGUAGE_OPTIONS } from '../constants/language';
 import { LANGUAGE_CHOICES, EDUCATION_CHOICES } from '../constants/userChoices';
+import { format } from 'date-fns';
 
 interface User {
   username: string;
@@ -18,7 +19,7 @@ interface User {
 }
 
 const getLanguageName = (code: string): string => {
-  const language = LANGUAGE_CHOICES.find(lang => lang.value === code);
+  const language = LANGUAGE_OPTIONS.find(lang => lang.value === code);
   return language?.label || code;
 };
 
@@ -33,7 +34,7 @@ const ProfilePage: React.FC = () => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
   });
-  const [activeTab, setActiveTab] = useState<'info' | 'dictionary' | 'starlist'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'dictionary' | 'starlist' | 'replacements'>('info');
   const [selectedDictLanguage, setSelectedDictLanguage] = useState<string>('');
   const [selectedStarLanguage, setSelectedStarLanguage] = useState<string>('');
   
@@ -46,7 +47,8 @@ const ProfilePage: React.FC = () => {
     fetchDictionaryWords,
     fetchStarListWords,
     removeFromDictionary,
-    removeFromStarList
+    removeFromStarList,
+    replacements,
   } = useUserData();
 
   const filteredDictionaryOptions = LANGUAGE_OPTIONS.filter(option =>
@@ -97,7 +99,7 @@ const ProfilePage: React.FC = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleTabChange = (tab: 'info' | 'dictionary' | 'starlist') => {
+  const handleTabChange = (tab: 'info' | 'dictionary' | 'starlist' | 'replacements') => {
     setActiveTab(tab);
   };
 
@@ -145,6 +147,12 @@ const ProfilePage: React.FC = () => {
           className={`${styles.tabButton} ${activeTab === 'starlist' ? styles.active : ''}`}
         >
           <FaStar /> Star List
+        </button>
+        <button 
+          onClick={() => handleTabChange('replacements')} 
+          className={`${styles.tabButton} ${activeTab === 'replacements' ? styles.active : ''}`}
+        >
+          <FaHistory /> Replacements
         </button>
       </div>
 
@@ -263,6 +271,33 @@ const ProfilePage: React.FC = () => {
                 </>
               ) : (
                 <div className={styles.emptyState}>No starred words found</div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'replacements' && (
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Replacement History</h2>
+              {replacements.length > 0 ? (
+                <div className={styles.replacementsGrid}>
+                  {replacements.map((replacement, index) => (
+                    <div key={index} className={styles.replacementCard}>
+                      <div className={styles.replacementWords}>
+                        <span className={styles.originalWord}>{replacement.original_word}</span>
+                        <span className={styles.arrow}>→</span>
+                        <span className={styles.replacementWord}>{replacement.replacement_word}</span>
+                      </div>
+                      <div className={styles.replacementMeta}>
+                        <span className={styles.language}>{getLanguageName(replacement.lang_code)}</span>
+                        <span className={styles.date}>
+                          {format(new Date(replacement.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>No replacement history found</div>
               )}
             </div>
           )}
