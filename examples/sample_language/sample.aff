@@ -1,0 +1,13 @@
+SET UTF-8
+TRY esianrtolcdugmphbyfvkwzESIANRTOLCDUGMPHBYFVKWZ'
+
+# REP: common error patterns -> corrections. This is what Hunspell's
+# suggestion quality depends on; replacement logs collected by Hunspell
+# Live are raw material for these lines.
+REP 2
+REP f ph
+REP ph f
+
+# A simple suffix rule: words flagged /S also accept a plural "s".
+SFX S Y 1
+SFX S 0 s .

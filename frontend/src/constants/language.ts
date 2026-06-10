@@ -96,7 +96,6 @@ export const LANGUAGE_OPTIONS = [
   { label: "Romanian", value: "ro_RO" },
   { label: "Romanian (Classic)", value: "ro_RO-classic" },
   { label: "Russian", value: "ru" },
-  { label: "Sample Language", value: "sample" },
   { label: "Sanskrit", value: "sa_IN" },
   { label: "Scottish Gaelic", value: "gd_GB" },
   { label: "Slovak", value: "sk" },
@@ -270,8 +269,7 @@ export const LANGUAGE_CODE_MAP: Record<string, string> = {
   te_IN: 'te_IN',
   tg: 'tg',
   uk: 'uk',
-  zu_ZA: 'zu_ZA',
-  sample: 'sample'
+  zu_ZA: 'zu_ZA'
 };
 
 export const TEXT_DIRECTION_MAP: Record<string, 'ltr' | 'rtl'> = {
@@ -408,6 +406,5 @@ export const TEXT_DIRECTION_MAP: Record<string, 'ltr' | 'rtl'> = {
   te_IN: 'ltr',
   tg: 'ltr',
   uk: 'ltr',
-  zu_ZA: 'ltr',
-  sample: 'ltr'
+  zu_ZA: 'ltr'
 };

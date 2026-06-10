@@ -169,3 +169,5 @@ pgdata/
 # macOS system files
 .DS_Store
 **/.DS_Store
+# TypeScript incremental build info
+*.tsbuildinfo

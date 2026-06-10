@@ -1,7 +1,1 @@
-{
-  "sample": {
-    "hunspell_path": "hunspell/dicts/sample",
-    "language": "Sample Language",
-    "text_direction": "ltr"
-  }
-}
+{}
