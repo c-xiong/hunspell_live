@@ -9,29 +9,25 @@ import {
   FaCut,
   FaCheck,
   FaQuestion,
-  FaUser,
   FaGithub,
   FaMoon,
   FaSun,
-  FaSignOutAlt,
+  FaStar,
+  FaCog,
 } from "react-icons/fa";
-import { useApi } from "../hooks/useApi";
+import { useApi, getParticipantId, setParticipantId } from "../hooks/useApi";
 import { useUserData } from "../hooks/useUserData";
 import { styles as inlineStyles } from "../styles/HomePage.styles";
 import { LanguageOption, SpellingResult } from "../types/spelling";
 import styles from "../styles/HomePage.module.css";
-import { useAuth } from "../hooks/useAuth";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
-import { useNavigate } from "react-router-dom";
-
 
 const HomePage: React.FC = () => {
-  const { isAuthenticated, user, isLoading, logout } = useAuth();
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     return savedLanguage
       ? JSON.parse(savedLanguage)
-      : { label: "English", value: "en" };
+      : { label: "English (US)", value: "en_US" };
   });
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
@@ -51,11 +47,12 @@ const HomePage: React.FC = () => {
     return savedTheme === "dark";
   });
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
-  const navigate = useNavigate();
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | null>(null);
-  const [showCookieConsent, setShowCookieConsent] = useState(() => {
-    return !localStorage.getItem("cookieConsent");
-  });
+  const [showSettings, setShowSettings] = useState(false);
+  const [showStarList, setShowStarList] = useState(false);
+  const [participantIdInput, setParticipantIdInput] = useState(() =>
+    getParticipantId()
+  );
   const [changeHistory, setChangeHistory] = useState<Array<{
     originalWord: string;
     replacement: string;
@@ -64,25 +61,20 @@ const HomePage: React.FC = () => {
   }>>([]);
   const [showUndo, setShowUndo] = useState(false);
 
-  const {
-    checkSpelling,
-    getSuggestions,
-    addWordToDictionary,
-    addWordToStarList,
-    recordReplacement,
-  } = useApi(selectedOption.value);
+  const { checkSpelling, getSuggestions, recordReplacement } = useApi(
+    selectedOption.value
+  );
 
-  const { fetchDictionaryWords, dictionaryWords } = useUserData();
+  const {
+    starListWords,
+    getDictionaryWords,
+    addToDictionary,
+    addToStarList,
+    removeFromStarList,
+  } = useUserData();
 
   const options: LanguageOption[] = [...LANGUAGE_OPTIONS];
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Perform actions when the user is authenticated
-    }
-  }, [isAuthenticated]);
-
-  // Add theme toggle handler
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
       const newTheme = !prev;
@@ -90,21 +82,6 @@ const HomePage: React.FC = () => {
       return newTheme;
     });
   };
-
-  // Add this near the top of your return statement, after the login button
-  const themeToggle = (
-    <div className={styles.buttonWrapper}>
-      <button
-        onClick={toggleTheme}
-        className={`${styles.themeButton} ${isDarkMode ? styles.darkMode : ""}`}
-      >
-        {isDarkMode ? <FaSun /> : <FaMoon />}
-      </button>
-      <span className={styles.tooltip}>
-        {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      </span>
-    </div>
-  );
 
   const handleSelectChange = (
     option: LanguageOption,
@@ -127,7 +104,9 @@ const HomePage: React.FC = () => {
 
   const handleClearText = () => {
     localStorage.removeItem("editorContent");
-    editorRef.current.innerHTML = "";
+    if (editorRef.current) {
+      editorRef.current.innerHTML = "";
+    }
     setText("");
     setSpellingResults([]);
     setCharCount(0);
@@ -147,19 +126,16 @@ const HomePage: React.FC = () => {
         setChangeHistory([]);
         setShowUndo(false);
 
-        // Update counts for pasted text
         setCharCount(pastedText.length);
         setWordCount(pastedText.trim().split(/\s+/).filter(Boolean).length);
 
-        // Move cursor to end of text
         const selection = window.getSelection();
         const range = document.createRange();
         range.selectNodeContents(editorRef.current);
-        range.collapse(false); // false means collapse to end
+        range.collapse(false);
         selection?.removeAllRanges();
         selection?.addRange(range);
 
-        // Add success toast
         toast.success("Text pasted successfully");
       }
     } catch (error) {
@@ -174,7 +150,6 @@ const HomePage: React.FC = () => {
     setShowUndo(false);
     setChangeHistory([]);
 
-    // Update character and word count
     setCharCount(newText.trim() ? newText.length : 0);
     setWordCount(newText.trim().split(/\s+/).filter(Boolean).length);
 
@@ -210,16 +185,10 @@ const HomePage: React.FC = () => {
     const loadingToast = toast.loading("Checking spelling...");
 
     try {
-      // Fetch user's dictionary words for the selected language
-      await fetchDictionaryWords(selectedOption.value);
-      const userDictionaryWords = dictionaryWords[selectedOption.value] || [];
-
-      const results = await checkSpelling(text);
-      // Filter out ignored words and words in the user's dictionary
+      const userDictionaryWords = getDictionaryWords(selectedOption.value);
+      const results = await checkSpelling(text, userDictionaryWords);
       const newResults = results.filter(
-        (result) =>
-          !ignoredWords.has(result.word.toLowerCase()) &&
-          !userDictionaryWords.includes(result.word)
+        (result) => !ignoredWords.has(result.word.toLowerCase())
       );
 
       toast.dismiss(loadingToast);
@@ -255,7 +224,6 @@ const HomePage: React.FC = () => {
     });
     html += textContent.slice(lastIndex);
     const selection = window.getSelection();
-    const range = selection?.getRangeAt(0);
     editorRef.current.innerHTML = html;
     setSpellingResults(results);
     const misspelledElements =
@@ -281,13 +249,10 @@ const HomePage: React.FC = () => {
     const startPosition = parseInt(element.dataset.start || "0", 10);
     if (!word) return;
 
-    // Keep suggestion functionality available for all users
     const suggestions = await getSuggestions(word);
 
-    // If no suggestions are returned for the exact case, try lowercase
     if (suggestions.suggestions.length === 0) {
       const lowercaseSuggestions = await getSuggestions(word.toLowerCase());
-      // Filter suggestions to only include ones that differ from the original word
       suggestions.suggestions = lowercaseSuggestions.suggestions.filter(
         (suggestion) => suggestion.toLowerCase() !== word.toLowerCase()
       );
@@ -300,41 +265,37 @@ const HomePage: React.FC = () => {
     popup.style.position = "fixed";
     popup.style.left = `${Math.max(rect.left - 70, 10)}px`;
     popup.style.top = `${rect.bottom + 8}px`;
+    popup.style.zIndex = "1000";
+    const wordWidth = rect.width;
+    const minWidth = Math.max(wordWidth + 200, 250);
+    popup.style.minWidth = `${minWidth}px`;
+    popup.style.overflow = "visible";
     popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
     popup.style.borderRadius = "12px";
     popup.style.boxShadow = isDarkMode
       ? "0 4px 12px rgba(0, 0, 0, 0.5)"
       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
-    popup.style.zIndex = "1000";
-    const wordWidth = rect.width;
-    const minWidth = Math.max(wordWidth + 200, 250);
-    popup.style.minWidth = `${minWidth}px`;
-    popup.style.overflow = "visible";
 
-    // Create scroll container
     const scrollContainer = document.createElement("div");
     scrollContainer.style.minHeight = "60px";
     scrollContainer.style.maxHeight = "300px";
     scrollContainer.style.overflowY = "auto";
     scrollContainer.style.overflowX = "auto";
-    scrollContainer.style.padding = "12px 0 12px 0";
+    scrollContainer.style.padding = "0 0 8px 0";
     scrollContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     popup.appendChild(scrollContainer);
 
-    // Create ignore/dictionary buttons container
     const ignoreContainer = document.createElement("div");
     ignoreContainer.style.display = "flex";
     ignoreContainer.style.justifyContent = "flex-end";
     ignoreContainer.style.padding = "8px 16px";
     ignoreContainer.style.gap = "8px";
+    ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
     ignoreContainer.style.borderBottom = isDarkMode
       ? "1px solid #374151"
       : "1px solid #e5e7eb";
 
-    // Create ignore button with icon
-    const ignoreButton = document.createElement("button");
-    ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
     const buttonStyles = {
       border: "none",
       background: "none",
@@ -350,30 +311,29 @@ const HomePage: React.FC = () => {
       borderRadius: "4px",
     };
 
+    // Ignore button
+    const ignoreButton = document.createElement("button");
+    ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
     Object.assign(ignoreButton.style, buttonStyles);
 
-    // Create dictionary button with icon
+    // Add-to-local-dictionary button
     const dictionaryButton = document.createElement("button");
     dictionaryButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"/></svg>`;
     Object.assign(dictionaryButton.style, buttonStyles);
 
-    // Add hover effects
     const addButtonHoverEffect = (button: HTMLButtonElement) => {
       button.addEventListener("mouseover", () => {
         button.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
         button.style.color = isDarkMode ? "#e5e7eb" : "#4b5563";
       });
-
       button.addEventListener("mouseout", () => {
         button.style.backgroundColor = "transparent";
         button.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
       });
     };
-
     addButtonHoverEffect(ignoreButton);
     addButtonHoverEffect(dictionaryButton);
 
-    // Add tooltips
     const createTooltip = (text: string) => {
       const tooltip = document.createElement("span");
       tooltip.textContent = text;
@@ -387,7 +347,7 @@ const HomePage: React.FC = () => {
       tooltip.style.zIndex = "1002";
       tooltip.style.left = "50%";
       tooltip.style.transform = "translateX(-50%)";
-      tooltip.style.bottom = "-30px"; // Position below the button
+      tooltip.style.bottom = "-30px";
       tooltip.style.fontSize = "14px";
       tooltip.style.whiteSpace = "nowrap";
       tooltip.style.pointerEvents = "none";
@@ -397,15 +357,13 @@ const HomePage: React.FC = () => {
     };
 
     const ignoreTooltip = createTooltip("Ignore this word");
-    const dictionaryTooltip = createTooltip("Add to dictionary");
+    const dictionaryTooltip = createTooltip("Add to my dictionary (stored in this browser)");
 
     ignoreButton.style.position = "relative";
     dictionaryButton.style.position = "relative";
-
     ignoreButton.appendChild(ignoreTooltip);
     dictionaryButton.appendChild(dictionaryTooltip);
 
-    // Add tooltip visibility handlers
     const addTooltipHandlers = (
       button: HTMLButtonElement,
       tooltip: HTMLSpanElement
@@ -414,21 +372,17 @@ const HomePage: React.FC = () => {
         tooltip.style.visibility = "visible";
         tooltip.style.opacity = "1";
       });
-
       button.addEventListener("mouseout", () => {
         tooltip.style.visibility = "hidden";
         tooltip.style.opacity = "0";
       });
     };
-
     addTooltipHandlers(ignoreButton, ignoreTooltip);
     addTooltipHandlers(dictionaryButton, dictionaryTooltip);
 
-    // Add click handlers
     ignoreButton.addEventListener("click", () => {
       if (element && editorRef.current) {
         element.outerHTML = word;
-        // Add word to ignored words
         const newIgnoredWords = new Set(ignoredWords);
         newIgnoredWords.add(word.toLowerCase());
         setIgnoredWords(newIgnoredWords);
@@ -446,68 +400,35 @@ const HomePage: React.FC = () => {
       document.body.removeChild(popup);
     });
 
-    dictionaryButton.addEventListener("click", async (e) => {
+    dictionaryButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (!isAuthenticated) {
-        toast.warning("Please login to add words to dictionary");
-        document.body.removeChild(popup);
-        return;
+      addToDictionary(word, selectedOption.value);
+
+      if (element && editorRef.current) {
+        element.outerHTML = word;
+        setSpellingResults((prev) =>
+          prev.filter(
+            (result) =>
+              !(result.word === word && result.index === startPosition)
+          )
+        );
       }
 
-      try {
-        const loadingToast = toast.loading("Adding word to dictionary...");
-        const success = await addWordToDictionary(word);
-        toast.dismiss(loadingToast);
-
-        if (!success) {
-          throw new Error("Failed to add word");
-        }
-
-        // Remove the word from spelling results and update the display
-        if (element && editorRef.current) {
-          // Remove the underline by replacing the span with plain text
-          element.outerHTML = word;
-
-          // Update spelling results to remove this word
-          setSpellingResults((prev) =>
-            prev.filter(
-              (result) =>
-                !(result.word === word && result.index === startPosition)
-            )
-          );
-        }
-
-        toast.success("Word added to dictionary successfully");
-        document.body.removeChild(popup);
-      } catch (error) {
-        toast.error("Failed to add word to dictionary");
-        console.error("Error adding word:", error);
-      }
+      toast.success("Word added to your dictionary (stored in this browser)");
+      document.body.removeChild(popup);
     });
 
     ignoreContainer.appendChild(ignoreButton);
     ignoreContainer.appendChild(dictionaryButton);
     scrollContainer.appendChild(ignoreContainer);
 
-    // Style the popup more like a card
-    popup.style.backgroundColor = "#ffffff";
-    popup.style.border = "1px solid #e5e7eb";
-    popup.style.borderRadius = "8px";
-    popup.style.boxShadow =
-      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
-
-    // Add some spacing between sections
-    scrollContainer.style.paddingTop = "0";
-    scrollContainer.style.paddingBottom = "8px";
-
-    // Calculate dynamic height based on number of items
-    const itemHeight = 44; // Height of each suggestion item in pixels
-    const headerHeight = 52; // Height of ignore/dictionary buttons section
-    const padding = 24; // Extra padding
+    const itemHeight = 44;
+    const headerHeight = 52;
+    const padding = 24;
     const numItems = suggestions.suggestions.length;
     const calculatedHeight =
       numItems === 0 ? 60 : numItems * itemHeight + headerHeight + padding;
-    const maxHeight = 300; // Maximum height before scrolling
+    const maxHeight = 300;
 
     scrollContainer.style.minHeight = `${Math.min(
       calculatedHeight,
@@ -516,7 +437,6 @@ const HomePage: React.FC = () => {
     scrollContainer.style.maxHeight = `${maxHeight}px`;
 
     if (suggestions.suggestions.length === 0) {
-      // Create no suggestions message
       const noSuggestionsContainer = document.createElement("div");
       noSuggestionsContainer.style.display = "flex";
       noSuggestionsContainer.style.justifyContent = "center";
@@ -534,7 +454,6 @@ const HomePage: React.FC = () => {
       noSuggestionsContainer.appendChild(noSuggestionsText);
       scrollContainer.appendChild(noSuggestionsContainer);
     } else {
-      // Existing suggestions code
       suggestions.suggestions.forEach((suggestion) => {
         const suggestionContainer = document.createElement("div");
         suggestionContainer.style.display = "flex";
@@ -629,42 +548,22 @@ const HomePage: React.FC = () => {
           suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
         });
 
-        // Click handlers
         suggestionContainer.addEventListener("click", () => {
           handleSuggestionClick(suggestion, word, startPosition);
           document.body.removeChild(popup);
         });
 
-        addButton.addEventListener("click", async (e) => {
+        addButton.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (!isAuthenticated) {
-            toast.warning("Please login to add words to star list");
-            document.body.removeChild(popup);
-            return;
-          }
-
-          try {
-            const loadingToast = toast.loading("Adding word to star list...");
-            const success = await addWordToStarList(suggestion);
-            toast.dismiss(loadingToast);
-
-            if (!success) {
-              throw new Error("Failed to add word");
-            }
-
-            toast.success("Word added to star list successfully");
-            document.body.removeChild(popup);
-          } catch (error) {
-            toast.error("Failed to add word to star list");
-            console.error("Error adding word:", error);
-          }
+          addToStarList(suggestion, selectedOption.value);
+          toast.success("Word added to star list (stored in this browser)");
+          document.body.removeChild(popup);
         });
 
-        scrollContainer.appendChild(suggestionContainer); // Append to scrollContainer instead of popup
+        scrollContainer.appendChild(suggestionContainer);
       });
     }
 
-    // Update scrollbar styles for dark mode
     if (isDarkMode) {
       const styleSheet = document.createElement("style");
       styleSheet.textContent = `
@@ -689,24 +588,8 @@ const HomePage: React.FC = () => {
       scrollContainer.classList.add("suggestion-scroll");
     }
 
-    // Update popup container styles
-    popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
-    popup.style.borderRadius = "12px";
-    popup.style.boxShadow = isDarkMode
-      ? "0 4px 12px rgba(0, 0, 0, 0.5)"
-      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
-
-    // Update ignore/dictionary section styles
-    ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    ignoreContainer.style.borderBottom = isDarkMode
-      ? "1px solid #374151"
-      : "1px solid #e5e7eb";
-
-    // Append popup to document body
     document.body.appendChild(popup);
 
-    // Add click outside handler
     const handleClickOutside = (e: MouseEvent) => {
       if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
         document.body.removeChild(popup);
@@ -729,19 +612,22 @@ const HomePage: React.FC = () => {
     await recordReplacement(originalWord, suggestion);
 
     const originalSpellingResult = spellingResults.find(
-      result => result.word === originalWord && result.index === startPosition
+      (result) => result.word === originalWord && result.index === startPosition
     );
 
-    setChangeHistory(prev => [...prev, {
-      originalWord,
-      replacement: suggestion,
-      position: startPosition,
-      spellingResult: originalSpellingResult || {
-        word: originalWord,
-        index: startPosition,
-        length: originalWord.length
-      }
-    }]);
+    setChangeHistory((prev) => [
+      ...prev,
+      {
+        originalWord,
+        replacement: suggestion,
+        position: startPosition,
+        spellingResult: originalSpellingResult || {
+          word: originalWord,
+          index: startPosition,
+          length: originalWord.length,
+        },
+      },
+    ]);
     setShowUndo(true);
 
     const spans = editorRef.current.querySelectorAll(
@@ -756,15 +642,11 @@ const HomePage: React.FC = () => {
       }
     }
     if (targetSpan) {
-      // Create a text node with the suggestion
       const textNode = document.createTextNode(suggestion);
-      // Replace the span with the text node
       targetSpan.parentNode?.replaceChild(textNode, targetSpan);
 
-      // Update the text state with the current content
       setText(editorRef.current.innerText);
 
-      // Update spelling results to remove the replaced word
       setSpellingResults((prev) =>
         prev.filter(
           (result) =>
@@ -775,27 +657,12 @@ const HomePage: React.FC = () => {
         )
       );
 
-      // Reattach click handlers to remaining misspelled words
       const misspelledElements =
         editorRef.current.getElementsByClassName("misspelled");
       Array.from(misspelledElements).forEach((element) => {
         element.addEventListener("click", handleMisspelledWordClick);
       });
     }
-  };
-
-  const handleCharacterInsert = (character: string) => {
-    if (!editorRef.current) return;
-    const selection = window.getSelection();
-    if (!selection || !selection.rangeCount) return;
-    const range = selection.getRangeAt(0);
-    const textNode = document.createTextNode(character);
-    range.insertNode(textNode);
-    range.setStartAfter(textNode);
-    range.setEndAfter(textNode);
-    selection.removeAllRanges();
-    selection.addRange(range);
-    setText(editorRef.current.innerText);
   };
 
   useEffect(() => {
@@ -810,8 +677,8 @@ const HomePage: React.FC = () => {
     if (
       target &&
       (target.closest?.(".custom-dropdown") ||
-        target.closest?.(".loginCard") ||
-        target.closest?.(".ant-select-dropdown"))
+        target.closest?.(".dropdown") ||
+        target.closest?.("[data-panel]"))
     ) {
       return;
     }
@@ -849,47 +716,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleLoginClick = () => {
-    window.location.href = "/login";
-  };
-
-  const handleProfileClick = () => {
-    navigate("/profile");
-  };
-
-  const userControls = (
-    <div className={styles.userControls}>
-      <div className={styles.buttonWrapper}>
-        <FaUser
-          className={styles.profileIcon}
-          onClick={handleProfileClick}
-          style={{ cursor: "pointer" }}
-        />
-        {isLoading ? (
-          <div className={styles.profileCard}>Loading...</div>
-        ) : (
-          user && (
-            <div className={styles.profileCard}>
-              <div className={styles.profileInfo}>
-                <p>
-                  <span>Username:</span>
-                  <span>{user.username}</span>
-                </p>
-                <p>
-                  <span>Email:</span>
-                  <span>{user.email}</span>
-                </p>
-              </div>
-            </div>
-          )
-        )}
-      </div>
-      <button className={styles.logoutButton} onClick={logout}>
-        Logout
-      </button>
-    </div>
-  );
-
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add("dark-mode");
@@ -898,12 +724,10 @@ const HomePage: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Add useEffect to save content whenever it changes
   useEffect(() => {
     localStorage.setItem("editorContent", text);
   }, [text]);
 
-  // Add initialization of editor content from localStorage
   useEffect(() => {
     if (editorRef.current && text) {
       editorRef.current.innerHTML = text;
@@ -912,143 +736,32 @@ const HomePage: React.FC = () => {
     }
   }, []); // Run only on mount
 
-  // Add auto-save functionality
   useEffect(() => {
-    // Only show saving status if there is content
     if (text) {
       setSaveStatus("saving");
       const saveTimeout = setTimeout(() => {
         localStorage.setItem("editorContent", text);
         setSaveStatus("saved");
-        console.log("Content auto-saved");
       }, 1000);
 
       return () => clearTimeout(saveTimeout);
     } else {
-      // Clear save status when content is empty
       setSaveStatus(null);
     }
   }, [text]);
 
-  // Add save on page leave
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = () => {
       if (text) {
         localStorage.setItem("editorContent", text);
       }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [text]);
-
-  const cookieConsent = showCookieConsent && (
-    <div className={`${styles.cookieConsent} ${isDarkMode ? styles.darkMode : ""}`}>
-      <p>🍪 This website only uses necessary cookies.</p>
-      <div className={styles.cookieButtons}>
-        <button
-          onClick={() => {
-            localStorage.setItem("cookieConsent", "true");
-            setShowCookieConsent(false);
-          }}
-          className={styles.acceptButton}
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  );
-
-  const handleAboutClick = () => {
-    navigate("/about");
-  };
-
-  const footer = (
-    <footer className={styles.footer}>
-      <div className={styles.footerLeft}>
-        <a
-          href="https://github.com/imred42/hunspell_live"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.githubLink}
-        >
-          <FaGithub />
-        </a>
-        <a
-          href="https://buymeacoffee.com/imred42"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.coffeeLink}
-        >
-          ☕ Buy me a coffee
-        </a>
-      </div>
-
-      <div className={styles.footerRight}>
-        <a
-          href="/about#contact"
-          className={styles.contactLink}
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/about#contact");
-            setTimeout(() => {
-              const element = document.getElementById("contact");
-              element?.scrollIntoView({ behavior: "auto" });
-            }, 50);
-          }}
-        >
-          Contact Author
-        </a>
-        <a
-          href="/about#privacy"
-          className={styles.privacyLink}
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/about#privacy");
-            setTimeout(() => {
-              const element = document.getElementById("privacy");
-              if (element) {
-                const offset = 100;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: "smooth"
-                });
-              }
-            }, 50);
-          }}
-        >
-          Data & Privacy
-        </a>
-        <a
-          href="/about#terms"
-          className={styles.termsLink}
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/about#terms");
-            setTimeout(() => {
-              const element = document.getElementById("terms");
-              if (element) {
-                const offset = 100; // 可以调整这个值来改变偏移量
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: "smooth"
-                });
-              }
-            }, 50);
-          }}
-        >
-          Terms
-        </a>
-      </div>
-    </footer>
-  );
 
   const handleUndo = () => {
     if (changeHistory.length === 0) {
@@ -1061,53 +774,198 @@ const HomePage: React.FC = () => {
 
     if (!editorRef.current) return;
 
-    // Get the current text content
-    let content = editorRef.current.innerText;
-    
-    // Find the position of the replacement word
+    const content = editorRef.current.innerText;
     const beforeReplacement = content.slice(0, position);
     const afterReplacement = content.slice(position + replacement.length);
-    
-    // Replace back with the original word
     const newContent = beforeReplacement + originalWord + afterReplacement;
-    
-    // Update the editor content
+
     editorRef.current.innerText = newContent;
     setText(newContent);
 
-    // Remove the last change from history
-    setChangeHistory(prev => prev.slice(0, -1));
-
-    // Re-highlight the word as misspelled using the original spelling result
-    setSpellingResults(prev => [...prev, spellingResult]);
-
-    // Re-highlight misspelled words with complete info
+    setChangeHistory((prev) => prev.slice(0, -1));
+    setSpellingResults((prev) => [...prev, spellingResult]);
     highlightMisspelledWords([...spellingResults, spellingResult]);
 
-    // Show success message
-    toast.success('Last change undone');
+    toast.success("Last change undone");
 
-    // Update showUndo based on remaining history
     if (changeHistory.length <= 1) {
       setShowUndo(false);
     }
   };
 
-  // Add useEffect for keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Handle Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
         e.preventDefault();
         handleUndo();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [changeHistory, spellingResults]);
+
+  const saveParticipantId = () => {
+    setParticipantId(participantIdInput);
+    toast.success(
+      participantIdInput.trim()
+        ? `Participant ID set to "${participantIdInput.trim()}"`
+        : "Participant ID cleared"
+    );
+    setShowSettings(false);
+  };
+
+  const settingsPanel = showSettings && (
+    <div
+      data-panel
+      style={{
+        position: "fixed",
+        top: "70px",
+        right: "16px",
+        zIndex: 1100,
+        backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
+        color: isDarkMode ? "#e5e7eb" : "#1f2937",
+        border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
+        borderRadius: "12px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+        padding: "16px",
+        width: "300px",
+      }}
+    >
+      <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>Settings</h3>
+      <label style={{ fontSize: "14px", display: "block", marginBottom: "4px" }}>
+        Participant ID (optional)
+      </label>
+      <p style={{ fontSize: "12px", margin: "0 0 8px", opacity: 0.8 }}>
+        For research studies: attached to your "error → correction" reports if
+        the server has replacement logging enabled.
+      </p>
+      <input
+        type="text"
+        value={participantIdInput}
+        onChange={(e) => setParticipantIdInput(e.target.value)}
+        placeholder="e.g. P01"
+        style={{
+          width: "100%",
+          padding: "8px",
+          borderRadius: "8px",
+          border: "1px solid #9ca3af",
+          backgroundColor: isDarkMode ? "#374151" : "#ffffff",
+          color: "inherit",
+          marginBottom: "8px",
+          boxSizing: "border-box",
+        }}
+      />
+      <button
+        onClick={saveParticipantId}
+        style={{
+          padding: "8px 16px",
+          borderRadius: "8px",
+          border: "none",
+          backgroundColor: "#2563eb",
+          color: "#ffffff",
+          cursor: "pointer",
+        }}
+      >
+        Save
+      </button>
+    </div>
+  );
+
+  const currentStarWords = starListWords[selectedOption.value] || [];
+
+  const starListPanel = showStarList && (
+    <div
+      data-panel
+      style={{
+        position: "fixed",
+        top: "70px",
+        right: "16px",
+        zIndex: 1100,
+        backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
+        color: isDarkMode ? "#e5e7eb" : "#1f2937",
+        border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
+        borderRadius: "12px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+        padding: "16px",
+        width: "300px",
+        maxHeight: "60vh",
+        overflowY: "auto",
+      }}
+    >
+      <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+        Starred words — {selectedOption.label}
+      </h3>
+      {currentStarWords.length === 0 ? (
+        <p style={{ fontSize: "14px", opacity: 0.8 }}>
+          No starred words yet. Star a suggestion from the spell-check popup to
+          save it here (stored in this browser).
+        </p>
+      ) : (
+        <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          {currentStarWords.map((word) => (
+            <li
+              key={word}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "6px 0",
+                borderBottom: isDarkMode
+                  ? "1px solid #374151"
+                  : "1px solid #f3f4f6",
+              }}
+            >
+              <span>{word}</span>
+              <button
+                onClick={() => removeFromStarList(word, selectedOption.value)}
+                style={{
+                  border: "none",
+                  background: "none",
+                  cursor: "pointer",
+                  color: "#ef4444",
+                  fontSize: "14px",
+                }}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
+  const footer = (
+    <footer className={styles.footer}>
+      <div className={styles.footerLeft}>
+        <span style={{ fontSize: "14px", opacity: 0.8 }}>
+          © {new Date().getFullYear()} Hunspell Live
+        </span>
+      </div>
+      <div className={styles.footerRight}>
+        <a
+          href="https://github.com/imred42/hunspell_live"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.githubLink}
+          aria-label="GitHub repository"
+        >
+          <FaGithub />
+        </a>
+        <a
+          href="https://spylls.readthedocs.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: "14px" }}
+        >
+          Powered by Spylls
+        </a>
+      </div>
+    </footer>
+  );
 
   return (
     <div
@@ -1116,48 +974,52 @@ const HomePage: React.FC = () => {
       onClick={focusEditor}
       className={isDarkMode ? styles.darkMode : ""}
     >
-      <header className={`${styles.header} ${isDarkMode ? styles.darkMode : ''}`}>
+      <header
+        className={`${styles.header} ${isDarkMode ? styles.darkMode : ""}`}
+      >
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
             <div className={styles.logo}>Hunspell Live</div>
-            <nav>
-              <a href="/about" className={styles.navLink}>About</a>
-            </nav>
           </div>
-          
+
           <div className={styles.headerRight}>
-            <button 
+            <button
               className={styles.themeToggle}
               onClick={toggleTheme}
+              aria-label="Toggle theme"
             >
               {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
             </button>
-            
-            {isAuthenticated ? (
-              <div className={styles.userMenu}>
-                <button className={styles.userButton}>
-                  <FaUser size={18} />
-                </button>
-                <div className={styles.userDropdown}>
-                  <a href="/profile" className={styles.userDropdownItem}>
-                    <FaUser size={16} />
-                    Profile
-                  </a>
-                  <button 
-                    onClick={logout} 
-                    className={`${styles.userDropdownItem} ${styles.logoutButton}`}
-                  >
-                    <FaSignOutAlt size={16} />
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button className={styles.loginButton} onClick={handleLoginClick}>
-                <FaUser size={16} />
-                Login
-              </button>
-            )}
+            <button
+              className={styles.themeToggle}
+              onClick={() => {
+                setShowStarList((v) => !v);
+                setShowSettings(false);
+              }}
+              aria-label="Starred words"
+            >
+              <FaStar size={18} />
+            </button>
+            <button
+              className={styles.themeToggle}
+              onClick={() => {
+                setShowSettings((v) => !v);
+                setShowStarList(false);
+              }}
+              aria-label="Settings"
+            >
+              <FaCog size={18} />
+            </button>
+            <a
+              href="https://github.com/imred42/hunspell_live"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.themeToggle}
+              aria-label="GitHub repository"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <FaGithub size={18} />
+            </a>
           </div>
         </div>
       </header>
@@ -1221,7 +1083,10 @@ const HomePage: React.FC = () => {
                     <li>Click the check (✓) button to check spelling</li>
                     <li>Click on red underlined words to see suggestions</li>
                     <li>Click suggested word to replace</li>
-                    <li>Words in your dictionary will not be marked as incorrect</li>
+                    <li>
+                      Words you add to your dictionary are stored in this
+                      browser and will not be marked as incorrect
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -1269,12 +1134,15 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       {footer}
-      {cookieConsent}
+      {settingsPanel}
+      {starListPanel}
       {showUndo && (
         <div className={styles.buttonWrapper}>
-          <button 
-            onClick={handleUndo} 
-            className={`${styles.undoButton} ${isDarkMode ? styles.darkMode : ''}`}
+          <button
+            onClick={handleUndo}
+            className={`${styles.undoButton} ${
+              isDarkMode ? styles.darkMode : ""
+            }`}
             title="Undo last replacement (Cmd/Ctrl + Z)"
           >
             <span className={styles.undoIcon}>↩️</span>

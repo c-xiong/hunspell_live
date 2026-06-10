@@ -1,278 +1,84 @@
-import { useState, useEffect } from 'react';
-import { apiRequest } from '../config/api';
-import { toast } from 'react-toastify';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useCallback, useState } from 'react';
+
+// Personal dictionary and star list, stored entirely in the browser
+// (localStorage, bucketed per language code). No backend involved.
 
 interface LanguageWords {
   [language: string]: string[];
 }
 
-interface Replacement {
-  original_word: string;
-  replacement_word: string;
-  lang_code: string;
-  created_at: string;
-  user__username: string;
-}
+const DICTIONARY_KEY = 'personalDictionary';
+const STARLIST_KEY = 'starList';
+
+const readBuckets = (key: string): LanguageWords => {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const writeBuckets = (key: string, buckets: LanguageWords) => {
+  localStorage.setItem(key, JSON.stringify(buckets));
+};
+
+const addWord = (key: string, word: string, language: string): LanguageWords => {
+  const buckets = readBuckets(key);
+  const words = buckets[language] || [];
+  if (!words.includes(word)) {
+    buckets[language] = [...words, word];
+    writeBuckets(key, buckets);
+  }
+  return buckets;
+};
+
+const removeWord = (key: string, word: string, language: string): LanguageWords => {
+  const buckets = readBuckets(key);
+  buckets[language] = (buckets[language] || []).filter((w) => w !== word);
+  writeBuckets(key, buckets);
+  return buckets;
+};
 
 export const useUserData = () => {
-  const [dictionaryWords, setDictionaryWords] = useState<LanguageWords>({});
-  const [starListWords, setStarListWords] = useState<LanguageWords>({});
-  const [dictionaryLanguages, setDictionaryLanguages] = useState<string[]>([]);
-  const [starListLanguages, setStarListLanguages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { accessToken } = useAuthContext();
-  const [replacements, setReplacements] = useState<Replacement[]>([]);
+  const [dictionaryWords, setDictionaryWords] = useState<LanguageWords>(() =>
+    readBuckets(DICTIONARY_KEY)
+  );
+  const [starListWords, setStarListWords] = useState<LanguageWords>(() =>
+    readBuckets(STARLIST_KEY)
+  );
 
-  const fetchDictionaryLanguages = async () => {
-    if (!accessToken) return;
-    
-    try {
-      const response = await apiRequest('/api/dictionary/languages/', {
-        method: 'GET'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setDictionaryLanguages(data.languages);
-      }
-    } catch (error) {
-      console.error('Error fetching dictionary languages:', error);
-    }
-  };
+  const getDictionaryWords = useCallback(
+    (language: string): string[] => readBuckets(DICTIONARY_KEY)[language] || [],
+    []
+  );
 
-  const fetchStarListLanguages = async () => {
-    if (!accessToken) return;
-    
-    try {
-      const response = await apiRequest('/api/star-list/languages/', {
-        method: 'GET'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setStarListLanguages(data.languages);
-      }
-    } catch (error) {
-      console.error('Error fetching star list languages:', error);
-    }
-  };
+  const addToDictionary = useCallback((word: string, language: string) => {
+    setDictionaryWords(addWord(DICTIONARY_KEY, word, language));
+    return true;
+  }, []);
 
-  const fetchDictionaryWords = async (language: string) => {
-    if (!accessToken || !dictionaryLanguages.includes(language)) {
-      return;
-    }
+  const removeFromDictionary = useCallback((word: string, language: string) => {
+    setDictionaryWords(removeWord(DICTIONARY_KEY, word, language));
+    return true;
+  }, []);
 
-    try {
-      const response = await apiRequest(`/api/dictionary/words/?language=${language}`, {
-        method: 'GET'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Received dictionary words:', data.words); // Debug log
-        setDictionaryWords(prev => ({
-          ...prev,
-          [language]: data.words
-        }));
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch data');
-      }
-    } catch (error) {
-      console.error('Error fetching dictionary words:', error);
-      toast.error('Failed to load dictionary words');
-    }
-  };
+  const addToStarList = useCallback((word: string, language: string) => {
+    setStarListWords(addWord(STARLIST_KEY, word, language));
+    return true;
+  }, []);
 
-  const fetchStarListWords = async (language: string) => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await apiRequest(`/api/star-list/words/?language=${language}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setStarListWords(prev => ({
-          ...prev,
-          [language]: data.words
-        }));
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch data');
-      }
-    } catch (error) {
-      console.error('Error fetching star list words:', error);
-      toast.error('Failed to load star list words');
-    }
-  };
-
-  const addToDictionary = async (word: string, language: string) => {
-    if (!accessToken) return false;
-    
-    try {
-      const response = await apiRequest('/api/dictionary/add/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ word, language })
-      });
-      
-      if (response.ok) {
-        setDictionaryWords(prev => ({
-          ...prev,
-          [language]: [...(prev[language] || []), word]
-        }));
-        toast.success('Word added to dictionary');
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error adding word to dictionary:', error);
-      toast.error('Failed to add word to dictionary');
-      return false;
-    }
-  };
-
-  const removeFromDictionary = async (word: string, language: string) => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await apiRequest('/api/dictionary/remove/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ word, language })
-      });
-      
-      if (response.ok) {
-        setDictionaryWords(prev => ({
-          ...prev,
-          [language]: prev[language].filter(w => w !== word)
-        }));
-        toast.success('Word removed from dictionary');
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error removing word from dictionary:', error);
-      toast.error('Failed to remove word from dictionary');
-      return false;
-    }
-  };
-
-  const addToStarList = async (word: string, language: string) => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await apiRequest('/api/star-list/add/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ word, language })
-      });
-      
-      if (response.ok) {
-        setStarListWords(prev => ({
-          ...prev,
-          [language]: [...(prev[language] || []), word]
-        }));
-        toast.success('Word added to star list');
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error adding word to star list:', error);
-      toast.error('Failed to add word to star list');
-      return false;
-    }
-  };
-
-  const removeFromStarList = async (word: string, language: string) => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await apiRequest('/api/star-list/remove/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ word, language })
-      });
-      
-      if (response.ok) {
-        setStarListWords(prev => ({
-          ...prev,
-          [language]: prev[language].filter(w => w !== word)
-        }));
-        toast.success('Word removed from star list');
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error removing word from star list:', error);
-      toast.error('Failed to remove word from star list');
-      return false;
-    }
-  };
-
-  const fetchReplacements = async () => {
-    if (!accessToken) return;
-    
-    try {
-      const response = await apiRequest('/api/replacements/', {
-        method: 'GET'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setReplacements(data.replacements);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch replacements');
-      }
-    } catch (error) {
-      console.error('Error fetching replacements:', error);
-      toast.error('Failed to load replacements history');
-    }
-  };
-
-  useEffect(() => {
-    const initializeData = async () => {
-      setIsLoading(true);
-      if (accessToken) {
-        await Promise.all([
-          fetchDictionaryLanguages(),
-          fetchStarListLanguages(),
-          fetchReplacements()
-        ]);
-      }
-      setIsLoading(false);
-    };
-
-    initializeData();
-  }, [accessToken]);
+  const removeFromStarList = useCallback((word: string, language: string) => {
+    setStarListWords(removeWord(STARLIST_KEY, word, language));
+    return true;
+  }, []);
 
   return {
     dictionaryWords,
     starListWords,
-    dictionaryLanguages,
-    starListLanguages,
-    isLoading,
-    fetchDictionaryWords,
-    fetchStarListWords,
+    getDictionaryWords,
     addToDictionary,
     removeFromDictionary,
-    removeFromStarList,
     addToStarList,
-    replacements,
-    fetchReplacements,
+    removeFromStarList,
   };
-}; 
+};
