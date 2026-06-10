@@ -14,7 +14,7 @@ var _a, _b;
 export const API_BASE_URL = (import.meta.env.VITE_MODE === 'production'
     ? (_a = import.meta.env.VITE_API_URL_PROD) !== null && _a !== void 0 ? _a : ''
     : (_b = import.meta.env.VITE_API_URL_DEV) !== null && _b !== void 0 ? _b : 'http://localhost:8080').replace(/\/+$/, '');
-export const apiRequest = (endpoint, options = {}) => __awaiter(void 0, void 0, void 0, function* () {
+export const apiRequest = (endpoint_1, ...args_1) => __awaiter(void 0, [endpoint_1, ...args_1], void 0, function* (endpoint, options = {}) {
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers);
     return fetch(`${API_BASE_URL}${normalizedEndpoint}`, Object.assign(Object.assign({}, options), { headers }));

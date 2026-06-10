@@ -1,26 +1,38 @@
-import React, { useState, useRef, useEffect } from "react";
-import Dropdown from "../components/Dropdown";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
+  FaCheck,
   FaTrashAlt,
   FaPaste,
   FaCopy,
   FaCut,
-  FaCheck,
   FaQuestion,
   FaGithub,
   FaMoon,
   FaSun,
   FaStar,
   FaCog,
+  FaSpinner,
+  FaUndo,
 } from "react-icons/fa";
+import Dropdown from "../components/Dropdown";
+import Panel from "../components/Panel";
+import SuggestionPopup, { PopupTarget } from "../components/SuggestionPopup";
 import { useApi, getParticipantId, setParticipantId } from "../hooks/useApi";
 import { useUserData } from "../hooks/useUserData";
-import { styles as inlineStyles } from "../styles/HomePage.styles";
+import { apiRequest } from "../config/api";
 import { LanguageOption, SpellingResult } from "../types/spelling";
-import styles from "../styles/HomePage.module.css";
 import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
+
+type PanelName = "settings" | "starlist" | "help" | null;
+
+const GITHUB_URL = "https://github.com/imred42/hunspell_live";
+
+const iconButtonClass =
+  "flex min-h-touch min-w-touch items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200";
+
+const toolbarButtonClass =
+  "flex min-h-touch min-w-touch items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200";
 
 const HomePage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<LanguageOption>(() => {
@@ -31,35 +43,35 @@ const HomePage: React.FC = () => {
   });
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
-  const [text, setText] = useState(() => {
-    const savedContent = localStorage.getItem("editorContent") || "";
-    setTimeout(() => {
-      setCharCount(savedContent.trim() ? savedContent.length : 0);
-      setWordCount(savedContent.trim().split(/\s+/).filter(Boolean).length);
-    }, 0);
-    return savedContent;
-  });
+  const [text, setText] = useState(
+    () => localStorage.getItem("editorContent") || ""
+  );
   const [spellingResults, setSpellingResults] = useState<SpellingResult[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => localStorage.getItem("theme") === "dark"
+  );
   const [ignoredWords, setIgnoredWords] = useState<Set<string>>(new Set());
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showStarList, setShowStarList] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [activePanel, setActivePanel] = useState<PanelName>(null);
   const [participantIdInput, setParticipantIdInput] = useState(() =>
     getParticipantId()
   );
-  const [changeHistory, setChangeHistory] = useState<Array<{
-    originalWord: string;
-    replacement: string;
-    position: number;
-    spellingResult: SpellingResult
-  }>>([]);
-  const [showUndo, setShowUndo] = useState(false);
+  const [replacementLogging, setReplacementLogging] = useState<boolean | null>(
+    null
+  );
+  const [popupTarget, setPopupTarget] = useState<PopupTarget | null>(null);
+  const [popupSuggestions, setPopupSuggestions] = useState<string[] | null>(
+    null
+  );
+  const [changeHistory, setChangeHistory] = useState<
+    Array<{
+      originalWord: string;
+      replacement: string;
+      position: number;
+      spellingResult: SpellingResult;
+    }>
+  >([]);
 
   const { checkSpelling, getSuggestions, recordReplacement } = useApi(
     selectedOption.value
@@ -71,18 +83,74 @@ const HomePage: React.FC = () => {
     addToDictionary,
     addToStarList,
     removeFromStarList,
+    dictionaryWords,
+    removeFromDictionary,
   } = useUserData();
 
   const options: LanguageOption[] = [...LANGUAGE_OPTIONS];
+  const textDirection = TEXT_DIRECTION_MAP[selectedOption.value] || "ltr";
+
+  // ----- theme -----
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+  }, [isDarkMode]);
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
-      const newTheme = !prev;
-      localStorage.setItem("theme", newTheme ? "dark" : "light");
-      return newTheme;
+      localStorage.setItem("theme", prev ? "light" : "dark");
+      return !prev;
     });
   };
 
+  // ----- server status (HF Space may be waking from sleep) -----
+  useEffect(() => {
+    let finished = false;
+    const slowTimer = setTimeout(() => {
+      if (!finished) {
+        toast.info(
+          "The demo server may be waking up from sleep — the first request can take a little while.",
+          { autoClose: 6000 }
+        );
+      }
+    }, 3000);
+    apiRequest("/api/config/")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setReplacementLogging(Boolean(data.replacement_logging));
+      })
+      .catch(() => setReplacementLogging(null))
+      .finally(() => {
+        finished = true;
+        clearTimeout(slowTimer);
+      });
+    return () => clearTimeout(slowTimer);
+  }, []);
+
+  // ----- editor content persistence -----
+  useEffect(() => {
+    if (editorRef.current && text) {
+      editorRef.current.innerHTML = text;
+      updateCounts(text);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("editorContent", text);
+  }, [text]);
+
+  const updateCounts = (value: string) => {
+    setCharCount(value.trim() ? value.length : 0);
+    setWordCount(value.trim().split(/\s+/).filter(Boolean).length);
+  };
+
+  const resetEditorState = () => {
+    setSpellingResults([]);
+    setChangeHistory([]);
+    setPopupTarget(null);
+  };
+
+  // ----- language -----
   const handleSelectChange = (
     option: LanguageOption,
     event?: React.MouseEvent
@@ -91,67 +159,66 @@ const HomePage: React.FC = () => {
     localStorage.setItem("selectedLanguage", JSON.stringify(option));
     setSelectedOption(option);
     setText("");
-    setSpellingResults([]);
-    setChangeHistory([]);
+    resetEditorState();
     if (editorRef.current) {
       editorRef.current.innerHTML = "";
-      editorRef.current.style.direction =
-        TEXT_DIRECTION_MAP[option.value] || "ltr";
-      editorRef.current.style.textAlign =
-        TEXT_DIRECTION_MAP[option.value] === "rtl" ? "right" : "left";
     }
+    updateCounts("");
   };
 
+  // ----- toolbar actions -----
   const handleClearText = () => {
     localStorage.removeItem("editorContent");
-    if (editorRef.current) {
-      editorRef.current.innerHTML = "";
-    }
+    if (editorRef.current) editorRef.current.innerHTML = "";
     setText("");
-    setSpellingResults([]);
-    setCharCount(0);
-    setWordCount(0);
-    setChangeHistory([]);
-    setShowUndo(false);
-    toast.success("Text cleared successfully.");
+    resetEditorState();
+    updateCounts("");
   };
 
   const handlePaste = async () => {
     try {
       const pastedText = await navigator.clipboard.readText();
       if (editorRef.current) {
-        editorRef.current.innerHTML = pastedText;
+        editorRef.current.innerText = pastedText;
         setText(pastedText);
-        setSpellingResults([]);
-        setChangeHistory([]);
-        setShowUndo(false);
-
-        setCharCount(pastedText.length);
-        setWordCount(pastedText.trim().split(/\s+/).filter(Boolean).length);
-
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(editorRef.current);
-        range.collapse(false);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-
-        toast.success("Text pasted successfully");
+        resetEditorState();
+        updateCounts(pastedText);
       }
-    } catch (error) {
+    } catch {
       toast.error("Unable to access clipboard");
     }
   };
 
+  const handleCopy = async () => {
+    if (!editorRef.current) return;
+    try {
+      await navigator.clipboard.writeText(editorRef.current.innerText);
+      toast.success("Text copied to clipboard");
+    } catch {
+      toast.error("Failed to copy text");
+    }
+  };
+
+  const handleCut = async () => {
+    if (!editorRef.current) return;
+    try {
+      await navigator.clipboard.writeText(editorRef.current.innerText);
+      editorRef.current.innerHTML = "";
+      setText("");
+      resetEditorState();
+      updateCounts("");
+      toast.success("Text cut to clipboard");
+    } catch {
+      toast.error("Failed to cut text");
+    }
+  };
+
+  // ----- typing -----
   const handleTextChange = (event: React.FormEvent<HTMLDivElement>) => {
     const newText = event.currentTarget.innerText;
     setText(newText);
-    setSpellingResults([]);
-    setShowUndo(false);
-    setChangeHistory([]);
-
-    setCharCount(newText.trim() ? newText.length : 0);
-    setWordCount(newText.trim().split(/\s+/).filter(Boolean).length);
+    resetEditorState();
+    updateCounts(newText);
 
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
@@ -176,37 +243,49 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleCheckSpelling = async () => {
-    if (!text.trim()) {
-      toast.warning("Please enter some text to check spelling");
-      return;
-    }
+  // ----- spell checking -----
+  const handleMisspelledWordClick = useCallback((event: Event) => {
+    const element = event.target as HTMLSpanElement;
+    const word = element.dataset.word;
+    const start = parseInt(element.dataset.start || "0", 10);
+    if (!word) return;
+    const rect = element.getBoundingClientRect();
+    setPopupSuggestions(null);
+    setPopupTarget({
+      word,
+      start,
+      rect: { left: rect.left, bottom: rect.bottom, width: rect.width },
+    });
+  }, []);
 
-    const loadingToast = toast.loading("Checking spelling...");
-
-    try {
-      const userDictionaryWords = getDictionaryWords(selectedOption.value);
-      const results = await checkSpelling(text, userDictionaryWords);
-      const newResults = results.filter(
-        (result) => !ignoredWords.has(result.word.toLowerCase())
-      );
-
-      toast.dismiss(loadingToast);
-
-      if (newResults.length > 0) {
-        highlightMisspelledWords(newResults);
-        toast.error(
-          `Found ${newResults.length} spelling error${
-            newResults.length === 1 ? "" : "s"
-          }`
+  // Load suggestions whenever the popup opens on a new word
+  useEffect(() => {
+    if (!popupTarget) return;
+    let cancelled = false;
+    (async () => {
+      const result = await getSuggestions(popupTarget.word);
+      let list = result.suggestions;
+      if (list.length === 0) {
+        const lower = await getSuggestions(popupTarget.word.toLowerCase());
+        list = lower.suggestions.filter(
+          (s) => s.toLowerCase() !== popupTarget.word.toLowerCase()
         );
-      } else {
-        toast.success("No spelling errors found!");
       }
-    } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error("Error checking spelling");
-    }
+      if (!cancelled) setPopupSuggestions(list);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popupTarget?.word, popupTarget?.start]);
+
+  const attachMisspelledHandlers = () => {
+    if (!editorRef.current) return;
+    const misspelledElements =
+      editorRef.current.getElementsByClassName("misspelled");
+    Array.from(misspelledElements).forEach((element) => {
+      element.addEventListener("click", handleMisspelledWordClick);
+    });
   };
 
   const highlightMisspelledWords = (results: SpellingResult[]) => {
@@ -219,579 +298,158 @@ const HomePage: React.FC = () => {
       const wordEnd = result.index + result.word.length;
       html += textContent.slice(lastIndex, wordStart);
       const misspelledWord = textContent.slice(wordStart, wordEnd);
-      html += `<span class="misspelled" data-word="${misspelledWord}" data-start="${wordStart}" style="text-decoration: solid underline red 4px; text-underline-offset: 0.25em; cursor: help; font-style: italic;">${misspelledWord}</span>`;
+      html += `<span class="misspelled" data-word="${misspelledWord}" data-start="${wordStart}" style="text-decoration: solid underline #ef4444 3px; text-underline-offset: 0.25em; cursor: pointer;">${misspelledWord}</span>`;
       lastIndex = wordEnd;
     });
     html += textContent.slice(lastIndex);
-    const selection = window.getSelection();
     editorRef.current.innerHTML = html;
     setSpellingResults(results);
-    const misspelledElements =
-      editorRef.current.getElementsByClassName("misspelled");
-    Array.from(misspelledElements).forEach((element) => {
-      element.addEventListener("click", handleMisspelledWordClick);
-    });
-    if (editorRef.current) {
-      const newRange = document.createRange();
-      const lastChild = editorRef.current.lastChild;
-      if (lastChild) {
-        newRange.setStartAfter(lastChild);
-        newRange.setEndAfter(lastChild);
-        selection?.removeAllRanges();
-        selection?.addRange(newRange);
-      }
-    }
+    attachMisspelledHandlers();
   };
 
-  const handleMisspelledWordClick = async (event: Event) => {
-    const element = event.target as HTMLSpanElement;
-    const word = element.dataset.word;
-    const startPosition = parseInt(element.dataset.start || "0", 10);
-    if (!word) return;
-
-    const suggestions = await getSuggestions(word);
-
-    if (suggestions.suggestions.length === 0) {
-      const lowercaseSuggestions = await getSuggestions(word.toLowerCase());
-      suggestions.suggestions = lowercaseSuggestions.suggestions.filter(
-        (suggestion) => suggestion.toLowerCase() !== word.toLowerCase()
+  const handleCheckSpelling = async () => {
+    if (!text.trim()) {
+      toast.warning("Please enter some text to check spelling");
+      return;
+    }
+    setIsChecking(true);
+    try {
+      const userDictionaryWords = getDictionaryWords(selectedOption.value);
+      const results = await checkSpelling(text, userDictionaryWords);
+      const newResults = results.filter(
+        (result) => !ignoredWords.has(result.word.toLowerCase())
       );
-    }
 
-    const rect = element.getBoundingClientRect();
-
-    // Create popup container
-    const popup = document.createElement("div");
-    popup.style.position = "fixed";
-    popup.style.left = `${Math.max(rect.left - 70, 10)}px`;
-    popup.style.top = `${rect.bottom + 8}px`;
-    popup.style.zIndex = "1000";
-    const wordWidth = rect.width;
-    const minWidth = Math.max(wordWidth + 200, 250);
-    popup.style.minWidth = `${minWidth}px`;
-    popup.style.overflow = "visible";
-    popup.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    popup.style.border = isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb";
-    popup.style.borderRadius = "12px";
-    popup.style.boxShadow = isDarkMode
-      ? "0 4px 12px rgba(0, 0, 0, 0.5)"
-      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
-
-    const scrollContainer = document.createElement("div");
-    scrollContainer.style.minHeight = "60px";
-    scrollContainer.style.maxHeight = "300px";
-    scrollContainer.style.overflowY = "auto";
-    scrollContainer.style.overflowX = "auto";
-    scrollContainer.style.padding = "0 0 8px 0";
-    scrollContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    popup.appendChild(scrollContainer);
-
-    const ignoreContainer = document.createElement("div");
-    ignoreContainer.style.display = "flex";
-    ignoreContainer.style.justifyContent = "flex-end";
-    ignoreContainer.style.padding = "8px 16px";
-    ignoreContainer.style.gap = "8px";
-    ignoreContainer.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-    ignoreContainer.style.borderBottom = isDarkMode
-      ? "1px solid #374151"
-      : "1px solid #e5e7eb";
-
-    const buttonStyles = {
-      border: "none",
-      background: "none",
-      cursor: "pointer",
-      fontSize: "20px",
-      color: isDarkMode ? "#9ca3af" : "#6b7280",
-      padding: "8px 16px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "50%",
-      transition: "color 0.2s, background-color 0.2s",
-      borderRadius: "4px",
-    };
-
-    // Ignore button
-    const ignoreButton = document.createElement("button");
-    ignoreButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>`;
-    Object.assign(ignoreButton.style, buttonStyles);
-
-    // Add-to-local-dictionary button
-    const dictionaryButton = document.createElement("button");
-    dictionaryButton.innerHTML = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z"/></svg>`;
-    Object.assign(dictionaryButton.style, buttonStyles);
-
-    const addButtonHoverEffect = (button: HTMLButtonElement) => {
-      button.addEventListener("mouseover", () => {
-        button.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
-        button.style.color = isDarkMode ? "#e5e7eb" : "#4b5563";
-      });
-      button.addEventListener("mouseout", () => {
-        button.style.backgroundColor = "transparent";
-        button.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
-      });
-    };
-    addButtonHoverEffect(ignoreButton);
-    addButtonHoverEffect(dictionaryButton);
-
-    const createTooltip = (text: string) => {
-      const tooltip = document.createElement("span");
-      tooltip.textContent = text;
-      tooltip.style.visibility = "hidden";
-      tooltip.style.backgroundColor = isDarkMode ? "#4b5563" : "#333";
-      tooltip.style.color = "#fff";
-      tooltip.style.textAlign = "center";
-      tooltip.style.padding = "5px 10px";
-      tooltip.style.borderRadius = "6px";
-      tooltip.style.position = "absolute";
-      tooltip.style.zIndex = "1002";
-      tooltip.style.left = "50%";
-      tooltip.style.transform = "translateX(-50%)";
-      tooltip.style.bottom = "-30px";
-      tooltip.style.fontSize = "14px";
-      tooltip.style.whiteSpace = "nowrap";
-      tooltip.style.pointerEvents = "none";
-      tooltip.style.opacity = "0";
-      tooltip.style.transition = "opacity 0.2s ease-in-out";
-      return tooltip;
-    };
-
-    const ignoreTooltip = createTooltip("Ignore this word");
-    const dictionaryTooltip = createTooltip("Add to my dictionary (stored in this browser)");
-
-    ignoreButton.style.position = "relative";
-    dictionaryButton.style.position = "relative";
-    ignoreButton.appendChild(ignoreTooltip);
-    dictionaryButton.appendChild(dictionaryTooltip);
-
-    const addTooltipHandlers = (
-      button: HTMLButtonElement,
-      tooltip: HTMLSpanElement
-    ) => {
-      button.addEventListener("mouseover", () => {
-        tooltip.style.visibility = "visible";
-        tooltip.style.opacity = "1";
-      });
-      button.addEventListener("mouseout", () => {
-        tooltip.style.visibility = "hidden";
-        tooltip.style.opacity = "0";
-      });
-    };
-    addTooltipHandlers(ignoreButton, ignoreTooltip);
-    addTooltipHandlers(dictionaryButton, dictionaryTooltip);
-
-    ignoreButton.addEventListener("click", () => {
-      if (element && editorRef.current) {
-        element.outerHTML = word;
-        const newIgnoredWords = new Set(ignoredWords);
-        newIgnoredWords.add(word.toLowerCase());
-        setIgnoredWords(newIgnoredWords);
-
-        setSpellingResults((prev) =>
-          prev.filter(
-            (result) =>
-              !(
-                result.word.toLowerCase() === word.toLowerCase() &&
-                result.index === startPosition
-              )
-          )
+      if (newResults.length > 0) {
+        highlightMisspelledWords(newResults);
+        toast.error(
+          `Found ${newResults.length} spelling error${
+            newResults.length === 1 ? "" : "s"
+          }`
         );
+      } else {
+        toast.success("No spelling errors found!");
       }
-      document.body.removeChild(popup);
-    });
-
-    dictionaryButton.addEventListener("click", (e) => {
-      e.stopPropagation();
-      addToDictionary(word, selectedOption.value);
-
-      if (element && editorRef.current) {
-        element.outerHTML = word;
-        setSpellingResults((prev) =>
-          prev.filter(
-            (result) =>
-              !(result.word === word && result.index === startPosition)
-          )
-        );
-      }
-
-      toast.success("Word added to your dictionary (stored in this browser)");
-      document.body.removeChild(popup);
-    });
-
-    ignoreContainer.appendChild(ignoreButton);
-    ignoreContainer.appendChild(dictionaryButton);
-    scrollContainer.appendChild(ignoreContainer);
-
-    const itemHeight = 44;
-    const headerHeight = 52;
-    const padding = 24;
-    const numItems = suggestions.suggestions.length;
-    const calculatedHeight =
-      numItems === 0 ? 60 : numItems * itemHeight + headerHeight + padding;
-    const maxHeight = 300;
-
-    scrollContainer.style.minHeight = `${Math.min(
-      calculatedHeight,
-      maxHeight
-    )}px`;
-    scrollContainer.style.maxHeight = `${maxHeight}px`;
-
-    if (suggestions.suggestions.length === 0) {
-      const noSuggestionsContainer = document.createElement("div");
-      noSuggestionsContainer.style.display = "flex";
-      noSuggestionsContainer.style.justifyContent = "center";
-      noSuggestionsContainer.style.alignItems = "center";
-      noSuggestionsContainer.style.padding = "8px";
-      noSuggestionsContainer.style.margin = "5px 0";
-
-      const noSuggestionsText = document.createElement("span");
-      noSuggestionsText.textContent = "No suggestions available";
-      noSuggestionsText.style.fontSize = "21px";
-      noSuggestionsText.style.fontStyle = "italic";
-      noSuggestionsText.style.fontWeight = "bold";
-      noSuggestionsText.style.color = isDarkMode ? "#9ca3af" : "#6b7280";
-
-      noSuggestionsContainer.appendChild(noSuggestionsText);
-      scrollContainer.appendChild(noSuggestionsContainer);
-    } else {
-      suggestions.suggestions.forEach((suggestion) => {
-        const suggestionContainer = document.createElement("div");
-        suggestionContainer.style.display = "flex";
-        suggestionContainer.style.justifyContent = "flex-start";
-        suggestionContainer.style.alignItems = "center";
-        suggestionContainer.style.padding = "8px 16px";
-        suggestionContainer.style.margin = "0";
-        suggestionContainer.style.cursor = "pointer";
-        suggestionContainer.style.minWidth = "100px";
-        suggestionContainer.style.gap = "12px";
-        suggestionContainer.style.backgroundColor = isDarkMode
-          ? "#1f2937"
-          : "#ffffff";
-
-        const addButton = document.createElement("button");
-        addButton.textContent = "★";
-        addButton.style.position = "relative";
-        Object.assign(addButton.style, {
-          marginLeft: "10px",
-          marginRight: "10px",
-          padding: "2px 8px",
-          borderRadius: "4px",
-          backgroundColor: isDarkMode ? "#374151" : "#e5e7eb",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "18px",
-          fontWeight: "normal",
-          width: "28px",
-          minWidth: "28px",
-          color: isDarkMode ? "#9ca3af" : "#666",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        });
-
-        const starTooltip = document.createElement("span");
-        starTooltip.textContent = "Add to your star list";
-        Object.assign(starTooltip.style, {
-          visibility: "hidden",
-          backgroundColor: isDarkMode ? "#4b5563" : "#333",
-          color: "#fff",
-          textAlign: "center",
-          padding: "5px 10px",
-          borderRadius: "6px",
-          position: "absolute",
-          zIndex: "1002",
-          right: "-100px",
-          top: "-40px",
-          fontSize: "14px",
-          whiteSpace: "nowrap",
-          pointerEvents: "none",
-          opacity: "0",
-          transition: "opacity 0.2s ease-in-out",
-          transform: "translateX(0)",
-        });
-
-        addButton.appendChild(starTooltip);
-
-        addButton.addEventListener("mouseover", () => {
-          addButton.style.backgroundColor = isDarkMode ? "#4b5563" : "#d1d5db";
-          addButton.style.color = isDarkMode ? "#e5e7eb" : "#333";
-          starTooltip.style.visibility = "visible";
-          starTooltip.style.opacity = "1";
-        });
-
-        addButton.addEventListener("mouseout", () => {
-          addButton.style.backgroundColor = isDarkMode ? "#374151" : "#e5e7eb";
-          addButton.style.color = isDarkMode ? "#9ca3af" : "#666";
-          starTooltip.style.visibility = "hidden";
-          starTooltip.style.opacity = "0";
-        });
-
-        const suggestionElement = document.createElement("div");
-        suggestionElement.textContent = suggestion;
-        suggestionElement.style.fontSize = "20px";
-        suggestionElement.style.fontWeight = "bold";
-        suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
-
-        suggestionContainer.appendChild(addButton);
-        suggestionContainer.appendChild(suggestionElement);
-
-        suggestionContainer.addEventListener("mouseover", () => {
-          suggestionContainer.style.backgroundColor = isDarkMode
-            ? "#374151"
-            : "#f3f4f6";
-          suggestionElement.style.color = isDarkMode ? "#ffffff" : "#000000";
-        });
-        suggestionContainer.addEventListener("mouseout", () => {
-          suggestionContainer.style.backgroundColor = isDarkMode
-            ? "#1f2937"
-            : "#ffffff";
-          suggestionElement.style.color = isDarkMode ? "#e5e7eb" : "#374151";
-        });
-
-        suggestionContainer.addEventListener("click", () => {
-          handleSuggestionClick(suggestion, word, startPosition);
-          document.body.removeChild(popup);
-        });
-
-        addButton.addEventListener("click", (e) => {
-          e.stopPropagation();
-          addToStarList(suggestion, selectedOption.value);
-          toast.success("Word added to star list (stored in this browser)");
-          document.body.removeChild(popup);
-        });
-
-        scrollContainer.appendChild(suggestionContainer);
-      });
+    } catch {
+      toast.error("Error checking spelling");
+    } finally {
+      setIsChecking(false);
     }
-
-    if (isDarkMode) {
-      const styleSheet = document.createElement("style");
-      styleSheet.textContent = `
-        .suggestion-scroll {
-          scrollbar-width: thin;
-          scrollbar-color: #4b5563 #1f2937;
-        }
-        .suggestion-scroll::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .suggestion-scroll::-webkit-scrollbar-track {
-          background: #1f2937;
-        }
-        .suggestion-scroll::-webkit-scrollbar-thumb {
-          background-color: #4b5563;
-          border-radius: 4px;
-          border: 2px solid #1f2937;
-        }
-      `;
-      document.head.appendChild(styleSheet);
-      scrollContainer.classList.add("suggestion-scroll");
-    }
-
-    document.body.appendChild(popup);
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!popup.contains(e.target as Node) && document.body.contains(popup)) {
-        document.body.removeChild(popup);
-        document.removeEventListener("click", handleClickOutside);
-      }
-    };
-
-    setTimeout(() => {
-      document.addEventListener("click", handleClickOutside);
-    }, 0);
   };
 
-  const handleSuggestionClick = async (
-    suggestion: string,
-    originalWord: string,
-    startPosition: number
-  ) => {
+  // ----- popup actions -----
+  const removeHighlight = (word: string, start: number) => {
     if (!editorRef.current) return;
+    const spans = editorRef.current.querySelectorAll(
+      `span.misspelled[data-word="${CSS.escape(word)}"]`
+    );
+    for (const span of spans) {
+      if (parseInt(span.getAttribute("data-start") || "0", 10) === start) {
+        span.outerHTML = word;
+        break;
+      }
+    }
+    setSpellingResults((prev) =>
+      prev.filter(
+        (result) =>
+          !(
+            result.word.toLowerCase() === word.toLowerCase() &&
+            result.index === start
+          )
+      )
+    );
+  };
 
-    await recordReplacement(originalWord, suggestion);
+  const handleIgnore = () => {
+    if (!popupTarget) return;
+    const { word, start } = popupTarget;
+    setIgnoredWords((prev) => new Set(prev).add(word.toLowerCase()));
+    removeHighlight(word, start);
+    setPopupTarget(null);
+  };
+
+  const handleAddToDictionary = () => {
+    if (!popupTarget) return;
+    const { word, start } = popupTarget;
+    addToDictionary(word, selectedOption.value);
+    removeHighlight(word, start);
+    toast.success("Word added to your dictionary (stored in this browser)");
+    setPopupTarget(null);
+  };
+
+  const handleStarSuggestion = (suggestion: string) => {
+    addToStarList(suggestion, selectedOption.value);
+    toast.success("Word starred (stored in this browser)");
+    setPopupTarget(null);
+  };
+
+  const handleReplace = async (suggestion: string) => {
+    if (!popupTarget || !editorRef.current) return;
+    const { word, start } = popupTarget;
+
+    recordReplacement(word, suggestion);
 
     const originalSpellingResult = spellingResults.find(
-      (result) => result.word === originalWord && result.index === startPosition
-    );
+      (result) => result.word === word && result.index === start
+    ) || { word, index: start, length: word.length };
 
     setChangeHistory((prev) => [
       ...prev,
       {
-        originalWord,
+        originalWord: word,
         replacement: suggestion,
-        position: startPosition,
-        spellingResult: originalSpellingResult || {
-          word: originalWord,
-          index: startPosition,
-          length: originalWord.length,
-        },
+        position: start,
+        spellingResult: originalSpellingResult,
       },
     ]);
-    setShowUndo(true);
 
     const spans = editorRef.current.querySelectorAll(
-      `span.misspelled[data-word="${originalWord}"]`
+      `span.misspelled[data-word="${CSS.escape(word)}"]`
     );
-    let targetSpan: Element | null = null;
     for (const span of spans) {
-      const spanPosition = parseInt(span.getAttribute("data-start") || "0", 10);
-      if (spanPosition === startPosition) {
-        targetSpan = span;
+      if (parseInt(span.getAttribute("data-start") || "0", 10) === start) {
+        span.parentNode?.replaceChild(
+          document.createTextNode(suggestion),
+          span
+        );
         break;
       }
     }
-    if (targetSpan) {
-      const textNode = document.createTextNode(suggestion);
-      targetSpan.parentNode?.replaceChild(textNode, targetSpan);
 
-      setText(editorRef.current.innerText);
-
-      setSpellingResults((prev) =>
-        prev.filter(
-          (result) =>
-            !(
-              result.word.toLowerCase() === originalWord.toLowerCase() &&
-              result.index === startPosition
-            )
-        )
-      );
-
-      const misspelledElements =
-        editorRef.current.getElementsByClassName("misspelled");
-      Array.from(misspelledElements).forEach((element) => {
-        element.addEventListener("click", handleMisspelledWordClick);
-      });
-    }
+    setText(editorRef.current.innerText);
+    setSpellingResults((prev) =>
+      prev.filter(
+        (result) =>
+          !(
+            result.word.toLowerCase() === word.toLowerCase() &&
+            result.index === start
+          )
+      )
+    );
+    attachMisspelledHandlers();
+    setPopupTarget(null);
   };
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
+  // ----- undo -----
+  const handleUndo = useCallback(() => {
+    if (changeHistory.length === 0 || !editorRef.current) return;
 
-  const focusEditor = (event: React.MouseEvent) => {
-    const target = event.target as Element;
-    if (
-      target &&
-      (target.closest?.(".custom-dropdown") ||
-        target.closest?.(".dropdown") ||
-        target.closest?.("[data-panel]"))
-    ) {
-      return;
-    }
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-  };
-
-  const handleCopy = async () => {
-    if (editorRef.current) {
-      try {
-        await navigator.clipboard.writeText(editorRef.current.innerText);
-        toast.success("Text copied to clipboard");
-      } catch (error) {
-        toast.error("Failed to copy text");
-      }
-    }
-  };
-
-  const handleCut = async () => {
-    if (editorRef.current) {
-      try {
-        await navigator.clipboard.writeText(editorRef.current.innerText);
-        editorRef.current.innerHTML = "";
-        setText("");
-        setSpellingResults([]);
-        setCharCount(0);
-        setWordCount(0);
-        setChangeHistory([]);
-        setShowUndo(false);
-        toast.success("Text cut to clipboard");
-      } catch (error) {
-        toast.error("Failed to cut text");
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    localStorage.setItem("editorContent", text);
-  }, [text]);
-
-  useEffect(() => {
-    if (editorRef.current && text) {
-      editorRef.current.innerHTML = text;
-      setCharCount(text.length);
-      setWordCount(text.trim().split(/\s+/).filter(Boolean).length);
-    }
-  }, []); // Run only on mount
-
-  useEffect(() => {
-    if (text) {
-      setSaveStatus("saving");
-      const saveTimeout = setTimeout(() => {
-        localStorage.setItem("editorContent", text);
-        setSaveStatus("saved");
-      }, 1000);
-
-      return () => clearTimeout(saveTimeout);
-    } else {
-      setSaveStatus(null);
-    }
-  }, [text]);
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (text) {
-        localStorage.setItem("editorContent", text);
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [text]);
-
-  const handleUndo = () => {
-    if (changeHistory.length === 0) {
-      setShowUndo(false);
-      return;
-    }
-
-    const lastChange = changeHistory[changeHistory.length - 1];
-    const { originalWord, replacement, position, spellingResult } = lastChange;
-
-    if (!editorRef.current) return;
+    const { originalWord, replacement, position, spellingResult } =
+      changeHistory[changeHistory.length - 1];
 
     const content = editorRef.current.innerText;
-    const beforeReplacement = content.slice(0, position);
-    const afterReplacement = content.slice(position + replacement.length);
-    const newContent = beforeReplacement + originalWord + afterReplacement;
+    const newContent =
+      content.slice(0, position) +
+      originalWord +
+      content.slice(position + replacement.length);
 
     editorRef.current.innerText = newContent;
     setText(newContent);
-
     setChangeHistory((prev) => prev.slice(0, -1));
-    setSpellingResults((prev) => [...prev, spellingResult]);
     highlightMisspelledWords([...spellingResults, spellingResult]);
-
     toast.success("Last change undone");
-
-    if (changeHistory.length <= 1) {
-      setShowUndo(false);
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changeHistory, spellingResults]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -800,13 +458,11 @@ const HomePage: React.FC = () => {
         handleUndo();
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [changeHistory, spellingResults]);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo]);
 
+  // ----- panels -----
   const saveParticipantId = () => {
     setParticipantId(participantIdInput);
     toast.success(
@@ -814,344 +470,319 @@ const HomePage: React.FC = () => {
         ? `Participant ID set to "${participantIdInput.trim()}"`
         : "Participant ID cleared"
     );
-    setShowSettings(false);
+    setActivePanel(null);
   };
 
-  const settingsPanel = showSettings && (
-    <div
-      data-panel
-      style={{
-        position: "fixed",
-        top: "70px",
-        right: "16px",
-        zIndex: 1100,
-        backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
-        color: isDarkMode ? "#e5e7eb" : "#1f2937",
-        border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-        padding: "16px",
-        width: "300px",
-      }}
-    >
-      <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>Settings</h3>
-      <label style={{ fontSize: "14px", display: "block", marginBottom: "4px" }}>
-        Participant ID (optional)
-      </label>
-      <p style={{ fontSize: "12px", margin: "0 0 8px", opacity: 0.8 }}>
-        For research studies: attached to your "error → correction" reports if
-        the server has replacement logging enabled.
-      </p>
-      <input
-        type="text"
-        value={participantIdInput}
-        onChange={(e) => setParticipantIdInput(e.target.value)}
-        placeholder="e.g. P01"
-        style={{
-          width: "100%",
-          padding: "8px",
-          borderRadius: "8px",
-          border: "1px solid #9ca3af",
-          backgroundColor: isDarkMode ? "#374151" : "#ffffff",
-          color: "inherit",
-          marginBottom: "8px",
-          boxSizing: "border-box",
-        }}
-      />
-      <button
-        onClick={saveParticipantId}
-        style={{
-          padding: "8px 16px",
-          borderRadius: "8px",
-          border: "none",
-          backgroundColor: "#2563eb",
-          color: "#ffffff",
-          cursor: "pointer",
-        }}
-      >
-        Save
-      </button>
-    </div>
-  );
-
   const currentStarWords = starListWords[selectedOption.value] || [];
+  const currentDictWords = dictionaryWords[selectedOption.value] || [];
 
-  const starListPanel = showStarList && (
-    <div
-      data-panel
-      style={{
-        position: "fixed",
-        top: "70px",
-        right: "16px",
-        zIndex: 1100,
-        backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
-        color: isDarkMode ? "#e5e7eb" : "#1f2937",
-        border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-        padding: "16px",
-        width: "300px",
-        maxHeight: "60vh",
-        overflowY: "auto",
-      }}
-    >
-      <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-        Starred words — {selectedOption.label}
-      </h3>
-      {currentStarWords.length === 0 ? (
-        <p style={{ fontSize: "14px", opacity: 0.8 }}>
-          No starred words yet. Star a suggestion from the spell-check popup to
-          save it here (stored in this browser).
-        </p>
-      ) : (
-        <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-          {currentStarWords.map((word) => (
-            <li
-              key={word}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "6px 0",
-                borderBottom: isDarkMode
-                  ? "1px solid #374151"
-                  : "1px solid #f3f4f6",
-              }}
-            >
-              <span>{word}</span>
-              <button
-                onClick={() => removeFromStarList(word, selectedOption.value)}
-                style={{
-                  border: "none",
-                  background: "none",
-                  cursor: "pointer",
-                  color: "#ef4444",
-                  fontSize: "14px",
-                }}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-
-  const footer = (
-    <footer className={styles.footer}>
-      <div className={styles.footerLeft}>
-        <span style={{ fontSize: "14px", opacity: 0.8 }}>
-          © {new Date().getFullYear()} Hunspell Live
-        </span>
-      </div>
-      <div className={styles.footerRight}>
-        <a
-          href="https://github.com/imred42/hunspell_live"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.githubLink}
-          aria-label="GitHub repository"
-        >
-          <FaGithub />
-        </a>
-        <a
-          href="https://spylls.readthedocs.io/"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ fontSize: "14px" }}
-        >
-          Powered by Spylls
-        </a>
-      </div>
-    </footer>
-  );
+  const focusEditor = (event: React.MouseEvent) => {
+    const target = event.target as Element;
+    if (
+      target?.closest?.(".dropdown") ||
+      target?.closest?.("[data-panel]") ||
+      target?.closest?.("button") ||
+      target?.closest?.("a")
+    ) {
+      return;
+    }
+    editorRef.current?.focus();
+  };
 
   return (
     <div
-      ref={containerRef}
-      style={inlineStyles.container}
+      className="flex h-screen flex-col bg-slate-50 dark:bg-slate-950"
       onClick={focusEditor}
-      className={isDarkMode ? styles.darkMode : ""}
     >
-      <header
-        className={`${styles.header} ${isDarkMode ? styles.darkMode : ""}`}
-      >
-        <div className={styles.headerContent}>
-          <div className={styles.headerLeft}>
-            <div className={styles.logo}>Hunspell Live</div>
+      {/* Header */}
+      <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+          <div className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+            Hunspell <span className="text-primary-600 dark:text-primary-400">Live</span>
           </div>
-
-          <div className={styles.headerRight}>
+          <div className="flex items-center gap-1">
             <button
-              className={styles.themeToggle}
+              type="button"
+              className={iconButtonClass}
               onClick={toggleTheme}
-              aria-label="Toggle theme"
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDarkMode ? "Light mode" : "Dark mode"}
             >
-              {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+              {isDarkMode ? <FaSun /> : <FaMoon />}
             </button>
             <button
-              className={styles.themeToggle}
-              onClick={() => {
-                setShowStarList((v) => !v);
-                setShowSettings(false);
-              }}
-              aria-label="Starred words"
+              type="button"
+              className={iconButtonClass}
+              onClick={() =>
+                setActivePanel(activePanel === "starlist" ? null : "starlist")
+              }
+              aria-label="My words"
+              title="My words (dictionary & stars)"
             >
-              <FaStar size={18} />
+              <FaStar />
             </button>
             <button
-              className={styles.themeToggle}
-              onClick={() => {
-                setShowSettings((v) => !v);
-                setShowStarList(false);
-              }}
+              type="button"
+              className={iconButtonClass}
+              onClick={() =>
+                setActivePanel(activePanel === "settings" ? null : "settings")
+              }
               aria-label="Settings"
+              title="Settings"
             >
-              <FaCog size={18} />
+              <FaCog />
             </button>
             <a
-              href="https://github.com/imred42/hunspell_live"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.themeToggle}
+              className={iconButtonClass}
               aria-label="GitHub repository"
-              style={{ display: "inline-flex", alignItems: "center" }}
+              title="GitHub"
             >
-              <FaGithub size={18} />
+              <FaGithub />
             </a>
           </div>
         </div>
       </header>
 
-      <div style={inlineStyles.content}>
-        <div
-          style={{
-            ...inlineStyles.editorContainer,
-            backgroundColor: isDarkMode
-              ? "#1f2937"
-              : inlineStyles.editorContainer.backgroundColor,
-          }}
-        >
-          <div style={inlineStyles.controlsContainer}>
-            <div style={inlineStyles.buttonGroup}>
-              <div className={styles.buttonWrapper}>
-                <button
-                  onClick={handleCheckSpelling}
-                  className={styles.checkButton}
-                >
-                  <FaCheck />
-                </button>
-                <span className={styles.tooltip}>Check Spelling</span>
-              </div>
-              <div className={styles.buttonWrapper}>
-                <button
-                  onClick={handleClearText}
-                  className={styles.clearButton}
-                >
-                  <FaTrashAlt />
-                </button>
-                <span className={styles.tooltip}>Clear</span>
-              </div>
-              <div className={styles.buttonWrapper}>
-                <button onClick={handlePaste} className={styles.pasteButton}>
-                  <FaPaste />
-                </button>
-                <span className={styles.tooltip}>Paste</span>
-              </div>
-              <div className={styles.buttonWrapper}>
-                <button onClick={handleCopy} className={styles.copyButton}>
-                  <FaCopy />
-                </button>
-                <span className={styles.tooltip}>Copy</span>
-              </div>
-              <div className={styles.buttonWrapper}>
-                <button onClick={handleCut} className={styles.cutButton}>
-                  <FaCut />
-                </button>
-                <span className={styles.tooltip}>Cut</span>
-              </div>
-              <div className={styles.buttonWrapper}>
-                <button className={styles.helpButton}>
-                  <FaQuestion />
-                </button>
-                <div className={styles.helpCard}>
-                  <h3>Instructions</h3>
-                  <ul>
-                    <li>Select your language from the dropdown menu</li>
-                    <li>Type or paste your text in the editor</li>
-                    <li>Click the check (✓) button to check spelling</li>
-                    <li>Click on red underlined words to see suggestions</li>
-                    <li>Click suggested word to replace</li>
-                    <li>
-                      Words you add to your dictionary are stored in this
-                      browser and will not be marked as incorrect
-                    </li>
-                  </ul>
-                </div>
-              </div>
+      {/* Main */}
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col overflow-hidden px-4 py-4 sm:py-6">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-card border border-slate-200 bg-white p-3 shadow-card sm:p-4 dark:border-slate-800 dark:bg-slate-900">
+          {/* Toolbar */}
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCheckSpelling}
+              disabled={isChecking}
+              className="flex min-h-touch items-center gap-2 rounded-lg bg-primary-600 px-4 font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isChecking ? <FaSpinner className="animate-spin" /> : <FaCheck />}
+              <span className="hidden sm:inline">
+                {isChecking ? "Checking…" : "Check spelling"}
+              </span>
+            </button>
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={handleClearText} className={toolbarButtonClass} title="Clear text" aria-label="Clear text">
+                <FaTrashAlt />
+              </button>
+              <button type="button" onClick={handlePaste} className={toolbarButtonClass} title="Paste" aria-label="Paste">
+                <FaPaste />
+              </button>
+              <button type="button" onClick={handleCopy} className={toolbarButtonClass} title="Copy" aria-label="Copy">
+                <FaCopy />
+              </button>
+              <button type="button" onClick={handleCut} className={toolbarButtonClass} title="Cut" aria-label="Cut">
+                <FaCut />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePanel(activePanel === "help" ? null : "help")}
+                className={toolbarButtonClass}
+                title="How it works"
+                aria-label="How it works"
+              >
+                <FaQuestion />
+              </button>
             </div>
-            <div style={inlineStyles.dropdownContainer}>
+            <div className="ml-auto w-full sm:w-auto">
               <Dropdown
                 options={options}
                 value={selectedOption}
                 onChange={handleSelectChange}
-                isDarkMode={isDarkMode}
+                onUploadClick={() =>
+                  toast.info(
+                    "Uploading your own .aff/.dic dictionary is coming in the next update."
+                  )
+                }
               />
             </div>
           </div>
 
+          {/* Editor */}
           <div
             ref={editorRef}
             contentEditable
             spellCheck="false"
             onInput={handleTextChange}
+            className="spell-editor"
             style={{
-              ...inlineStyles.editor,
-              backgroundColor: isDarkMode ? "#374151" : "#ffffff",
-              color: isDarkMode ? "#ffffff" : "inherit",
-              direction: TEXT_DIRECTION_MAP[selectedOption.value] || "ltr",
-              textAlign:
-                TEXT_DIRECTION_MAP[selectedOption.value] === "rtl"
-                  ? "right"
-                  : "left",
+              direction: textDirection,
+              textAlign: textDirection === "rtl" ? "right" : "left",
             }}
-            data-placeholder="Enter or paste your text here to check spelling"
+            data-placeholder="Select a language, then type or paste your text here…"
           />
-          <div className={styles.countDisplay}>
-            <span>Characters: {charCount}</span>
-            <span>Words: {wordCount}</span>
-            {saveStatus && (
-              <span
-                className={`${styles.saveStatus} ${
-                  saveStatus === "saved" ? styles.saved : styles.saving
-                }`}
+
+          {/* Status bar */}
+          <div className="mt-2 flex items-center justify-between text-sm text-slate-400 dark:text-slate-500">
+            <span>
+              {charCount} characters · {wordCount} words
+            </span>
+            {changeHistory.length > 0 && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                title="Undo last replacement (Cmd/Ctrl + Z)"
               >
-                {saveStatus === "saved" ? "Saved" : "Saving..."}
-              </span>
+                <FaUndo /> Undo
+              </button>
             )}
           </div>
         </div>
-      </div>
-      {footer}
-      {settingsPanel}
-      {starListPanel}
-      {showUndo && (
-        <div className={styles.buttonWrapper}>
-          <button
-            onClick={handleUndo}
-            className={`${styles.undoButton} ${
-              isDarkMode ? styles.darkMode : ""
-            }`}
-            title="Undo last replacement (Cmd/Ctrl + Z)"
-          >
-            <span className={styles.undoIcon}>↩️</span>
-            <span className={styles.undoText}>Undo</span>
-          </button>
-          <span className={styles.tooltip}>
-            Undo last word replacement (Cmd/Ctrl + Z)
-          </span>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white py-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 text-sm text-slate-400 dark:text-slate-500">
+          <span>© {new Date().getFullYear()} Hunspell Live</span>
+          <div className="flex items-center gap-4">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+              aria-label="GitHub repository"
+            >
+              <FaGithub />
+            </a>
+            <a
+              href="https://spylls.readthedocs.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+            >
+              Powered by Spylls
+            </a>
+          </div>
         </div>
+      </footer>
+
+      {/* Panels */}
+      {activePanel === "settings" && (
+        <Panel title="Settings" onClose={() => setActivePanel(null)}>
+          <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Participant ID (optional)
+          </label>
+          <p className="mb-2 text-xs text-slate-400 dark:text-slate-500">
+            For research studies: attached to your "error → correction" reports
+            if the server has replacement logging enabled.
+          </p>
+          <input
+            type="text"
+            value={participantIdInput}
+            onChange={(e) => setParticipantIdInput(e.target.value)}
+            placeholder="e.g. P01"
+            className="mb-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-800 outline-none focus:border-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+          />
+          <button
+            type="button"
+            onClick={saveParticipantId}
+            className="min-h-touch rounded-lg bg-primary-600 px-4 font-semibold text-white transition-colors hover:bg-primary-700"
+          >
+            Save
+          </button>
+          <div className="mt-4 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-700 dark:text-slate-500">
+            {replacementLogging === null
+              ? "Could not determine whether this server records replacement data."
+              : replacementLogging
+                ? "This instance records anonymous \"error → correction\" pairs for dictionary research."
+                : "This server does not record your replacement data."}
+          </div>
+        </Panel>
+      )}
+
+      {activePanel === "starlist" && (
+        <Panel
+          title={`My words — ${selectedOption.label}`}
+          onClose={() => setActivePanel(null)}
+        >
+          <h4 className="mb-1 text-sm font-semibold text-slate-600 dark:text-slate-300">
+            Starred words
+          </h4>
+          {currentStarWords.length === 0 ? (
+            <p className="mb-3 text-sm text-slate-400 dark:text-slate-500">
+              Star a suggestion from the spell-check popup to save it here
+              (stored in this browser).
+            </p>
+          ) : (
+            <ul className="m-0 mb-3 list-none p-0">
+              {currentStarWords.map((word) => (
+                <li
+                  key={word}
+                  className="flex items-center justify-between border-b border-slate-100 py-1.5 text-base dark:border-slate-700/50"
+                >
+                  <span>{word}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeFromStarList(word, selectedOption.value)}
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <h4 className="mb-1 text-sm font-semibold text-slate-600 dark:text-slate-300">
+            My dictionary
+          </h4>
+          {currentDictWords.length === 0 ? (
+            <p className="text-sm text-slate-400 dark:text-slate-500">
+              Words you add to your dictionary will not be marked as misspelled
+              (stored in this browser).
+            </p>
+          ) : (
+            <ul className="m-0 list-none p-0">
+              {currentDictWords.map((word) => (
+                <li
+                  key={word}
+                  className="flex items-center justify-between border-b border-slate-100 py-1.5 text-base dark:border-slate-700/50"
+                >
+                  <span>{word}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeFromDictionary(word, selectedOption.value)
+                    }
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+      )}
+
+      {activePanel === "help" && (
+        <Panel title="How it works" onClose={() => setActivePanel(null)}>
+          <ul className="m-0 list-disc space-y-1.5 pl-5 text-sm text-slate-600 dark:text-slate-300">
+            <li>Select your language from the dropdown menu</li>
+            <li>Type or paste your text in the editor</li>
+            <li>Click "Check spelling"</li>
+            <li>Click a red-underlined word to see suggestions</li>
+            <li>Click a suggestion to replace the word</li>
+            <li>
+              Words you add to your dictionary are stored in this browser and
+              will not be marked as incorrect
+            </li>
+          </ul>
+        </Panel>
+      )}
+
+      {/* Suggestion popup */}
+      {popupTarget && (
+        <SuggestionPopup
+          target={popupTarget}
+          suggestions={popupSuggestions}
+          onReplace={handleReplace}
+          onStar={handleStarSuggestion}
+          onIgnore={handleIgnore}
+          onAddToDictionary={handleAddToDictionary}
+          onClose={() => setPopupTarget(null)}
+        />
       )}
     </div>
   );

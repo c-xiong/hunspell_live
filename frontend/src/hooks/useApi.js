@@ -58,7 +58,7 @@ export const useApi = (selectedLanguage) => {
     });
     // Check spelling for the provided text; localDictionaryWords are words the
     // user marked as correct (browser-side personal dictionary).
-    const checkSpelling = (text, localDictionaryWords = []) => __awaiter(void 0, void 0, void 0, function* () {
+    const checkSpelling = (text_1, ...args_1) => __awaiter(void 0, [text_1, ...args_1], void 0, function* (text, localDictionaryWords = []) {
         if (!text.trim()) {
             toast.warning('Please enter some text to check spelling');
             return [];

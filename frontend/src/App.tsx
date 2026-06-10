@@ -1,6 +1,5 @@
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
-import "./App.css";
 import { Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
@@ -11,13 +10,14 @@ const App: React.FC = () => {
       <ToastContainer
         position="top-center"
         autoClose={1500}
-        hideProgressBar={false}
+        hideProgressBar
         newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        theme="colored"
       />
     </>
   );
