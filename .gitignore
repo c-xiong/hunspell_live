@@ -171,3 +171,6 @@ pgdata/
 **/.DS_Store
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Local-only planning docs (never commit)
+REFACTOR_PLAN.md
