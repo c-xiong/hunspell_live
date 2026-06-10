@@ -1,19 +1,5 @@
-Django==5.0.6
-djangorestframework
-djangorestframework-simplejwt
-drf-yasg
-django-cors-headers
-django-allauth
-cryptography
-dj-rest-auth
+fastapi
+uvicorn[standard]
 spylls
-requests
+python-multipart
 python-dotenv
-babel
-# prod
-dj-database-url==1.0.0
-
-asgiref==3.8.1
-gunicorn==22.0.0
-psycopg2==2.9.9
-sqlparse==0.5.0

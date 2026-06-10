@@ -1,25 +1,16 @@
 services:
-  web:
+  api:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: >
-      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
+    command: uvicorn backend.main:app --reload --host 0.0.0.0 --port 8080
     volumes:
       - .:/code
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      - DJANGO_DEBUG=True
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - PGDATABASE=django_db
-      - PGUSER=${PGUSER}
-      - PGPASSWORD=${PGPASSWORD}
-      - PGHOST=db
-      - PGPORT=5432
+      - ENABLE_REPLACEMENT_LOGGING=${ENABLE_REPLACEMENT_LOGGING:-false}
+      - CORS_ORIGINS=http://localhost:5173
     restart: unless-stopped
 
   frontend:
@@ -35,22 +26,5 @@ services:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:8080
     depends_on:
-      - web
+      - api
     restart: unless-stopped
-
-  db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=django_db
-      - POSTGRES_USER=${PGUSER}
-      - POSTGRES_PASSWORD=${PGPASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  postgres_data:
