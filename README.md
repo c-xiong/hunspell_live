@@ -8,6 +8,28 @@
 ## Introduction
 Hunspell Live is an open-source customized spell-checking tool powered by [Spylls](https://spylls.readthedocs.io/en/latest/). It enables developers and linguistic researchers to perform real-time spell checking using custom Hunspell dictionaries.
 
+## Current Status
+
+This repository is being refactored toward a simpler open-source tool for linguists and dictionary maintainers. The target v1 experience is:
+
+- Public demo: open the website, upload `.aff` and `.dic` files, and test a Hunspell dictionary without installing anything.
+- Self-hosted research mode: run the app locally for large dictionaries, offline fieldwork, sensitive language data, or persistent replacement logs.
+
+The current codebase still uses Django, PostgreSQL, and user authentication. The migration plan is tracked in [`REFACTOR_PLAN.md`](REFACTOR_PLAN.md).
+
+## Planned v1 Deployment Model
+
+The public demo will use a best-effort hosted backend on [Hugging Face Spaces CPU Basic](https://huggingface.co/docs/hub/spaces-gpus), running FastAPI in a Docker Space. Hugging Face documents CPU Basic as free hardware, and Docker Spaces support FastAPI-style services through a container exposed on `app_port: 7860`.
+
+Important demo limits:
+
+- The free CPU Basic Space may sleep after inactivity and restart when a visitor opens it.
+- Uploaded dictionaries are session-only and may disappear after restart, rebuild, or sleep because free Spaces use [ephemeral disk storage](https://huggingface.co/docs/hub/spaces-storage).
+- Replacement logging is disabled on the public demo by default.
+- Do not upload sensitive or unpublished fieldwork data to the public demo.
+
+For durable replacement logs or sensitive research data, use the self-hosted path and enable local SQLite logging.
+
 ## Prerequisites
 - [Docker Desktop](https://www.docker.com/get-started)
 
