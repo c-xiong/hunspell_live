@@ -1,14 +1,15 @@
 # Sync this repository to the Hugging Face Space that runs the public demo.
-# GitHub stays the source of truth; every push to main force-updates the Space.
+# GitHub stays the source of truth; every push to main updates the Space.
 #
-# One-time setup (repository settings):
+# One-time setup (repository settings -> Secrets and variables -> Actions):
 #   - Secret  HF_TOKEN     a Hugging Face token with write access to the Space
-#   - Variable HF_USERNAME your Hugging Face username (e.g. imred42)
-#   - Variable HF_SPACE_ID the Space id (e.g. imred42/hunspell-live)
+#   - Variable HF_USERNAME your Hugging Face username (e.g. c-xiong)
+#   - Variable HF_SPACE_ID the Space id (e.g. c-xiong/hunspell-live)
 #
-# Note: Hugging Face requires Git LFS for files larger than 10 MB. Several
-# bundled .dic files exceed that, so before the first sync those files must
-# be tracked with LFS (git lfs migrate) or the push will be rejected.
+# The Space receives a fresh single-commit snapshot (not the git history).
+# Hugging Face requires Git LFS for files over 10 MB, so the snapshot tracks
+# all .dic/.aff files with LFS before pushing — the GitHub repo itself does
+# not need any LFS migration.
 
 name: Sync to Hugging Face Space
 
@@ -22,17 +23,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          lfs: true
 
-      - name: Swap in the Space card README
+      - name: Build snapshot commit with LFS-tracked dictionaries
         run: |
           cp deploy/hf-space/README.md README.md
+          rm -rf .git
+          git init -b main
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "chore: use Space card README"
+          git lfs install --local
+          git lfs track "*.dic" "*.aff"
+          git add .gitattributes
+          git add -A
+          git commit -q -m "Deploy from GitHub: ${{ github.sha }}"
 
       - name: Push to the Space
         env:
@@ -40,4 +43,4 @@ jobs:
         run: |
           git push --force \
             "https://${{ vars.HF_USERNAME }}:${HF_TOKEN}@huggingface.co/spaces/${{ vars.HF_SPACE_ID }}" \
-            HEAD:main
+            main

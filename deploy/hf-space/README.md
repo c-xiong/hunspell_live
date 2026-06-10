@@ -52,4 +52,4 @@ This Space is a **best-effort demo**:
 Need persistent replacement logs ("error → correction" pairs for spelling-
 error corpora and `REP` rule mining), large dictionaries, or an offline/
 private instance? **Self-host it with one `docker run`** — see the
-[GitHub repository](https://github.com/imred42/hunspell_live).
+[GitHub repository](https://github.com/c-xiong/hunspell_live).

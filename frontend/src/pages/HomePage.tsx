@@ -28,7 +28,7 @@ import { LANGUAGE_OPTIONS, TEXT_DIRECTION_MAP } from "../constants/language";
 
 type PanelName = "settings" | "starlist" | "help" | null;
 
-const GITHUB_URL = "https://github.com/imred42/hunspell_live";
+const GITHUB_URL = "https://github.com/c-xiong/hunspell_live";
 
 const iconButtonClass =
   "flex min-h-touch min-w-touch items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200";

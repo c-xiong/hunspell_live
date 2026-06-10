@@ -46,7 +46,7 @@ and its disk is ephemeral — nothing you upload is stored permanently.
 ## Self-hosting (the research path)
 
 ```bash
-git clone https://github.com/imred42/hunspell_live.git
+git clone https://github.com/c-xiong/hunspell_live.git
 cd hunspell_live
 docker build -t hunspell-live .
 docker run -p 7860:7860 hunspell-live
@@ -126,9 +126,10 @@ runs on Hugging Face Spaces (Docker SDK, `app_port: 7860`) and self-hosted.
 
 - Space card: [deploy/hf-space/README.md](deploy/hf-space/README.md)
 - Auto-sync GitHub → Space: [.github/workflows/sync-to-hf-space.yml](.github/workflows/sync-to-hf-space.yml)
-  (needs `HF_TOKEN` secret + `HF_USERNAME`/`HF_SPACE_ID` variables; note that
-  Hugging Face requires Git LFS for files over 10 MB — a few bundled `.dic`
-  files exceed this)
+  (needs `HF_TOKEN` secret + `HF_USERNAME`/`HF_SPACE_ID` variables). The
+  workflow pushes a single-commit snapshot with `.dic`/`.aff` files tracked
+  via Git LFS, as Hugging Face requires for files over 10 MB — the GitHub
+  repo itself needs no LFS setup.
 
 ## Privacy
 
