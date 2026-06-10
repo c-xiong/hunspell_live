@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import CORS_ORIGINS, FRONTEND_DIST
-from backend.routers import languages, replacements, spell
+from backend.routers import dictionaries, languages, replacements, spell
 
 app = FastAPI(
     title="Hunspell Live API",
@@ -29,6 +29,7 @@ if CORS_ORIGINS:
 app.include_router(spell.router)
 app.include_router(replacements.router)
 app.include_router(languages.router)
+app.include_router(dictionaries.router)
 
 
 @app.get("/health/")

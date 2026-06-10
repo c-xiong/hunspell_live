@@ -78,6 +78,12 @@ export const useApi = (selectedLanguage) => {
                     language: resolveLanguage(),
                 }),
             });
+            if (response.status === 404) {
+                const data = yield response.json();
+                const err = new Error(data.error || 'Dictionary session expired');
+                err.code = 'SESSION_EXPIRED';
+                throw err;
+            }
             if (!response.ok)
                 throw new Error('Failed to check spelling');
             const result = yield response.json();
@@ -92,6 +98,9 @@ export const useApi = (selectedLanguage) => {
             return newResults;
         }
         catch (error) {
+            if (error.code === 'SESSION_EXPIRED') {
+                throw error;
+            }
             console.error('Error checking spelling:', error);
             toast.error('Failed to check spelling. Please try again.');
             return [];

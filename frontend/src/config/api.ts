@@ -9,9 +9,11 @@ export const API_BASE_URL = (
 
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
+  // Don't set a JSON content type for FormData — the browser adds the
+  // correct multipart boundary itself.
+  const headers: HeadersInit =
+    options.body instanceof FormData
+      ? { ...options.headers }
+      : { 'Content-Type': 'application/json', ...options.headers };
   return fetch(`${API_BASE_URL}${normalizedEndpoint}`, { ...options, headers });
 };

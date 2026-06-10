@@ -18,7 +18,9 @@ import {
 import Dropdown from "../components/Dropdown";
 import Panel from "../components/Panel";
 import SuggestionPopup, { PopupTarget } from "../components/SuggestionPopup";
+import UploadDictionaryModal from "../components/UploadDictionaryModal";
 import { useApi, getParticipantId, setParticipantId } from "../hooks/useApi";
+import { useSessionDictionaries } from "../hooks/useSessionDictionaries";
 import { useUserData } from "../hooks/useUserData";
 import { apiRequest } from "../config/api";
 import { LanguageOption, SpellingResult } from "../types/spelling";
@@ -87,8 +89,22 @@ const HomePage: React.FC = () => {
     removeFromDictionary,
   } = useUserData();
 
-  const options: LanguageOption[] = [...LANGUAGE_OPTIONS];
-  const textDirection = TEXT_DIRECTION_MAP[selectedOption.value] || "ltr";
+  const { sessionDictionaries, addSessionDictionary, removeSessionDictionary } =
+    useSessionDictionaries();
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
+  const options: LanguageOption[] = [
+    ...LANGUAGE_OPTIONS,
+    ...sessionDictionaries.map((d) => ({
+      label: `${d.name} (this session)`,
+      value: d.id,
+    })),
+  ];
+  const sessionDict = sessionDictionaries.find(
+    (d) => d.id === selectedOption.value
+  );
+  const textDirection =
+    sessionDict?.direction ?? TEXT_DIRECTION_MAP[selectedOption.value] ?? "ltr";
 
   // ----- theme -----
   useEffect(() => {
@@ -330,8 +346,14 @@ const HomePage: React.FC = () => {
       } else {
         toast.success("No spelling errors found!");
       }
-    } catch {
-      toast.error("Error checking spelling");
+    } catch (error) {
+      if ((error as Error & { code?: string }).code === "SESSION_EXPIRED") {
+        toast.error((error as Error).message);
+        removeSessionDictionary(selectedOption.value);
+        handleSelectChange({ label: "English (US)", value: "en_US" });
+      } else {
+        toast.error("Error checking spelling");
+      }
     } finally {
       setIsChecking(false);
     }
@@ -590,11 +612,7 @@ const HomePage: React.FC = () => {
                 options={options}
                 value={selectedOption}
                 onChange={handleSelectChange}
-                onUploadClick={() =>
-                  toast.info(
-                    "Uploading your own .aff/.dic dictionary is coming in the next update."
-                  )
-                }
+                onUploadClick={() => setShowUploadModal(true)}
               />
             </div>
           </div>
@@ -770,6 +788,29 @@ const HomePage: React.FC = () => {
             </li>
           </ul>
         </Panel>
+      )}
+
+      {/* Upload dictionary modal */}
+      {showUploadModal && (
+        <UploadDictionaryModal
+          onClose={() => setShowUploadModal(false)}
+          onUploaded={(result) => {
+            addSessionDictionary(
+              result.dictionary_id,
+              result.name,
+              result.text_direction,
+              result.expires_in_seconds
+            );
+            setShowUploadModal(false);
+            handleSelectChange({
+              label: `${result.name} (this session)`,
+              value: result.dictionary_id,
+            });
+            toast.success(
+              `"${result.name}" is ready — available for this session only.`
+            );
+          }}
+        />
       )}
 
       {/* Suggestion popup */}
