@@ -1,5 +1,6 @@
 # Hunspell Live 📖
 
+[![Live Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Demo-Hugging%20Face%20Spaces-blue)](https://huggingface.co/spaces/imred42/hunspell-live)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/python-3.12-blue?logo=python)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -14,8 +15,10 @@ of Hunspell. Upload your `.aff`/`.dic` pair (or pick one of 130+ bundled
 dictionaries) and get live spell checking and suggestions, no installation
 required.
 
-> **Try it now:** _public demo on Hugging Face Spaces — link coming with the
-> first deployment._ Upload your `.aff`/`.dic` and start testing immediately.
+> **Try it now: <https://imred42-hunspell-live.hf.space>** — upload your
+> `.aff`/`.dic` and start testing immediately. (Also on the
+> [Hugging Face Space page](https://huggingface.co/spaces/imred42/hunspell-live).
+> Free tier: the Space may sleep when idle, so the first request can be slow.)
 
 ## Who is this for?
 
@@ -119,10 +122,14 @@ the frontend same-origin), `DATA_DIR`, `UPLOAD_MAX_BYTES`,
 
 ## Deployment (public demo)
 
+The public demo runs at
+[imred42/hunspell-live](https://huggingface.co/spaces/imred42/hunspell-live)
+on Hugging Face Spaces (Docker SDK, CPU Basic, `app_port: 7860`).
+
 The production image is a multi-stage build (`Dockerfile`): Node builds the
 frontend, FastAPI serves it same-origin on port 7860 with a single uvicorn
 worker (the session-upload registry is in-process by design). The same image
-runs on Hugging Face Spaces (Docker SDK, `app_port: 7860`) and self-hosted.
+runs on the Space and self-hosted.
 
 - Space card: [deploy/hf-space/README.md](deploy/hf-space/README.md)
 - Auto-sync GitHub → Space: [.github/workflows/sync-to-hf-space.yml](.github/workflows/sync-to-hf-space.yml)
